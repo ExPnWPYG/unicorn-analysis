@@ -1,0 +1,143 @@
+#+title: Analysis of Unicorn Startups
+#+OPTIONS: H:3 date:nil author:nil
+#+EXPORT_FILE_NAME: Analysis
+
+* Config :noexport:
+#+begin_src emacs-lisp :exports none :results none :eval always
+(setq org-latex-listings 'minted
+      org-latex-packages-alist '(("" "minted"))
+      org-latex-minted-options '(("frame" "lines") ("fontsize" "\\footnotesize") ("breakautoindent" "true") ("breaklines" "true"))
+      org-latex-pdf-process
+      '("latexmk -xelatex -quiet -shell-escape -f %f"))
+#+end_src
+
+#+latex_class: article
+#+latex_class_options: [a4paper,12pt]
+
+#+LATEX_HEADER: \usepackage[default,scale=0.95]{opensans}
+#+LATEX_HEADER: \usepackage[table]{xcolor}
+#+LATEX_HEADER: \usepackage[margin=0.8in,bmargin=1.0in,tmargin=1.0in]{geometry}
+#+LATEX_HEADER: \usepackage{enumitem, csquotes, caption, array, booktabs, ltablex, adjustbox}
+#+LATEX_HEADER: \usepackage{pifont, mathabx}
+#+LATEX_HEADER: \usepackage{mathpazo}
+#+LATEX_HEADER: \usepackage[dvipsnames]{xcolor}
+#+LATEX_HEADER: \usepackage[inkscapearea=page]{svg}
+#+LATEX_HEADER: \makeatletter
+#+LATEX_HEADER: \newcommand*{\compress}{\@minipagetrue}
+#+LATEX_HEADER: \makeatother
+#+LATEX_HEADER: \newlist{tabenum}{enumerate}{1}
+#+LATEX_HEADER: \setlist[tabenum]{label=\arabic*. ,leftmargin=*, itemsep=2pt, after=\vspace{-\baselineskip}, before=\vspace{-0.5\baselineskip}}
+#+LATEX_HEADER: \newlist{tabitem}{itemize}{1}
+#+LATEX_HEADER: \setlist[tabitem]{label=$\bullet$, leftmargin=*, itemsep=2pt, after=\vspace{-\baselineskip}, before=\vspace{-0.5\baselineskip}}
+#+LATEX_HEADER: \keepXColumns
+#+LaTeX_HEADER: \usepackage{multicol}
+#+LaTeX_HEADER: \usepackage[none]{hyphenat}
+#+LATEX_HEADER: \usepackage[linkcolor=MidnightBlue,urlcolor=Orange]{hyperref}
+#+LATEX_HEADER: \hypersetup{colorlinks=true}
+#+LATEX_HEADER: \AtBeginDocument{%
+#+LATEX_HEADER: \hypersetup{
+#+LATEX_HEADER:  allbordercolors={1 1 1},
+#+LATEX_HEADER:  urlbordercolor=Orange,
+#+LATEX_HEADER:  pdfborderstyle={/S/U/W 1}
+#+LATEX_HEADER: }}
+#+LATEX_HEADER: \usepackage{fontawesome5}
+#+LaTeX_HEADER: \renewcommand\labelitemii{\sqbullet}
+#+LaTeX_HEADER: \renewcommand\labelitemi{\bullet}
+
+* COMMENT Setup
+#+BEGIN_SRC emacs-lisp :session t
+(pipenv-deactivate)
+(pipenv-activate)
+#+END_SRC
+
+* Import Packages
+#+begin_src python :session t :eval no-export
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
+import seaborn as sns
+#+end_src
+
+#+RESULTS:
+: None
+
+* Data Preparation
+** Load data
+
+#+begin_src python :session t :eval no-export
+pd.set_option('display.max_columns', 50, 'display.width', 200)
+df = pd.read_csv('input/Unicorns_Completed.csv')
+#+end_src
+
+#+RESULTS:
+: None
+
+** Prepare data
+
+#+begin_src python :session t :eval no-export
+df['Unicorn Date'] = pd.to_datetime(df['Unicorn Date'])
+#+end_src
+
+#+RESULTS:
+: None
+
+** Preview data
+
+#+begin_src python :session t :eval no-export :exports both :results table :wrap src text
+df.head()
+#+end_src
+
+#+RESULTS:
+#+begin_src text
+|   | Company   | Valuation ($B) | Total Equity Funding ($) | Unicorn Date | Date Founded          | Years to Unicorn | Industry | Country            | City          | Select Investors |                                                   |
+|---+-----------+----------------+--------------------------+--------------+-----------------------+------------------+----------+--------------------+---------------+------------------+---------------------------------------------------|
+| 0 | SpaceX    |          350.0 |               9000000000 | Timestamp    | (2012-12-01 00:00:00) |             2002 | 10y 3m   | Enterprise Tech    | United States | Hawthorne        | Opus Capital, RRE Ventures, Relay Ventures        |
+| 1 | ByteDance |          300.0 |               8000000000 | Timestamp    | (2017-04-07 00:00:00) |             2011 | 6y 3m    | Enterprise Tech    | China         | Beijing          | Breyer Capital, Parkway VC, TIME Ventures         |
+| 2 | OpenAI    |          157.0 |              18000000000 | Timestamp    | (2019-07-22 00:00:00) |             2015 | 4y 6m    | Industrials        | United States | San Francisco    | Dynamo VC, Susa Ventures, Founders Fund           |
+| 3 | Ant Group |          150.0 |              19000000000 | Timestamp    | (2017-01-01 00:00:00) |             2014 | 3y       | Financial Services | China         | Hangzhou         | Alibaba Group, CPP Investments, The Carlyle Group |
+| 4 | Stripe    |           70.0 |               9000000000 | Timestamp    | (2014-01-23 00:00:00) |             2009 | 5y       | Consumer & Retail  | United States | San Francisco    | Sequoia Capital China, ZhenFund, K2 Ventures      |
+#+end_src
+
+* Time-Based Analysis
+
+** Number of Unicorns Created Over Time
+1. Count Unicorns by Year
+
+   #+begin_src python :session t :eval no-export :exports both :results table
+   unicorn_count = df.groupby(df['Unicorn Date'].dt.year).size()
+   unicorn_count
+   #+end_src
+
+   #+RESULTS:
+   | 2007 |   1 |
+   | 2011 |   1 |
+   | 2012 |   4 |
+   | 2013 |   4 |
+   | 2014 |   9 |
+   | 2015 |  32 |
+   | 2016 |  17 |
+   | 2017 |  35 |
+   | 2018 |  83 |
+   | 2019 |  85 |
+   | 2020 |  91 |
+   | 2021 | 484 |
+   | 2022 | 252 |
+   | 2023 |  68 |
+   | 2024 |  78 |
+
+2. Visualize the Trend
+
+   #+begin_src python :session t :eval no-export :exports both :results file :var f="output/fig/trend-1.png"
+   plt.figure(figsize=(12, 6))
+   plt.plot(unicorn_count.index, unicorn_count.values, marker='o')
+   plt.title('Number of Unicorns Created Over Time')
+   plt.xlabel('Year')
+   plt.ylabel('Number of Unicorns')
+   plt.xticks(unicorn_count.index, rotation=45)
+   plt.grid()
+   plt.show()
+   #+end_src
+
+   #+RESULTS:
+   [[file:output/fig/trend-1.png]]
