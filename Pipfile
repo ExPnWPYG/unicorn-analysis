@@ -11,6 +11,7 @@ seaborn = "*"
 
 [dev-packages]
 python-lsp-server = "*"
+notebook = "*"
 
 [requires]
 python_version = "3.13"

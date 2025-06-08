@@ -1,29 +1,29 @@
-- [Setup](#orgddfa449)
-  - [Import Packages](#orgfc5a5b6)
-- [Data Preparation](#org78798e4)
-  - [Load Data](#orgf21dd31)
-  - [Data Cleaning](#org86744d0)
-  - [Prepare data](#orgddca84c)
-  - [Preview data](#org8fe7a54)
-- [Descriptive Analysis](#org336d7a4)
-  - [Distribution of Valuations across Different Industries](#orgb5fb712)
-  - [Distribution of Valuations across Different Countries](#org13bfa2b)
-- [Time-Based Analysis](#orgac9166b)
-  - [Unicorn Growth Over Time](#orgba19ff6)
-  - [Years to Unicorn](#org12a2ac7)
+- [Setup](#org172dba2)
+  - [Import Packages](#orgccae310)
+- [Data Preparation](#org433ebd6)
+  - [Load Data](#orge30b409)
+  - [Data Cleaning](#org3b86658)
+  - [Prepare data](#orgdb761fe)
+  - [Preview data](#org013182e)
+- [Descriptive Analysis](#orgf7e34a4)
+  - [Distribution of Valuations across Different Industries](#orgb2bd5b6)
+  - [Distribution of Valuations across Different Countries](#org18ec111)
+- [Time-Based Analysis](#orgde015cf)
+  - [Unicorn Growth Over Time](#orgb75122f)
+  - [Years to Unicorn](#org4b4d20a)
 
 
 
-<a id="orgddfa449"></a>
+<a id="org172dba2"></a>
 
 # Setup
 
 
-<a id="orgfc5a5b6"></a>
+<a id="orgccae310"></a>
 
 ## Import Packages
 
-```python
+```jupyter-python
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -33,26 +33,26 @@ import re
 ```
 
 
-<a id="org78798e4"></a>
+<a id="org433ebd6"></a>
 
 # Data Preparation
 
 
-<a id="orgf21dd31"></a>
+<a id="orge30b409"></a>
 
 ## Load Data
 
-```python
+```jupyter-python
 pd.set_option('display.max_columns', 50, 'display.width', 200)
 df = pd.read_csv('input/Unicorns_Completed.csv')
 ```
 
 
-<a id="org86744d0"></a>
+<a id="org3b86658"></a>
 
 ## Data Cleaning
 
-```python
+```jupyter-python
 def convert_years_months(s):
     m = re.match(r'(\d+)y?\s?(\d+)m?o?', s)
     return f'{m[1]}y{m[2]}m' if m else s
@@ -61,131 +61,383 @@ df['Years to Unicorn'] = df['Years to Unicorn'].apply(convert_years_months)
 ```
 
 
-<a id="orgddca84c"></a>
+<a id="orgdb761fe"></a>
 
 ## Prepare data
 
-```python
+```jupyter-python
 df['Unicorn Date'] = pd.to_datetime(df['Unicorn Date'])
 df['Valuation ($B)'] = pd.to_numeric(df['Valuation ($B)'])
 ```
 
 
-<a id="org8fe7a54"></a>
+<a id="org013182e"></a>
 
 ## Preview data
 
-```python
+```jupyter-python
 df.head()
 ```
 
-```text
-|   | Company   | Valuation ($B) | Total Equity Funding ($) | Unicorn Date | Date Founded          | Years to Unicorn | Industry | Country            | City          | Select Investors | Years to Unicorn (Months)                         |     |
-|---+-----------+----------------+--------------------------+--------------+-----------------------+------------------+----------+--------------------+---------------+------------------+---------------------------------------------------+-----|
-| 0 | SpaceX    |          350.0 |               9000000000 | Timestamp    | (2012-12-01 00:00:00) |             2002 | 10y3m    | Enterprise Tech    | United States | Hawthorne        | Opus Capital, RRE Ventures, Relay Ventures        | 123 |
-| 1 | ByteDance |          300.0 |               8000000000 | Timestamp    | (2017-04-07 00:00:00) |             2011 | 6y3m     | Enterprise Tech    | China         | Beijing          | Breyer Capital, Parkway VC, TIME Ventures         |  75 |
-| 2 | OpenAI    |          157.0 |              18000000000 | Timestamp    | (2019-07-22 00:00:00) |             2015 | 4y6m     | Industrials        | United States | San Francisco    | Dynamo VC, Susa Ventures, Founders Fund           |  54 |
-| 3 | Ant Group |          150.0 |              19000000000 | Timestamp    | (2017-01-01 00:00:00) |             2014 | 3y       | Financial Services | China         | Hangzhou         | Alibaba Group, CPP Investments, The Carlyle Group |  36 |
-| 4 | Stripe    |           70.0 |               9000000000 | Timestamp    | (2014-01-23 00:00:00) |             2009 | 5y       | Consumer & Retail  | United States | San Francisco    | Sequoia Capital China, ZhenFund, K2 Ventures      |  60 |
-```
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Company</th>
+      <th>Valuation ($B)</th>
+      <th>Total Equity Funding ($)</th>
+      <th>Unicorn Date</th>
+      <th>Date Founded</th>
+      <th>Years to Unicorn</th>
+      <th>Industry</th>
+      <th>Country</th>
+      <th>City</th>
+      <th>Select Investors</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>SpaceX</td>
+      <td>350.0</td>
+      <td>9000000000</td>
+      <td>2012-12-01</td>
+      <td>2002</td>
+      <td>10y3m</td>
+      <td>Enterprise Tech</td>
+      <td>United States</td>
+      <td>Hawthorne</td>
+      <td>Opus Capital, RRE Ventures, Relay Ventures</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>ByteDance</td>
+      <td>300.0</td>
+      <td>8000000000</td>
+      <td>2017-04-07</td>
+      <td>2011</td>
+      <td>6y3m</td>
+      <td>Enterprise Tech</td>
+      <td>China</td>
+      <td>Beijing</td>
+      <td>Breyer Capital, Parkway VC, TIME Ventures</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>OpenAI</td>
+      <td>157.0</td>
+      <td>18000000000</td>
+      <td>2019-07-22</td>
+      <td>2015</td>
+      <td>4y6m</td>
+      <td>Industrials</td>
+      <td>United States</td>
+      <td>San Francisco</td>
+      <td>Dynamo VC, Susa Ventures, Founders Fund</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Ant Group</td>
+      <td>150.0</td>
+      <td>19000000000</td>
+      <td>2017-01-01</td>
+      <td>2014</td>
+      <td>3y</td>
+      <td>Financial Services</td>
+      <td>China</td>
+      <td>Hangzhou</td>
+      <td>Alibaba Group, CPP Investments, The Carlyle Group</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Stripe</td>
+      <td>70.0</td>
+      <td>9000000000</td>
+      <td>2014-01-23</td>
+      <td>2009</td>
+      <td>5y</td>
+      <td>Consumer &amp; Retail</td>
+      <td>United States</td>
+      <td>San Francisco</td>
+      <td>Sequoia Capital China, ZhenFund, K2 Ventures</td>
+    </tr>
+  </tbody>
+</table>
+</div>
 
 
-<a id="org336d7a4"></a>
+<a id="orgf7e34a4"></a>
 
 # Descriptive Analysis
 
 
-<a id="orgb5fb712"></a>
+<a id="orgb2bd5b6"></a>
 
 ## Distribution of Valuations across Different Industries
 
-```python
+```jupyter-python
 # Group by industry and sum valuations
 industry_valuation_df = df.groupby('Industry')['Valuation ($B)'].sum().reset_index().sort_values('Valuation ($B)', ascending=False)
 industry_valuation_df
 ```
 
-|   | Industry                   | Valuation ($B) |
-|--- |-------------------------- |-------------- |
-| 1 | Enterprise Tech            | 1759.04        |
-| 2 | Financial Services         | 760.16         |
-| 5 | Industrials                | 678.55         |
-| 0 | Consumer & Retail          | 593.3          |
-| 4 | Healthcare & Life Sciences | 398.45         |
-| 7 | Media & Entertainment      | 200.29         |
-| 6 | Insurance                  | 117.06         |
-| 8 | West Palm Beach            | 3.0            |
-| 3 | Health                     | 1.5            |
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
 
-```python
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Industry</th>
+      <th>Valuation ($B)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>Enterprise Tech</td>
+      <td>1759.04</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Financial Services</td>
+      <td>760.16</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Industrials</td>
+      <td>678.55</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>Consumer &amp; Retail</td>
+      <td>593.30</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Healthcare &amp; Life Sciences</td>
+      <td>398.45</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>Media &amp; Entertainment</td>
+      <td>200.29</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>Insurance</td>
+      <td>117.06</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>West Palm Beach</td>
+      <td>3.00</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Health</td>
+      <td>1.50</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+```jupyter-python
 plt.figure(figsize=(12, 6))
 plt.barh(industry_valuation_df['Industry'], industry_valuation_df['Valuation ($B)'], color='skyblue')
 plt.title('Distribution of Valuations across Different Industries')
 plt.xlabel('Total Valuation ($B)')
 plt.ylabel('Industry')
 plt.grid(axis='x', alpha=0.75)
-plt.show()
 ```
 
-![img](output/fig/Distribution-of-Valuations-across-Different-Industries.png)
+![img](./.ob-jupyter/8c6a7ff1694ea1846cd3c5ac87ae4f8af9a21964.png)
 
 
-<a id="org13bfa2b"></a>
+<a id="org18ec111"></a>
 
 ## Distribution of Valuations across Different Countries
 
-```python
+```jupyter-python
 # Group by Country and sum valuations
-country_valuation_df = df.groupby('Country')['Valuation ($B)'].sum().reset_index().sort_values('Valuation ($B)', ascending=False)[:20]
+country_valuation_df = df.groupby('Country')['Valuation ($B)'].sum().reset_index().sort_values('Valuation ($B)', ascending=False).head(20)
 country_valuation_df
 ```
 
-|    | Country        | Valuation ($B) |
-|--- |-------------- |-------------- |
-| 53 | United States  | 2564.14        |
-| 10 | China          | 835.65         |
-| 52 | United Kingdom | 197.35         |
-| 24 | India          | 172.07         |
-| 43 | Singapore      | 92.06          |
-| 21 | Germany        | 85.9           |
-| 20 | France         | 70.86          |
-| 27 | Israel         | 56.22          |
-| 6  | Canada         | 56.0           |
-| 1  | Australia      | 48.84          |
-| 5  | Brazil         | 34.13          |
-| 45 | South Korea    | 31.34          |
-| 47 | Sweden         | 29.42          |
-| 36 | Netherlands    | 24.46          |
-| 35 | Mexico         | 18.7           |
-| 19 | Finland        | 14.91          |
-| 3  | Belgium        | 11.95          |
-| 42 | Seychelles     | 11.8           |
-| 26 | Ireland        | 11.05          |
-| 29 | Japan          | 10.82          |
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
 
-```python
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Country</th>
+      <th>Valuation ($B)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>53</th>
+      <td>United States</td>
+      <td>2564.14</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>China</td>
+      <td>835.65</td>
+    </tr>
+    <tr>
+      <th>52</th>
+      <td>United Kingdom</td>
+      <td>197.35</td>
+    </tr>
+    <tr>
+      <th>24</th>
+      <td>India</td>
+      <td>172.07</td>
+    </tr>
+    <tr>
+      <th>43</th>
+      <td>Singapore</td>
+      <td>92.06</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>Germany</td>
+      <td>85.90</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>France</td>
+      <td>70.86</td>
+    </tr>
+    <tr>
+      <th>27</th>
+      <td>Israel</td>
+      <td>56.22</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>Canada</td>
+      <td>56.00</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Australia</td>
+      <td>48.84</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Brazil</td>
+      <td>34.13</td>
+    </tr>
+    <tr>
+      <th>45</th>
+      <td>South Korea</td>
+      <td>31.34</td>
+    </tr>
+    <tr>
+      <th>47</th>
+      <td>Sweden</td>
+      <td>29.42</td>
+    </tr>
+    <tr>
+      <th>36</th>
+      <td>Netherlands</td>
+      <td>24.46</td>
+    </tr>
+    <tr>
+      <th>35</th>
+      <td>Mexico</td>
+      <td>18.70</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>Finland</td>
+      <td>14.91</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Belgium</td>
+      <td>11.95</td>
+    </tr>
+    <tr>
+      <th>42</th>
+      <td>Seychelles</td>
+      <td>11.80</td>
+    </tr>
+    <tr>
+      <th>26</th>
+      <td>Ireland</td>
+      <td>11.05</td>
+    </tr>
+    <tr>
+      <th>29</th>
+      <td>Japan</td>
+      <td>10.82</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+```jupyter-python
 plt.figure(figsize=(12, 8))
 plt.barh(country_valuation_df['Country'], country_valuation_df['Valuation ($B)'])
 plt.title('Distribution of Valuations across Different Countries')
 plt.xlabel('Total Valuation ($B)')
 plt.ylabel('Countries')
 plt.grid(axis='x', alpha=0.75)
-plt.show()
 ```
 
-![img](output/fig/Distribution-of-Valuations-across-Different-Countries.png)
+![img](./.ob-jupyter/cdbbe50d70386c26ddaf23f8af5848b55ec474ae.png)
 
 
-<a id="orgac9166b"></a>
+<a id="orgde015cf"></a>
 
 # Time-Based Analysis
 
 
-<a id="orgba19ff6"></a>
+<a id="orgb75122f"></a>
 
 ## Unicorn Growth Over Time
 
-```python
+```jupyter-python
 unicorn_count = df.groupby(df['Unicorn Date'].dt.year).size()
 plt.figure(figsize=(12, 6))
 plt.plot(unicorn_count.index, unicorn_count.values, marker='o')
@@ -194,17 +446,16 @@ plt.xlabel('Year')
 plt.ylabel('Number of Unicorns')
 plt.xticks(unicorn_count.index, rotation=45)
 plt.grid()
-plt.show()
 ```
 
-![img](output/fig/Growth-Over-Time.png)
+![img](./.ob-jupyter/bcc00d2a9abdbab683ef1209128ac52a061d0e20.png)
 
 
-<a id="org12a2ac7"></a>
+<a id="org4b4d20a"></a>
 
 ## Years to Unicorn
 
-```python
+```jupyter-python
 # Function to convert "Years to Unicorn" into total months
 def convert_years_to_months(years_str):
     if 'y' in years_str and 'm' in years_str:
@@ -223,14 +474,13 @@ def convert_years_to_months(years_str):
 df['Years to Unicorn (Months)'] = df['Years to Unicorn'].apply(convert_years_to_months)
 ```
 
-```python
+```jupyter-python
 plt.figure(figsize=(12, 6))
 plt.hist(df['Years to Unicorn (Months)'].dropna(), bins=30, color='skyblue')
 plt.title('Distribution of Years to Unicorn')
 plt.xlabel('Months to Unicorn')
 plt.ylabel('Number of Unicorns')
 plt.grid(axis='y', alpha=0.75)
-plt.show()
 ```
 
-![img](output/fig/Years-to-Unicorn.png)
+![img](./.ob-jupyter/cc74224a16e29a19d8a2ce7ae2b9ecbacccf90e8.png)
