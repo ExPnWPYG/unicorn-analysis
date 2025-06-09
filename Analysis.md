@@ -1,25 +1,25 @@
-- [Setup](#org172dba2)
-  - [Import Packages](#orgccae310)
-- [Data Preparation](#org433ebd6)
-  - [Load Data](#orge30b409)
-  - [Data Cleaning](#org3b86658)
-  - [Prepare data](#orgdb761fe)
-  - [Preview data](#org013182e)
-- [Descriptive Analysis](#orgf7e34a4)
-  - [Distribution of Valuations across Different Industries](#orgb2bd5b6)
-  - [Distribution of Valuations across Different Countries](#org18ec111)
-- [Time-Based Analysis](#orgde015cf)
-  - [Unicorn Growth Over Time](#orgb75122f)
-  - [Years to Unicorn](#org4b4d20a)
+- [Setup](#org84af218)
+  - [Import Packages](#org4df6da8)
+- [Data Preparation](#org3c7e816)
+  - [Load Data](#orge81cd9d)
+  - [Data Cleaning](#org0832590)
+  - [Prepare data](#org9123d77)
+  - [Preview data](#org4d19b57)
+- [Descriptive Analysis](#orgec1e826)
+  - [Distribution of Valuations across Different Industries](#org616b62c)
+  - [Distribution of Valuations across Different Countries](#orgf6b64f6)
+- [Time-Based Analysis](#org70a1b20)
+  - [Unicorn Growth Over Time](#org69ccc76)
+  - [Years to Unicorn](#org1ca3310)
 
 
 
-<a id="org172dba2"></a>
+<a id="org84af218"></a>
 
 # Setup
 
 
-<a id="orgccae310"></a>
+<a id="org4df6da8"></a>
 
 ## Import Packages
 
@@ -33,12 +33,12 @@ import re
 ```
 
 
-<a id="org433ebd6"></a>
+<a id="org3c7e816"></a>
 
 # Data Preparation
 
 
-<a id="orge30b409"></a>
+<a id="orge81cd9d"></a>
 
 ## Load Data
 
@@ -48,7 +48,7 @@ df = pd.read_csv('input/Unicorns_Completed.csv')
 ```
 
 
-<a id="org3b86658"></a>
+<a id="org0832590"></a>
 
 ## Data Cleaning
 
@@ -61,7 +61,7 @@ df['Years to Unicorn'] = df['Years to Unicorn'].apply(convert_years_months)
 ```
 
 
-<a id="orgdb761fe"></a>
+<a id="org9123d77"></a>
 
 ## Prepare data
 
@@ -71,7 +71,7 @@ df['Valuation ($B)'] = pd.to_numeric(df['Valuation ($B)'])
 ```
 
 
-<a id="org013182e"></a>
+<a id="org4d19b57"></a>
 
 ## Preview data
 
@@ -107,6 +107,7 @@ df.head()
       <th>Country</th>
       <th>City</th>
       <th>Select Investors</th>
+      <th>Years to Unicorn (Months)</th>
     </tr>
   </thead>
   <tbody>
@@ -122,6 +123,7 @@ df.head()
       <td>United States</td>
       <td>Hawthorne</td>
       <td>Opus Capital, RRE Ventures, Relay Ventures</td>
+      <td>123</td>
     </tr>
     <tr>
       <th>1</th>
@@ -135,6 +137,7 @@ df.head()
       <td>China</td>
       <td>Beijing</td>
       <td>Breyer Capital, Parkway VC, TIME Ventures</td>
+      <td>75</td>
     </tr>
     <tr>
       <th>2</th>
@@ -148,6 +151,7 @@ df.head()
       <td>United States</td>
       <td>San Francisco</td>
       <td>Dynamo VC, Susa Ventures, Founders Fund</td>
+      <td>54</td>
     </tr>
     <tr>
       <th>3</th>
@@ -161,6 +165,7 @@ df.head()
       <td>China</td>
       <td>Hangzhou</td>
       <td>Alibaba Group, CPP Investments, The Carlyle Group</td>
+      <td>36</td>
     </tr>
     <tr>
       <th>4</th>
@@ -174,18 +179,19 @@ df.head()
       <td>United States</td>
       <td>San Francisco</td>
       <td>Sequoia Capital China, ZhenFund, K2 Ventures</td>
+      <td>60</td>
     </tr>
   </tbody>
 </table>
 </div>
 
 
-<a id="orgf7e34a4"></a>
+<a id="orgec1e826"></a>
 
 # Descriptive Analysis
 
 
-<a id="orgb2bd5b6"></a>
+<a id="org616b62c"></a>
 
 ## Distribution of Valuations across Different Industries
 
@@ -279,7 +285,7 @@ plt.grid(axis='x', alpha=0.75)
 ![img](./.ob-jupyter/8c6a7ff1694ea1846cd3c5ac87ae4f8af9a21964.png)
 
 
-<a id="org18ec111"></a>
+<a id="orgf6b64f6"></a>
 
 ## Distribution of Valuations across Different Countries
 
@@ -289,133 +295,6 @@ country_valuation_df = df.groupby('Country')['Valuation ($B)'].sum().reset_index
 country_valuation_df
 ```
 
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>Country</th>
-      <th>Valuation ($B)</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>53</th>
-      <td>United States</td>
-      <td>2564.14</td>
-    </tr>
-    <tr>
-      <th>10</th>
-      <td>China</td>
-      <td>835.65</td>
-    </tr>
-    <tr>
-      <th>52</th>
-      <td>United Kingdom</td>
-      <td>197.35</td>
-    </tr>
-    <tr>
-      <th>24</th>
-      <td>India</td>
-      <td>172.07</td>
-    </tr>
-    <tr>
-      <th>43</th>
-      <td>Singapore</td>
-      <td>92.06</td>
-    </tr>
-    <tr>
-      <th>21</th>
-      <td>Germany</td>
-      <td>85.90</td>
-    </tr>
-    <tr>
-      <th>20</th>
-      <td>France</td>
-      <td>70.86</td>
-    </tr>
-    <tr>
-      <th>27</th>
-      <td>Israel</td>
-      <td>56.22</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>Canada</td>
-      <td>56.00</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>Australia</td>
-      <td>48.84</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>Brazil</td>
-      <td>34.13</td>
-    </tr>
-    <tr>
-      <th>45</th>
-      <td>South Korea</td>
-      <td>31.34</td>
-    </tr>
-    <tr>
-      <th>47</th>
-      <td>Sweden</td>
-      <td>29.42</td>
-    </tr>
-    <tr>
-      <th>36</th>
-      <td>Netherlands</td>
-      <td>24.46</td>
-    </tr>
-    <tr>
-      <th>35</th>
-      <td>Mexico</td>
-      <td>18.70</td>
-    </tr>
-    <tr>
-      <th>19</th>
-      <td>Finland</td>
-      <td>14.91</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>Belgium</td>
-      <td>11.95</td>
-    </tr>
-    <tr>
-      <th>42</th>
-      <td>Seychelles</td>
-      <td>11.80</td>
-    </tr>
-    <tr>
-      <th>26</th>
-      <td>Ireland</td>
-      <td>11.05</td>
-    </tr>
-    <tr>
-      <th>29</th>
-      <td>Japan</td>
-      <td>10.82</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
 ```jupyter-python
 plt.figure(figsize=(12, 8))
 plt.barh(country_valuation_df['Country'], country_valuation_df['Valuation ($B)'])
@@ -423,35 +302,60 @@ plt.title('Distribution of Valuations across Different Countries')
 plt.xlabel('Total Valuation ($B)')
 plt.ylabel('Countries')
 plt.grid(axis='x', alpha=0.75)
+plt.show()
 ```
 
 ![img](./.ob-jupyter/cdbbe50d70386c26ddaf23f8af5848b55ec474ae.png)
 
 
-<a id="orgde015cf"></a>
+<a id="org70a1b20"></a>
 
 # Time-Based Analysis
 
 
-<a id="orgb75122f"></a>
+<a id="org69ccc76"></a>
 
 ## Unicorn Growth Over Time
 
 ```jupyter-python
 unicorn_count = df.groupby(df['Unicorn Date'].dt.year).size()
-plt.figure(figsize=(12, 6))
-plt.plot(unicorn_count.index, unicorn_count.values, marker='o')
-plt.title('Number of Unicorns Created Each Year')
-plt.xlabel('Year')
-plt.ylabel('Number of Unicorns')
-plt.xticks(unicorn_count.index, rotation=45)
-plt.grid()
+unicorn_count
 ```
 
-![img](./.ob-jupyter/bcc00d2a9abdbab683ef1209128ac52a061d0e20.png)
+```
+Unicorn Date
+2007      1
+2011      1
+2012      4
+2013      4
+2014      9
+2015     32
+2016     17
+2017     35
+2018     83
+2019     85
+2020     91
+2021    484
+2022    252
+2023     68
+2024     78
+dtype: int64
+```
+
+```jupyter-python
+plt.figure(figsize=(12, 6))
+sns.barplot(x=unicorn_count.index, y=unicorn_count.values, hue=unicorn_count.index, palette='GnBu')
+plt.title('Unicorn Growth Over Time')
+plt.xlabel('Year')
+plt.ylabel('Number of Unicorns')
+plt.grid(axis='y', alpha=0.7)
+plt.show()
+```
+
+![img](./.ob-jupyter/4c3eeae98f58d859e11ebbd48449c00cacfe5f56.png)
 
 
-<a id="org4b4d20a"></a>
+<a id="org1ca3310"></a>
 
 ## Years to Unicorn
 
@@ -476,11 +380,12 @@ df['Years to Unicorn (Months)'] = df['Years to Unicorn'].apply(convert_years_to_
 
 ```jupyter-python
 plt.figure(figsize=(12, 6))
-plt.hist(df['Years to Unicorn (Months)'].dropna(), bins=30, color='skyblue')
+plt.hist(df['Years to Unicorn (Months)'].dropna(), bins=300, color='skyblue')
 plt.title('Distribution of Years to Unicorn')
 plt.xlabel('Months to Unicorn')
 plt.ylabel('Number of Unicorns')
 plt.grid(axis='y', alpha=0.75)
+plt.show()
 ```
 
-![img](./.ob-jupyter/cc74224a16e29a19d8a2ce7ae2b9ecbacccf90e8.png)
+![img](./.ob-jupyter/7147ad5ac513b255069d34583e58b934b9cd3719.png)
