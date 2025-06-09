@@ -102,7 +102,7 @@ df['Industry'] = df['Industry'].apply(correct_industry_labels)
 df['Unicorn Date'] = pd.to_datetime(df['Unicorn Date'])
 df['Valuation ($B)'] = pd.to_numeric(df['Valuation ($B)'])
 df['Unicorn Year'] = df['Unicorn Date'].dt.year
-df['Funding ($B)'] = df['Total Equity Funding ($)'] / 1_000_000_000
+df['Funding ($B)'] = df['Total Equity Funding ($)'] / 1e9
 #+end_src
 
 #+RESULTS:
@@ -1476,6 +1476,22 @@ df['Funding ($B)'] = df['Total Equity Funding ($)'] / 1_000_000_000
 
   #+RESULTS:
   [[file:./.ob-jupyter/46b7e0f3fb8f281dba7860af73d90f6e409cec07.png]]
+
+*** Relationship between Funding and Valuation
+#+begin_src jupyter-python
+plt.figure(figsize=(12, 6))
+plt.scatter(df['Total Equity Funding ($)'], df['Valuation ($B)'] * 1e9, alpha=0.6, color='skyblue')
+plt.title('Relationship between Funding and Valuation')
+plt.xlabel('Funding ($B)')
+plt.ylabel('Valuation ($B)')
+plt.grid()
+plt.xscale('log')
+plt.yscale('log')
+plt.show()
+#+end_src
+
+#+RESULTS:
+[[file:./.ob-jupyter/097824ab86c22da76a551b9077b22bec3bd89c94.png]]
 
 * Time-Based Analysis
 ** Unicorn Growth Over Time

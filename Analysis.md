@@ -1,32 +1,33 @@
-- [Setup](#org0233476)
-  - [Import Packages](#org72c78a6)
-- [Data Preparation](#org5b95303)
-  - [Load Data](#orga0f9900)
-  - [Data Cleaning](#org4048400)
-  - [Prepare Data](#org531a99f)
-  - [Preview Data](#orgdddc03a)
-- [Descriptive Analysis](#org2d3c967)
-  - [Valuations](#org869b927)
-    - [Distribution of Valuations across Different Industries](#orgd2fc172)
-    - [Distribution of Valuations across Different Countries](#org3fa523d)
-    - [Top Companies by Valuation](#orgdbec84f)
-  - [Funding](#orgb04f2bc)
-    - [Distribution of Funding across Different Industries](#org3c6450e)
-    - [Distribution of Funding across Different Countries](#orgf04f2d0)
-    - [Companies Received Most Funding](#org87b39aa)
-- [Time-Based Analysis](#org6e68f95)
-  - [Unicorn Growth Over Time](#org2cd10fe)
-  - [Time to Unicorn](#orge4c3c01)
-  - [Distribution of Valuations and Funding Over Time](#org0e7433a)
+- [Setup](#orgb6d0ee7)
+  - [Import Packages](#orgc6c02ac)
+- [Data Preparation](#org4f96fb8)
+  - [Load Data](#org9e58c00)
+  - [Data Cleaning](#orga13a3c6)
+  - [Prepare Data](#orgc10675d)
+  - [Preview Data](#orgdc343d2)
+- [Descriptive Analysis](#org4cd0d13)
+  - [Valuations](#org168d0f8)
+    - [Distribution of Valuations across Different Industries](#orge713bb1)
+    - [Distribution of Valuations across Different Countries](#org18fdb6a)
+    - [Top Companies by Valuation](#org34c5678)
+  - [Funding](#org5b28789)
+    - [Distribution of Funding across Different Industries](#org79f43ad)
+    - [Distribution of Funding across Different Countries](#org4da7b7b)
+    - [Companies Received Most Funding](#org01ca10b)
+    - [Relationship between Funding and Valuation](#org6da501f)
+- [Time-Based Analysis](#org5a203a7)
+  - [Unicorn Growth Over Time](#orgc886782)
+  - [Time to Unicorn](#org452b618)
+  - [Distribution of Valuations and Funding Over Time](#org465967f)
 
 
 
-<a id="org0233476"></a>
+<a id="orgb6d0ee7"></a>
 
 # Setup
 
 
-<a id="org72c78a6"></a>
+<a id="orgc6c02ac"></a>
 
 ## Import Packages
 
@@ -39,12 +40,12 @@ import seaborn as sns
 ```
 
 
-<a id="org5b95303"></a>
+<a id="org4f96fb8"></a>
 
 # Data Preparation
 
 
-<a id="orga0f9900"></a>
+<a id="org9e58c00"></a>
 
 ## Load Data
 
@@ -54,7 +55,7 @@ df = pd.read_csv('input/Unicorns_Completed.csv')
 ```
 
 
-<a id="org4048400"></a>
+<a id="orga13a3c6"></a>
 
 ## Data Cleaning
 
@@ -77,7 +78,7 @@ df['Industry'] = df['Industry'].apply(correct_industry_labels)
 ```
 
 
-<a id="org531a99f"></a>
+<a id="orgc10675d"></a>
 
 ## Prepare Data
 
@@ -85,11 +86,11 @@ df['Industry'] = df['Industry'].apply(correct_industry_labels)
 df['Unicorn Date'] = pd.to_datetime(df['Unicorn Date'])
 df['Valuation ($B)'] = pd.to_numeric(df['Valuation ($B)'])
 df['Unicorn Year'] = df['Unicorn Date'].dt.year
-df['Funding ($B)'] = df['Total Equity Funding ($)'] / 1_000_000_000
+df['Funding ($B)'] = df['Total Equity Funding ($)'] / 1e9
 ```
 
 
-<a id="orgdddc03a"></a>
+<a id="orgdc343d2"></a>
 
 ## Preview Data
 
@@ -210,17 +211,17 @@ df.head()
 </div>
 
 
-<a id="org2d3c967"></a>
+<a id="org4cd0d13"></a>
 
 # Descriptive Analysis
 
 
-<a id="org869b927"></a>
+<a id="org168d0f8"></a>
 
 ## Valuations
 
 
-<a id="orgd2fc172"></a>
+<a id="orge713bb1"></a>
 
 ### Distribution of Valuations across Different Industries
 
@@ -304,7 +305,7 @@ plt.grid(axis='x', alpha=0.75)
 ![img](./.ob-jupyter/fb8d350ed9e08a427ac8e6e023cddd83fa801fc2.png)
 
 
-<a id="org3fa523d"></a>
+<a id="org18fdb6a"></a>
 
 ### Distribution of Valuations across Different Countries
 
@@ -454,7 +455,7 @@ plt.show()
 ![img](./.ob-jupyter/cdbbe50d70386c26ddaf23f8af5848b55ec474ae.png)
 
 
-<a id="orgdbec84f"></a>
+<a id="org34c5678"></a>
 
 ### Top Companies by Valuation
 
@@ -848,12 +849,12 @@ plt.show()
 ![img](./.ob-jupyter/795c87ab891817c10cd7df462216eb4d827a609e.png)
 
 
-<a id="orgb04f2bc"></a>
+<a id="org5b28789"></a>
 
 ## Funding
 
 
-<a id="org3c6450e"></a>
+<a id="org79f43ad"></a>
 
 ### Distribution of Funding across Different Industries
 
@@ -937,7 +938,7 @@ plt.grid(axis='x', alpha=0.75)
 ![img](./.ob-jupyter/621550790fc489aa1cd1ffcfecb9a8896edcc085.png)
 
 
-<a id="orgf04f2d0"></a>
+<a id="org4da7b7b"></a>
 
 ### Distribution of Funding across Different Countries
 
@@ -1087,7 +1088,7 @@ plt.show()
 ![img](./.ob-jupyter/fddb9cc3a098ea04e747bd014dd84cb3f86a6418.png)
 
 
-<a id="org87b39aa"></a>
+<a id="org01ca10b"></a>
 
 ### Companies Received Most Funding
 
@@ -1466,12 +1467,31 @@ plt.show()
 ![img](./.ob-jupyter/46b7e0f3fb8f281dba7860af73d90f6e409cec07.png)
 
 
-<a id="org6e68f95"></a>
+<a id="org6da501f"></a>
+
+### Relationship between Funding and Valuation
+
+```jupyter-python
+plt.figure(figsize=(12, 6))
+plt.scatter(df['Total Equity Funding ($)'], df['Valuation ($B)'] * 1e9, alpha=0.6, color='skyblue')
+plt.title('Relationship between Funding and Valuation')
+plt.xlabel('Funding ($B)')
+plt.ylabel('Valuation ($B)')
+plt.grid()
+plt.xscale('log')
+plt.yscale('log')
+plt.show()
+```
+
+![img](./.ob-jupyter/097824ab86c22da76a551b9077b22bec3bd89c94.png)
+
+
+<a id="org5a203a7"></a>
 
 # Time-Based Analysis
 
 
-<a id="org2cd10fe"></a>
+<a id="orgc886782"></a>
 
 ## Unicorn Growth Over Time
 
@@ -1513,7 +1533,7 @@ plt.show()
 ![img](./.ob-jupyter/4c3eeae98f58d859e11ebbd48449c00cacfe5f56.png)
 
 
-<a id="orge4c3c01"></a>
+<a id="org452b618"></a>
 
 ## Time to Unicorn
 
@@ -1549,7 +1569,7 @@ plt.show()
 ![img](./.ob-jupyter/da7201b7f05b1f4302ad1635573a33ac42f99b3d.png)
 
 
-<a id="org0e7433a"></a>
+<a id="org465967f"></a>
 
 ## Distribution of Valuations and Funding Over Time
 
