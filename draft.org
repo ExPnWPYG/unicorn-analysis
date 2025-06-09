@@ -266,7 +266,7 @@ df['Funding ($B)'] = df['Total Equity Funding ($)'] / 1_000_000_000
       <tr>
         <th>1</th>
         <td>Enterprise Tech</td>
-        <td>1759.04</td>
+        <td>1762.04</td>
       </tr>
       <tr>
         <th>2</th>
@@ -298,11 +298,6 @@ df['Funding ($B)'] = df['Total Equity Funding ($)'] / 1_000_000_000
         <td>Insurance</td>
         <td>117.06</td>
       </tr>
-      <tr>
-        <th>7</th>
-        <td>West Palm Beach</td>
-        <td>3.00</td>
-      </tr>
     </tbody>
   </table>
   </div>
@@ -318,7 +313,7 @@ df['Funding ($B)'] = df['Total Equity Funding ($)'] / 1_000_000_000
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/1165ae79df293a43a2246b2dbfd77e20681819db.png]]
+  [[file:./.ob-jupyter/fb8d350ed9e08a427ac8e6e023cddd83fa801fc2.png]]
 
 *** Distribution of Valuations across Different Countries
 
@@ -1494,7 +1489,7 @@ df['Funding ($B)'] = df['Total Equity Funding ($)'] / 1_000_000_000
 
   #+begin_src jupyter-python
   plt.figure(figsize=(12, 6))
-  plt.hist(df['Time to Unicorn (Months)'].dropna(), bins=300, color='skyblue')
+  plt.hist(df['Years to Unicorn (Months)'].dropna(), bins=300, color='skyblue')
   plt.title('Distribution of Time to Unicorn')
   plt.xlabel('Months to Unicorn')
   plt.ylabel('Number of Unicorns')
@@ -1503,7 +1498,7 @@ df['Funding ($B)'] = df['Total Equity Funding ($)'] / 1_000_000_000
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/7147ad5ac513b255069d34583e58b934b9cd3719.png]]
+  [[file:./.ob-jupyter/e21f9108831a1f55f1fdf7d1cd8d6736cfd08e9f.png]]
 
 ** Distribution of Valuations Over Time
 
