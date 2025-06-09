@@ -1,32 +1,32 @@
-- [Setup](#orgcd36fea)
-  - [Import Packages](#orged73c66)
-- [Data Preparation](#orgae359b5)
-  - [Load Data](#org86a8dc5)
-  - [Data Cleaning](#orgf64d320)
-  - [Prepare Data](#org62c2a93)
-  - [Preview Data](#orgf11a724)
-- [Descriptive Analysis](#org2aa298f)
-  - [Valuations](#orge87aa1d)
-    - [Distribution of Valuations across Different Industries](#orgf3461e1)
-    - [Distribution of Valuations across Different Countries](#org40ed8bd)
-    - [Top Companies by Valuation](#org88522f3)
-  - [Funding](#org04930a6)
-    - [Distribution of Funding across Different Industries](#org25208eb)
-    - [Distribution of Funding across Different Countries](#orgfa390fe)
-    - [Top Companies by Funding](#orged9de24)
-- [Time-Based Analysis](#org0e2fbdb)
-  - [Unicorn Growth Over Time](#orgb1e1a17)
-  - [Time to Unicorn](#org1c161df)
-  - [Distribution of Valuations Over Time](#org910e55e)
+- [Setup](#org6e36bd2)
+  - [Import Packages](#org7f2c487)
+- [Data Preparation](#orgcfb0c36)
+  - [Load Data](#org90c5b17)
+  - [Data Cleaning](#org2ee2793)
+  - [Prepare Data](#orga1e283b)
+  - [Preview Data](#org7f7a48a)
+- [Descriptive Analysis](#orgf70e35b)
+  - [Valuations](#org175e040)
+    - [Distribution of Valuations across Different Industries](#orgf0f043b)
+    - [Distribution of Valuations across Different Countries](#org66c4143)
+    - [Top Companies by Valuation](#orge90cfe8)
+  - [Funding](#org1045b47)
+    - [Distribution of Funding across Different Industries](#org83bab40)
+    - [Distribution of Funding across Different Countries](#org642aa5b)
+    - [Companies with Most Funding](#org3622055)
+- [Time-Based Analysis](#orge6faa80)
+  - [Unicorn Growth Over Time](#orgf0111a4)
+  - [Time to Unicorn](#orge5b784d)
+  - [Distribution of Valuations Over Time](#orgd6209a7)
 
 
 
-<a id="orgcd36fea"></a>
+<a id="org6e36bd2"></a>
 
 # Setup
 
 
-<a id="orged73c66"></a>
+<a id="org7f2c487"></a>
 
 ## Import Packages
 
@@ -39,12 +39,12 @@ import seaborn as sns
 ```
 
 
-<a id="orgae359b5"></a>
+<a id="orgcfb0c36"></a>
 
 # Data Preparation
 
 
-<a id="org86a8dc5"></a>
+<a id="org90c5b17"></a>
 
 ## Load Data
 
@@ -54,7 +54,7 @@ df = pd.read_csv('input/Unicorns_Completed.csv')
 ```
 
 
-<a id="orgf64d320"></a>
+<a id="org2ee2793"></a>
 
 ## Data Cleaning
 
@@ -77,7 +77,7 @@ df['Industry'] = df['Industry'].apply(correct_industry_labels)
 ```
 
 
-<a id="org62c2a93"></a>
+<a id="orga1e283b"></a>
 
 ## Prepare Data
 
@@ -89,7 +89,7 @@ df['Funding ($B)'] = df['Total Equity Funding ($)'] / 1_000_000_000
 ```
 
 
-<a id="orgf11a724"></a>
+<a id="org7f7a48a"></a>
 
 ## Preview Data
 
@@ -210,17 +210,17 @@ df.head()
 </div>
 
 
-<a id="org2aa298f"></a>
+<a id="orgf70e35b"></a>
 
 # Descriptive Analysis
 
 
-<a id="orge87aa1d"></a>
+<a id="org175e040"></a>
 
 ## Valuations
 
 
-<a id="orgf3461e1"></a>
+<a id="orgf0f043b"></a>
 
 ### Distribution of Valuations across Different Industries
 
@@ -304,7 +304,7 @@ plt.grid(axis='x', alpha=0.75)
 ![img](./.ob-jupyter/fb8d350ed9e08a427ac8e6e023cddd83fa801fc2.png)
 
 
-<a id="org40ed8bd"></a>
+<a id="org66c4143"></a>
 
 ### Distribution of Valuations across Different Countries
 
@@ -454,7 +454,7 @@ plt.show()
 ![img](./.ob-jupyter/cdbbe50d70386c26ddaf23f8af5848b55ec474ae.png)
 
 
-<a id="org88522f3"></a>
+<a id="orge90cfe8"></a>
 
 ### Top Companies by Valuation
 
@@ -493,6 +493,7 @@ top_companies
       <th>Select Investors</th>
       <th>Unicorn Year</th>
       <th>Funding ($B)</th>
+      <th>Years to Unicorn (Months)</th>
     </tr>
   </thead>
   <tbody>
@@ -510,6 +511,7 @@ top_companies
       <td>Opus Capital, RRE Ventures, Relay Ventures</td>
       <td>2012</td>
       <td>9.000</td>
+      <td>123</td>
     </tr>
     <tr>
       <th>1</th>
@@ -525,6 +527,7 @@ top_companies
       <td>Breyer Capital, Parkway VC, TIME Ventures</td>
       <td>2017</td>
       <td>8.000</td>
+      <td>75</td>
     </tr>
     <tr>
       <th>2</th>
@@ -540,6 +543,7 @@ top_companies
       <td>Dynamo VC, Susa Ventures, Founders Fund</td>
       <td>2019</td>
       <td>18.000</td>
+      <td>54</td>
     </tr>
     <tr>
       <th>3</th>
@@ -555,6 +559,7 @@ top_companies
       <td>Alibaba Group, CPP Investments, The Carlyle Group</td>
       <td>2017</td>
       <td>19.000</td>
+      <td>36</td>
     </tr>
     <tr>
       <th>4</th>
@@ -570,6 +575,7 @@ top_companies
       <td>Sequoia Capital China, ZhenFund, K2 Ventures</td>
       <td>2014</td>
       <td>9.000</td>
+      <td>60</td>
     </tr>
     <tr>
       <th>5</th>
@@ -585,6 +591,7 @@ top_companies
       <td>369 Growth Partners, GTM Capital, Berkeley Hil...</td>
       <td>2018</td>
       <td>4.000</td>
+      <td>126</td>
     </tr>
     <tr>
       <th>6</th>
@@ -600,6 +607,7 @@ top_companies
       <td>Holtzbrinck Ventures, Unternehmertum Venture C...</td>
       <td>2019</td>
       <td>14.000</td>
+      <td>73</td>
     </tr>
     <tr>
       <th>7</th>
@@ -615,6 +623,7 @@ top_companies
       <td>Prysm Capital, Baillie Gifford &amp; Co., TDM Grow...</td>
       <td>2024</td>
       <td>12.000</td>
+      <td>220</td>
     </tr>
     <tr>
       <th>8</th>
@@ -630,6 +639,7 @@ top_companies
       <td>CMFG Ventures, Accomplice, Moderne Ventures</td>
       <td>2018</td>
       <td>2.000</td>
+      <td>39</td>
     </tr>
     <tr>
       <th>9</th>
@@ -645,6 +655,7 @@ top_companies
       <td>Index Ventures, Temasek, Portag3 Ventures</td>
       <td>2018</td>
       <td>0.580</td>
+      <td>72</td>
     </tr>
     <tr>
       <th>10</th>
@@ -660,6 +671,7 @@ top_companies
       <td>Liberty City Ventures, RRE Ventures, Mithril C...</td>
       <td>2012</td>
       <td>5.000</td>
+      <td>17</td>
     </tr>
     <tr>
       <th>11</th>
@@ -675,6 +687,7 @@ top_companies
       <td>Blackstone, ICONIQ Growth, General Atlantic</td>
       <td>2019</td>
       <td>2.000</td>
+      <td>86</td>
     </tr>
     <tr>
       <th>12</th>
@@ -690,6 +703,7 @@ top_companies
       <td>The Column Group, Foresite Capital, Foresite C...</td>
       <td>2023</td>
       <td>2.000</td>
+      <td>51</td>
     </tr>
     <tr>
       <th>13</th>
@@ -705,6 +719,7 @@ top_companies
       <td>Warburg Pincus, The Rise Fund, HarbourVest Par...</td>
       <td>2018</td>
       <td>8.000</td>
+      <td>333</td>
     </tr>
     <tr>
       <th>14</th>
@@ -720,6 +735,7 @@ top_companies
       <td>Sequoia Capital China, China Life Investment H...</td>
       <td>2022</td>
       <td>0.476</td>
+      <td>12</td>
     </tr>
     <tr>
       <th>15</th>
@@ -735,6 +751,7 @@ top_companies
       <td>Alpargatas, GS Growth, Lightspeed Venture Part...</td>
       <td>2016</td>
       <td>0.918</td>
+      <td>64</td>
     </tr>
     <tr>
       <th>16</th>
@@ -750,6 +767,7 @@ top_companies
       <td>New Enterprise Associates, Institutional Ventu...</td>
       <td>2023</td>
       <td>8.000</td>
+      <td>26</td>
     </tr>
     <tr>
       <th>17</th>
@@ -765,6 +783,7 @@ top_companies
       <td>Craft Ventures, F-Prime Capital, Sound Ventures</td>
       <td>2017</td>
       <td>4.000</td>
+      <td>64</td>
     </tr>
     <tr>
       <th>21</th>
@@ -780,6 +799,7 @@ top_companies
       <td>8VC, Norwest Venture Partners, Tiger Global Ma...</td>
       <td>2019</td>
       <td>0.294</td>
+      <td>95</td>
     </tr>
     <tr>
       <th>22</th>
@@ -795,30 +815,45 @@ top_companies
       <td>Polychain Capital, Paradigm, Ribbit Capital</td>
       <td>2020</td>
       <td>0.721</td>
+      <td>98</td>
     </tr>
   </tbody>
 </table>
 </div>
 
 ```jupyter-python
-plt.figure(figsize=(12, 8))
-plt.barh(top_companies['Company'], top_companies['Valuation ($B)'], color='skyblue')
+# Set the positions and width for the bars
+N = len(top_companies)
+ind = np.arange(N)  # the x locations for the groups
+width = 0.35  # the width of the bars
+
+# Create the bars for valuation and funding
+plt.figure(figsize=(12, 6))
+bars1 = plt.bar(ind, top_companies['Valuation ($B)'], width, label='Valuation ($B)', color='skyblue')
+bars2 = plt.bar(ind + width, top_companies['Funding ($B)'], width, label='Funding ($B)', color='lightgreen')
+
+# Add labels and title
 plt.title('Top Companies by Valuation')
-plt.xlabel('Valuation ($B)')
-plt.ylabel('Company')
-plt.grid(axis='x', alpha=0.75)
+plt.xlabel('Companies')
+plt.ylabel('Amount ($B)')
+plt.xticks(ind + width / 2, top_companies['Company'], rotation=45)
+plt.legend()
+
+# Add grid
+plt.grid(axis='y', alpha=0.75)
+plt.tight_layout()
 plt.show()
 ```
 
-![img](./.ob-jupyter/abde2695528532caf6e0354a357d2d8e9ad50f5a.png)
+![img](./.ob-jupyter/795c87ab891817c10cd7df462216eb4d827a609e.png)
 
 
-<a id="org04930a6"></a>
+<a id="org1045b47"></a>
 
 ## Funding
 
 
-<a id="org25208eb"></a>
+<a id="org83bab40"></a>
 
 ### Distribution of Funding across Different Industries
 
@@ -902,7 +937,7 @@ plt.grid(axis='x', alpha=0.75)
 ![img](./.ob-jupyter/621550790fc489aa1cd1ffcfecb9a8896edcc085.png)
 
 
-<a id="orgfa390fe"></a>
+<a id="org642aa5b"></a>
 
 ### Distribution of Funding across Different Countries
 
@@ -1052,9 +1087,9 @@ plt.show()
 ![img](./.ob-jupyter/fddb9cc3a098ea04e747bd014dd84cb3f86a6418.png)
 
 
-<a id="orged9de24"></a>
+<a id="org3622055"></a>
 
-### Top Companies by Funding
+### Companies with Most Funding
 
 ```jupyter-python
 top_companies = df.sort_values(by='Funding ($B)', ascending=False).head(20)
@@ -1091,6 +1126,7 @@ top_companies
       <th>Select Investors</th>
       <th>Unicorn Year</th>
       <th>Funding ($B)</th>
+      <th>Years to Unicorn (Months)</th>
     </tr>
   </thead>
   <tbody>
@@ -1108,6 +1144,7 @@ top_companies
       <td>Alibaba Group, CPP Investments, The Carlyle Group</td>
       <td>2017</td>
       <td>19.0</td>
+      <td>36</td>
     </tr>
     <tr>
       <th>2</th>
@@ -1123,6 +1160,7 @@ top_companies
       <td>Dynamo VC, Susa Ventures, Founders Fund</td>
       <td>2019</td>
       <td>18.0</td>
+      <td>54</td>
     </tr>
     <tr>
       <th>38</th>
@@ -1138,6 +1176,7 @@ top_companies
       <td>Boxin Capital, DT Capital Partners, IDG Capital</td>
       <td>2017</td>
       <td>15.0</td>
+      <td>83</td>
     </tr>
     <tr>
       <th>6</th>
@@ -1153,6 +1192,7 @@ top_companies
       <td>Holtzbrinck Ventures, Unternehmertum Venture C...</td>
       <td>2019</td>
       <td>14.0</td>
+      <td>73</td>
     </tr>
     <tr>
       <th>7</th>
@@ -1168,6 +1208,7 @@ top_companies
       <td>Prysm Capital, Baillie Gifford &amp; Co., TDM Grow...</td>
       <td>2024</td>
       <td>12.0</td>
+      <td>220</td>
     </tr>
     <tr>
       <th>0</th>
@@ -1183,6 +1224,7 @@ top_companies
       <td>Opus Capital, RRE Ventures, Relay Ventures</td>
       <td>2012</td>
       <td>9.0</td>
+      <td>123</td>
     </tr>
     <tr>
       <th>4</th>
@@ -1198,6 +1240,7 @@ top_companies
       <td>Sequoia Capital China, ZhenFund, K2 Ventures</td>
       <td>2014</td>
       <td>9.0</td>
+      <td>60</td>
     </tr>
     <tr>
       <th>16</th>
@@ -1213,6 +1256,7 @@ top_companies
       <td>New Enterprise Associates, Institutional Ventu...</td>
       <td>2023</td>
       <td>8.0</td>
+      <td>26</td>
     </tr>
     <tr>
       <th>1</th>
@@ -1228,6 +1272,7 @@ top_companies
       <td>Breyer Capital, Parkway VC, TIME Ventures</td>
       <td>2017</td>
       <td>8.0</td>
+      <td>75</td>
     </tr>
     <tr>
       <th>13</th>
@@ -1243,6 +1288,7 @@ top_companies
       <td>Warburg Pincus, The Rise Fund, HarbourVest Par...</td>
       <td>2018</td>
       <td>8.0</td>
+      <td>333</td>
     </tr>
     <tr>
       <th>10</th>
@@ -1258,6 +1304,7 @@ top_companies
       <td>Liberty City Ventures, RRE Ventures, Mithril C...</td>
       <td>2012</td>
       <td>5.0</td>
+      <td>17</td>
     </tr>
     <tr>
       <th>40</th>
@@ -1273,6 +1320,7 @@ top_companies
       <td>Temasek, Guggenheim Investments, Qatar Investm...</td>
       <td>2020</td>
       <td>5.0</td>
+      <td>138</td>
     </tr>
     <tr>
       <th>42</th>
@@ -1288,6 +1336,7 @@ top_companies
       <td>Greylock Partners, Venrock, Providence Ventures</td>
       <td>2017</td>
       <td>5.0</td>
+      <td>92</td>
     </tr>
     <tr>
       <th>44</th>
@@ -1303,6 +1352,7 @@ top_companies
       <td>Jiangsu Shagang Group, IDC, Barclays, Credit S...</td>
       <td>2016</td>
       <td>5.0</td>
+      <td>230</td>
     </tr>
     <tr>
       <th>48</th>
@@ -1318,6 +1368,7 @@ top_companies
       <td>China Health Industry Investment Fund, China R...</td>
       <td>2016</td>
       <td>4.0</td>
+      <td>26</td>
     </tr>
     <tr>
       <th>24</th>
@@ -1333,6 +1384,7 @@ top_companies
       <td>Norwest Venture Partners, Goldman Sachs, Dell ...</td>
       <td>2019</td>
       <td>4.0</td>
+      <td>32</td>
     </tr>
     <tr>
       <th>23</th>
@@ -1348,6 +1400,7 @@ top_companies
       <td>OneVentures, AirTree Ventures, AMP New Ventures</td>
       <td>2011</td>
       <td>4.0</td>
+      <td>110</td>
     </tr>
     <tr>
       <th>5</th>
@@ -1363,6 +1416,7 @@ top_companies
       <td>369 Growth Partners, GTM Capital, Berkeley Hil...</td>
       <td>2018</td>
       <td>4.0</td>
+      <td>126</td>
     </tr>
     <tr>
       <th>17</th>
@@ -1378,6 +1432,7 @@ top_companies
       <td>Craft Ventures, F-Prime Capital, Sound Ventures</td>
       <td>2017</td>
       <td>4.0</td>
+      <td>64</td>
     </tr>
     <tr>
       <th>60</th>
@@ -1393,6 +1448,7 @@ top_companies
       <td>Aqua-Spark, Wavemaker Partners, Peak XV Partners</td>
       <td>2019</td>
       <td>4.0</td>
+      <td>41</td>
     </tr>
   </tbody>
 </table>
@@ -1401,22 +1457,21 @@ top_companies
 ```jupyter-python
 plt.figure(figsize=(12, 8))
 plt.barh(top_companies['Company'], top_companies['Funding ($B)'], color='skyblue')
-plt.title('Top Companies by Funding')
-plt.xlabel('Funding ($B)')
-plt.ylabel('Company')
+plt.title('Companies with Most Funding')
+plt.xlabel('Amount ($B)')
 plt.grid(axis='x', alpha=0.75)
 plt.show()
 ```
 
-![img](./.ob-jupyter/f2b30c9392f7110ebdeb467a296fb622f8733769.png)
+![img](./.ob-jupyter/46b7e0f3fb8f281dba7860af73d90f6e409cec07.png)
 
 
-<a id="org0e2fbdb"></a>
+<a id="orge6faa80"></a>
 
 # Time-Based Analysis
 
 
-<a id="orgb1e1a17"></a>
+<a id="orgf0111a4"></a>
 
 ## Unicorn Growth Over Time
 
@@ -1458,7 +1513,7 @@ plt.show()
 ![img](./.ob-jupyter/4c3eeae98f58d859e11ebbd48449c00cacfe5f56.png)
 
 
-<a id="org1c161df"></a>
+<a id="orge5b784d"></a>
 
 ## Time to Unicorn
 
@@ -1494,7 +1549,7 @@ plt.show()
 ![img](./.ob-jupyter/e21f9108831a1f55f1fdf7d1cd8d6736cfd08e9f.png)
 
 
-<a id="org910e55e"></a>
+<a id="orgd6209a7"></a>
 
 ## Distribution of Valuations Over Time
 
