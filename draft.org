@@ -1097,7 +1097,7 @@ df['Funding ($B)'] = df['Total Equity Funding ($)'] / 1_000_000_000
   #+RESULTS:
   [[file:./.ob-jupyter/fddb9cc3a098ea04e747bd014dd84cb3f86a6418.png]]
 
-*** Companies with Most Funding
+*** Companies Received Most Funding
 
   #+begin_src jupyter-python
   top_companies = df.sort_values(by='Funding ($B)', ascending=False).head(20)
@@ -1468,7 +1468,7 @@ df['Funding ($B)'] = df['Total Equity Funding ($)'] / 1_000_000_000
   #+begin_src jupyter-python
   plt.figure(figsize=(12, 8))
   plt.barh(top_companies['Company'], top_companies['Funding ($B)'], color='skyblue')
-  plt.title('Companies with Most Funding')
+  plt.title('Companies Received Most Funding')
   plt.xlabel('Amount ($B)')
   plt.grid(axis='x', alpha=0.75)
   plt.show()
@@ -1546,27 +1546,28 @@ df['Funding ($B)'] = df['Total Equity Funding ($)'] / 1_000_000_000
   plt.figure(figsize=(12, 6))
   plt.hist(df['Years to Unicorn (Months)'].dropna(), bins=300, color='skyblue')
   plt.title('Distribution of Time to Unicorn')
-  plt.xlabel('Months to Unicorn')
+  plt.xlabel('Months')
   plt.ylabel('Number of Unicorns')
   plt.grid(axis='y', alpha=0.75)
   plt.show()
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/e21f9108831a1f55f1fdf7d1cd8d6736cfd08e9f.png]]
+  [[file:./.ob-jupyter/da7201b7f05b1f4302ad1635573a33ac42f99b3d.png]]
 
-** Distribution of Valuations Over Time
+** Distribution of Valuations and Funding Over Time
 
   #+begin_src jupyter-python
   plt.figure(figsize=(12, 6))
   plt.scatter(df['Unicorn Year'], df['Valuation ($B)'], alpha=0.6, color='skyblue')
-  plt.title('Distribution of Valuations Over Time')
+  plt.scatter(df['Unicorn Year'], df['Funding ($B)'], alpha=0.6, color='lightgreen')
+  plt.title('Distribution of Valuations and Funding Over Time')
   plt.xlabel('Year')
-  plt.ylabel('Valuation ($B)')
+  plt.ylabel('Amount ($B)')
   plt.xticks(df['Unicorn Year'].unique(), rotation=45)
   plt.grid(axis='y', alpha=0.5)
   plt.show()
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/187cc226689bbff28af53610872b0f28790280d8.png]]
+  [[file:./.ob-jupyter/7793cf4ac8266648551bf5d88deca285bfa4dd7e.png]]

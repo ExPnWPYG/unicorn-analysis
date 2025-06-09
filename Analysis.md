@@ -1,32 +1,32 @@
-- [Setup](#org6e36bd2)
-  - [Import Packages](#org7f2c487)
-- [Data Preparation](#orgcfb0c36)
-  - [Load Data](#org90c5b17)
-  - [Data Cleaning](#org2ee2793)
-  - [Prepare Data](#orga1e283b)
-  - [Preview Data](#org7f7a48a)
-- [Descriptive Analysis](#orgf70e35b)
-  - [Valuations](#org175e040)
-    - [Distribution of Valuations across Different Industries](#orgf0f043b)
-    - [Distribution of Valuations across Different Countries](#org66c4143)
-    - [Top Companies by Valuation](#orge90cfe8)
-  - [Funding](#org1045b47)
-    - [Distribution of Funding across Different Industries](#org83bab40)
-    - [Distribution of Funding across Different Countries](#org642aa5b)
-    - [Companies with Most Funding](#org3622055)
-- [Time-Based Analysis](#orge6faa80)
-  - [Unicorn Growth Over Time](#orgf0111a4)
-  - [Time to Unicorn](#orge5b784d)
-  - [Distribution of Valuations Over Time](#orgd6209a7)
+- [Setup](#org0233476)
+  - [Import Packages](#org72c78a6)
+- [Data Preparation](#org5b95303)
+  - [Load Data](#orga0f9900)
+  - [Data Cleaning](#org4048400)
+  - [Prepare Data](#org531a99f)
+  - [Preview Data](#orgdddc03a)
+- [Descriptive Analysis](#org2d3c967)
+  - [Valuations](#org869b927)
+    - [Distribution of Valuations across Different Industries](#orgd2fc172)
+    - [Distribution of Valuations across Different Countries](#org3fa523d)
+    - [Top Companies by Valuation](#orgdbec84f)
+  - [Funding](#orgb04f2bc)
+    - [Distribution of Funding across Different Industries](#org3c6450e)
+    - [Distribution of Funding across Different Countries](#orgf04f2d0)
+    - [Companies Received Most Funding](#org87b39aa)
+- [Time-Based Analysis](#org6e68f95)
+  - [Unicorn Growth Over Time](#org2cd10fe)
+  - [Time to Unicorn](#orge4c3c01)
+  - [Distribution of Valuations and Funding Over Time](#org0e7433a)
 
 
 
-<a id="org6e36bd2"></a>
+<a id="org0233476"></a>
 
 # Setup
 
 
-<a id="org7f2c487"></a>
+<a id="org72c78a6"></a>
 
 ## Import Packages
 
@@ -39,12 +39,12 @@ import seaborn as sns
 ```
 
 
-<a id="orgcfb0c36"></a>
+<a id="org5b95303"></a>
 
 # Data Preparation
 
 
-<a id="org90c5b17"></a>
+<a id="orga0f9900"></a>
 
 ## Load Data
 
@@ -54,7 +54,7 @@ df = pd.read_csv('input/Unicorns_Completed.csv')
 ```
 
 
-<a id="org2ee2793"></a>
+<a id="org4048400"></a>
 
 ## Data Cleaning
 
@@ -77,7 +77,7 @@ df['Industry'] = df['Industry'].apply(correct_industry_labels)
 ```
 
 
-<a id="orga1e283b"></a>
+<a id="org531a99f"></a>
 
 ## Prepare Data
 
@@ -89,7 +89,7 @@ df['Funding ($B)'] = df['Total Equity Funding ($)'] / 1_000_000_000
 ```
 
 
-<a id="org7f7a48a"></a>
+<a id="orgdddc03a"></a>
 
 ## Preview Data
 
@@ -210,17 +210,17 @@ df.head()
 </div>
 
 
-<a id="orgf70e35b"></a>
+<a id="org2d3c967"></a>
 
 # Descriptive Analysis
 
 
-<a id="org175e040"></a>
+<a id="org869b927"></a>
 
 ## Valuations
 
 
-<a id="orgf0f043b"></a>
+<a id="orgd2fc172"></a>
 
 ### Distribution of Valuations across Different Industries
 
@@ -304,7 +304,7 @@ plt.grid(axis='x', alpha=0.75)
 ![img](./.ob-jupyter/fb8d350ed9e08a427ac8e6e023cddd83fa801fc2.png)
 
 
-<a id="org66c4143"></a>
+<a id="org3fa523d"></a>
 
 ### Distribution of Valuations across Different Countries
 
@@ -454,7 +454,7 @@ plt.show()
 ![img](./.ob-jupyter/cdbbe50d70386c26ddaf23f8af5848b55ec474ae.png)
 
 
-<a id="orge90cfe8"></a>
+<a id="orgdbec84f"></a>
 
 ### Top Companies by Valuation
 
@@ -848,12 +848,12 @@ plt.show()
 ![img](./.ob-jupyter/795c87ab891817c10cd7df462216eb4d827a609e.png)
 
 
-<a id="org1045b47"></a>
+<a id="orgb04f2bc"></a>
 
 ## Funding
 
 
-<a id="org83bab40"></a>
+<a id="org3c6450e"></a>
 
 ### Distribution of Funding across Different Industries
 
@@ -937,7 +937,7 @@ plt.grid(axis='x', alpha=0.75)
 ![img](./.ob-jupyter/621550790fc489aa1cd1ffcfecb9a8896edcc085.png)
 
 
-<a id="org642aa5b"></a>
+<a id="orgf04f2d0"></a>
 
 ### Distribution of Funding across Different Countries
 
@@ -1087,9 +1087,9 @@ plt.show()
 ![img](./.ob-jupyter/fddb9cc3a098ea04e747bd014dd84cb3f86a6418.png)
 
 
-<a id="org3622055"></a>
+<a id="org87b39aa"></a>
 
-### Companies with Most Funding
+### Companies Received Most Funding
 
 ```jupyter-python
 top_companies = df.sort_values(by='Funding ($B)', ascending=False).head(20)
@@ -1457,7 +1457,7 @@ top_companies
 ```jupyter-python
 plt.figure(figsize=(12, 8))
 plt.barh(top_companies['Company'], top_companies['Funding ($B)'], color='skyblue')
-plt.title('Companies with Most Funding')
+plt.title('Companies Received Most Funding')
 plt.xlabel('Amount ($B)')
 plt.grid(axis='x', alpha=0.75)
 plt.show()
@@ -1466,12 +1466,12 @@ plt.show()
 ![img](./.ob-jupyter/46b7e0f3fb8f281dba7860af73d90f6e409cec07.png)
 
 
-<a id="orge6faa80"></a>
+<a id="org6e68f95"></a>
 
 # Time-Based Analysis
 
 
-<a id="orgf0111a4"></a>
+<a id="org2cd10fe"></a>
 
 ## Unicorn Growth Over Time
 
@@ -1513,7 +1513,7 @@ plt.show()
 ![img](./.ob-jupyter/4c3eeae98f58d859e11ebbd48449c00cacfe5f56.png)
 
 
-<a id="orge5b784d"></a>
+<a id="orge4c3c01"></a>
 
 ## Time to Unicorn
 
@@ -1540,28 +1540,29 @@ df['Years to Unicorn (Months)'] = df['Years to Unicorn'].apply(convert_years_to_
 plt.figure(figsize=(12, 6))
 plt.hist(df['Years to Unicorn (Months)'].dropna(), bins=300, color='skyblue')
 plt.title('Distribution of Time to Unicorn')
-plt.xlabel('Months to Unicorn')
+plt.xlabel('Months')
 plt.ylabel('Number of Unicorns')
 plt.grid(axis='y', alpha=0.75)
 plt.show()
 ```
 
-![img](./.ob-jupyter/e21f9108831a1f55f1fdf7d1cd8d6736cfd08e9f.png)
+![img](./.ob-jupyter/da7201b7f05b1f4302ad1635573a33ac42f99b3d.png)
 
 
-<a id="orgd6209a7"></a>
+<a id="org0e7433a"></a>
 
-## Distribution of Valuations Over Time
+## Distribution of Valuations and Funding Over Time
 
 ```jupyter-python
 plt.figure(figsize=(12, 6))
 plt.scatter(df['Unicorn Year'], df['Valuation ($B)'], alpha=0.6, color='skyblue')
-plt.title('Distribution of Valuations Over Time')
+plt.scatter(df['Unicorn Year'], df['Funding ($B)'], alpha=0.6, color='lightgreen')
+plt.title('Distribution of Valuations and Funding Over Time')
 plt.xlabel('Year')
-plt.ylabel('Valuation ($B)')
+plt.ylabel('Amount ($B)')
 plt.xticks(df['Unicorn Year'].unique(), rotation=45)
 plt.grid(axis='y', alpha=0.5)
 plt.show()
 ```
 
-![img](./.ob-jupyter/187cc226689bbff28af53610872b0f28790280d8.png)
+![img](./.ob-jupyter/7793cf4ac8266648551bf5d88deca285bfa4dd7e.png)
