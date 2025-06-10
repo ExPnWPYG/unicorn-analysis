@@ -1,5 +1,5 @@
 #+title: Analysis of Unicorn Startups
-#+OPTIONS: H:3 date:nil author:nil
+#+OPTIONS: H:5 date:nil author:nil
 #+EXPORT_FILE_NAME: Analysis
 #+PROPERTY: header-args:jupyter-python :session t :eval no-export :exports both
 
@@ -306,7 +306,7 @@ df['Funding ($B)'] = df['Total Equity Funding ($)'] / 1e9
 
   #+begin_src jupyter-python
   plt.figure(figsize=(12, 6))
-  plt.barh(industry_valuation_df['Industry'], industry_valuation_df['Valuation ($B)'], color='skyblue')
+  sns.barplot(y=industry_valuation_df['Industry'], x=industry_valuation_df['Valuation ($B)'], hue=industry_valuation_df['Industry'], palette='husl')
   plt.title('Distribution of Valuations across Different Industries')
   plt.xlabel('Total Valuation ($B)')
   plt.ylabel('Industry')
@@ -314,7 +314,92 @@ df['Funding ($B)'] = df['Total Equity Funding ($)'] / 1e9
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/fb8d350ed9e08a427ac8e6e023cddd83fa801fc2.png]]
+  [[file:./.ob-jupyter/47812d7cf7b679080f80395767b60252be979969.png]]
+
+**** Mean Distribution of Valuations across Different Industries
+
+  #+begin_src jupyter-python
+  # Group by industry and sum valuations
+  industry_valuation_df = df.groupby('Industry')['Valuation ($B)'].mean().reset_index().sort_values('Valuation ($B)', ascending=False)
+  industry_valuation_df
+  #+end_src
+
+  #+RESULTS:
+  #+begin_export html
+  <div>
+  <style scoped>
+      .dataframe tbody tr th:only-of-type {
+          vertical-align: middle;
+      }
+
+      .dataframe tbody tr th {
+          vertical-align: top;
+      }
+
+      .dataframe thead th {
+          text-align: right;
+      }
+  </style>
+  <table border="1" class="dataframe">
+    <thead>
+      <tr style="text-align: right;">
+        <th></th>
+        <th>Industry</th>
+        <th>Valuation ($B)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>5</th>
+        <td>Insurance</td>
+        <td>4.682400</td>
+      </tr>
+      <tr>
+        <th>1</th>
+        <td>Enterprise Tech</td>
+        <td>4.350716</td>
+      </tr>
+      <tr>
+        <th>4</th>
+        <td>Industrials</td>
+        <td>3.707923</td>
+      </tr>
+      <tr>
+        <th>3</th>
+        <td>Healthcare &amp; Life Sciences</td>
+        <td>3.389407</td>
+      </tr>
+      <tr>
+        <th>2</th>
+        <td>Financial Services</td>
+        <td>3.363540</td>
+      </tr>
+      <tr>
+        <th>0</th>
+        <td>Consumer &amp; Retail</td>
+        <td>2.937129</td>
+      </tr>
+      <tr>
+        <th>6</th>
+        <td>Media &amp; Entertainment</td>
+        <td>2.356353</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  #+end_export
+
+  #+begin_src jupyter-python
+  plt.figure(figsize=(12, 6))
+  sns.barplot(y=industry_valuation_df['Industry'], x=industry_valuation_df['Valuation ($B)'], palette='husl', hue=industry_valuation_df['Industry'])
+  plt.title('Mean Distribution of Valuations across Different Industries')
+  plt.xlabel('Mean Valuation ($B)')
+  plt.ylabel('Industry')
+  plt.grid(axis='x', alpha=0.75)
+  #+end_src
+
+  #+RESULTS:
+  [[file:./.ob-jupyter/9e4985a16f28406760403138dc90f762f442af03.png]]
 
 **** Distribution of Valuations across Different Countries
 
@@ -456,16 +541,167 @@ df['Funding ($B)'] = df['Total Equity Funding ($)'] / 1e9
 
   #+begin_src jupyter-python
   plt.figure(figsize=(12, 8))
-  plt.barh(country_valuation_df['Country'], country_valuation_df['Valuation ($B)'])
+  sns.barplot(y=country_valuation_df['Country'], x=country_valuation_df['Valuation ($B)'], palette='husl', hue=country_valuation_df['Country'])
   plt.title('Distribution of Valuations across Different Countries')
   plt.xlabel('Total Valuation ($B)')
+  plt.ylabel('Countries')
+  plt.grid(axis='x', alpha=0.75)
+  plt.xscale('log')
+  plt.show()
+  #+end_src
+
+  #+RESULTS:
+  [[file:./.ob-jupyter/72df25b4e3d1f79a33263376565d2057451e27ba.png]]
+
+**** Mean Distribution of Valuations across Different Countries
+
+  #+begin_src jupyter-python
+  mean_country_valuation_df = df[df['Country'].isin(country_valuation_df['Country'])].groupby('Country')['Valuation ($B)'].mean().reset_index().sort_values('Valuation ($B)', ascending=False).head(20)
+  mean_country_valuation_df
+  #+end_src
+
+  #+RESULTS:
+  #+begin_export html
+  <div>
+  <style scoped>
+      .dataframe tbody tr th:only-of-type {
+          vertical-align: middle;
+      }
+
+      .dataframe tbody tr th {
+          vertical-align: top;
+      }
+
+      .dataframe thead th {
+          text-align: right;
+      }
+  </style>
+  <table border="1" class="dataframe">
+    <thead>
+      <tr style="text-align: right;">
+        <th></th>
+        <th>Country</th>
+        <th>Valuation ($B)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>14</th>
+        <td>Seychelles</td>
+        <td>5.900000</td>
+      </tr>
+      <tr>
+        <th>15</th>
+        <td>Singapore</td>
+        <td>5.753750</td>
+      </tr>
+      <tr>
+        <th>4</th>
+        <td>China</td>
+        <td>5.461765</td>
+      </tr>
+      <tr>
+        <th>0</th>
+        <td>Australia</td>
+        <td>5.426667</td>
+      </tr>
+      <tr>
+        <th>17</th>
+        <td>Sweden</td>
+        <td>4.903333</td>
+      </tr>
+      <tr>
+        <th>1</th>
+        <td>Belgium</td>
+        <td>3.983333</td>
+      </tr>
+      <tr>
+        <th>19</th>
+        <td>United States</td>
+        <td>3.748743</td>
+      </tr>
+      <tr>
+        <th>5</th>
+        <td>Finland</td>
+        <td>3.727500</td>
+      </tr>
+      <tr>
+        <th>18</th>
+        <td>United Kingdom</td>
+        <td>3.588182</td>
+      </tr>
+      <tr>
+        <th>7</th>
+        <td>Germany</td>
+        <td>2.770968</td>
+      </tr>
+      <tr>
+        <th>13</th>
+        <td>Netherlands</td>
+        <td>2.717778</td>
+      </tr>
+      <tr>
+        <th>3</th>
+        <td>Canada</td>
+        <td>2.666667</td>
+      </tr>
+      <tr>
+        <th>6</th>
+        <td>France</td>
+        <td>2.530714</td>
+      </tr>
+      <tr>
+        <th>8</th>
+        <td>India</td>
+        <td>2.530441</td>
+      </tr>
+      <tr>
+        <th>10</th>
+        <td>Israel</td>
+        <td>2.444348</td>
+      </tr>
+      <tr>
+        <th>16</th>
+        <td>South Korea</td>
+        <td>2.410769</td>
+      </tr>
+      <tr>
+        <th>12</th>
+        <td>Mexico</td>
+        <td>2.337500</td>
+      </tr>
+      <tr>
+        <th>2</th>
+        <td>Brazil</td>
+        <td>1.896111</td>
+      </tr>
+      <tr>
+        <th>9</th>
+        <td>Ireland</td>
+        <td>1.578571</td>
+      </tr>
+      <tr>
+        <th>11</th>
+        <td>Japan</td>
+        <td>1.352500</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  #+end_export
+
+  #+begin_src jupyter-python
+  plt.figure(figsize=(12, 8))
+  sns.barplot(y=mean_country_valuation_df['Country'], x=mean_country_valuation_df['Valuation ($B)'], palette='husl', hue=mean_country_valuation_df['Country'])
+  plt.title('Mean Distribution of Valuations across Different Countries')
+  plt.xlabel('Mean Valuation ($B)')
   plt.ylabel('Countries')
   plt.grid(axis='x', alpha=0.75)
   plt.show()
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/cdbbe50d70386c26ddaf23f8af5848b55ec474ae.png]]
+  [[file:./.ob-jupyter/2f2f38d9d56995ca497f6d28331f3957a1784900.png]]
 
 **** Distribution of Valuations by Number of Companies
   #+begin_src jupyter-python
@@ -569,7 +805,7 @@ df['Funding ($B)'] = df['Total Equity Funding ($)'] / 1e9
 
   #+begin_src jupyter-python
   plt.figure(figsize=(12, 6))
-  plt.barh(industry_funding_df['Industry'], industry_funding_df['Funding ($B)'], color='skyblue')
+  sns.barplot(y=industry_funding_df['Industry'], x=industry_funding_df['Funding ($B)'], palette='husl', hue=industry_funding_df['Industry'])
   plt.title('Distribution of Funding across Different Industries')
   plt.xlabel('Total Funding ($B)')
   plt.ylabel('Industry')
@@ -577,7 +813,91 @@ df['Funding ($B)'] = df['Total Equity Funding ($)'] / 1e9
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/621550790fc489aa1cd1ffcfecb9a8896edcc085.png]]
+  [[file:./.ob-jupyter/0daa16bb3b0de7e55948ca714518ab77622bfdc7.png]]
+
+**** Mean Distribution of Funding across Different Industries
+
+  #+begin_src jupyter-python
+  industry_funding_df = df.groupby('Industry')['Total Equity Funding ($)'].mean().reset_index().sort_values('Total Equity Funding ($)', ascending=False)
+  industry_funding_df
+  #+end_src
+
+  #+RESULTS:
+  #+begin_export html
+  <div>
+  <style scoped>
+      .dataframe tbody tr th:only-of-type {
+          vertical-align: middle;
+      }
+
+      .dataframe tbody tr th {
+          vertical-align: top;
+      }
+
+      .dataframe thead th {
+          text-align: right;
+      }
+  </style>
+  <table border="1" class="dataframe">
+    <thead>
+      <tr style="text-align: right;">
+        <th></th>
+        <th>Industry</th>
+        <th>Total Equity Funding ($)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>4</th>
+        <td>Industrials</td>
+        <td>6.712951e+08</td>
+      </tr>
+      <tr>
+        <th>1</th>
+        <td>Enterprise Tech</td>
+        <td>6.286642e+08</td>
+      </tr>
+      <tr>
+        <th>0</th>
+        <td>Consumer &amp; Retail</td>
+        <td>5.783069e+08</td>
+      </tr>
+      <tr>
+        <th>6</th>
+        <td>Media &amp; Entertainment</td>
+        <td>5.765059e+08</td>
+      </tr>
+      <tr>
+        <th>2</th>
+        <td>Financial Services</td>
+        <td>5.673230e+08</td>
+      </tr>
+      <tr>
+        <th>5</th>
+        <td>Insurance</td>
+        <td>5.238400e+08</td>
+      </tr>
+      <tr>
+        <th>3</th>
+        <td>Healthcare &amp; Life Sciences</td>
+        <td>5.081186e+08</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  #+end_export
+
+  #+begin_src jupyter-python
+  plt.figure(figsize=(12, 6))
+  sns.barplot(y=industry_funding_df['Industry'], x=industry_funding_df['Total Equity Funding ($)'], hue=industry_funding_df['Industry'], palette='husl')
+  plt.title('Distribution of Funding across Different Industries')
+  plt.xlabel('Mean Funding ($)')
+  plt.ylabel('Industry')
+  plt.grid(axis='x', alpha=0.75)
+  #+end_src
+
+  #+RESULTS:
+  [[file:./.ob-jupyter/201c4d3a8055404a6ed43e6af533086d6518e427.png]]
 
 **** Distribution of Funding across Different Countries
 
@@ -719,16 +1039,168 @@ df['Funding ($B)'] = df['Total Equity Funding ($)'] / 1e9
 
   #+begin_src jupyter-python
   plt.figure(figsize=(12, 8))
-  plt.barh(country_funding_df['Country'], country_funding_df['Funding ($B)'])
+  sns.barplot(y=country_funding_df['Country'], x=country_funding_df['Funding ($B)'], hue=country_funding_df['Country'], palette='husl')
   plt.title('Distribution of Funding across Different Countries')
-  plt.xlabel('Total Valuation ($B)')
+  plt.xlabel('Total Funding ($B)')
+  plt.ylabel('Countries')
+  plt.grid(axis='x', alpha=0.75)
+  plt.xscale('log')
+  plt.show()
+  #+end_src
+
+  #+RESULTS:
+  [[file:./.ob-jupyter/75091500fbe63e558dc5e5d3b9e3d77006f48d42.png]]
+
+**** Mean Distribution of Funding across Different Countries
+
+  #+begin_src jupyter-python
+  # Group by Country and sum valuations
+  mean_country_funding_df = df[df['Country'].isin(country_funding_df['Country'])].groupby('Country')['Total Equity Funding ($)'].mean().reset_index().sort_values('Total Equity Funding ($)', ascending=False).head(20)
+  mean_country_funding_df
+  #+end_src
+
+  #+RESULTS:
+  #+begin_export html
+  <div>
+  <style scoped>
+      .dataframe tbody tr th:only-of-type {
+          vertical-align: middle;
+      }
+
+      .dataframe tbody tr th {
+          vertical-align: top;
+      }
+
+      .dataframe thead th {
+          text-align: right;
+      }
+  </style>
+  <table border="1" class="dataframe">
+    <thead>
+      <tr style="text-align: right;">
+        <th></th>
+        <th>Country</th>
+        <th>Total Equity Funding ($)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>17</th>
+        <td>Sweden</td>
+        <td>1.738833e+09</td>
+      </tr>
+      <tr>
+        <th>4</th>
+        <td>Colombia</td>
+        <td>8.863333e+08</td>
+      </tr>
+      <tr>
+        <th>3</th>
+        <td>China</td>
+        <td>7.778431e+08</td>
+      </tr>
+      <tr>
+        <th>6</th>
+        <td>Germany</td>
+        <td>7.499677e+08</td>
+      </tr>
+      <tr>
+        <th>14</th>
+        <td>Singapore</td>
+        <td>7.433125e+08</td>
+      </tr>
+      <tr>
+        <th>8</th>
+        <td>India</td>
+        <td>6.501029e+08</td>
+      </tr>
+      <tr>
+        <th>18</th>
+        <td>United Kingdom</td>
+        <td>6.284727e+08</td>
+      </tr>
+      <tr>
+        <th>19</th>
+        <td>United States</td>
+        <td>5.889737e+08</td>
+      </tr>
+      <tr>
+        <th>1</th>
+        <td>Brazil</td>
+        <td>5.883889e+08</td>
+      </tr>
+      <tr>
+        <th>5</th>
+        <td>France</td>
+        <td>5.520714e+08</td>
+      </tr>
+      <tr>
+        <th>12</th>
+        <td>Mexico</td>
+        <td>5.335000e+08</td>
+      </tr>
+      <tr>
+        <th>9</th>
+        <td>Indonesia</td>
+        <td>5.167143e+08</td>
+      </tr>
+      <tr>
+        <th>2</th>
+        <td>Canada</td>
+        <td>4.674762e+08</td>
+      </tr>
+      <tr>
+        <th>16</th>
+        <td>Spain</td>
+        <td>4.424000e+08</td>
+      </tr>
+      <tr>
+        <th>0</th>
+        <td>Australia</td>
+        <td>3.861111e+08</td>
+      </tr>
+      <tr>
+        <th>10</th>
+        <td>Israel</td>
+        <td>3.780435e+08</td>
+      </tr>
+      <tr>
+        <th>15</th>
+        <td>South Korea</td>
+        <td>3.543846e+08</td>
+      </tr>
+      <tr>
+        <th>7</th>
+        <td>Hong Kong</td>
+        <td>3.427143e+08</td>
+      </tr>
+      <tr>
+        <th>13</th>
+        <td>Netherlands</td>
+        <td>3.183333e+08</td>
+      </tr>
+      <tr>
+        <th>11</th>
+        <td>Japan</td>
+        <td>2.933750e+08</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  #+end_export
+
+  #+begin_src jupyter-python
+  plt.figure(figsize=(12, 8))
+  sns.barplot(y=mean_country_funding_df['Country'], x=mean_country_funding_df['Total Equity Funding ($)'], hue=mean_country_funding_df['Country'], palette='husl')
+  plt.title('Mean Distribution of Funding across Different Countries')
+  plt.xlabel('Mean Funding ($)')
   plt.ylabel('Countries')
   plt.grid(axis='x', alpha=0.75)
   plt.show()
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/fddb9cc3a098ea04e747bd014dd84cb3f86a6418.png]]
+  [[file:./.ob-jupyter/e0783f5140d390612f4cc8dae805bed2d48e0bc1.png]]
 
 **** Distribution of Funding by Number of Companies
 
