@@ -10,3 +10,4 @@
         -   <input/datasets/unicorns till sep 2022.csv>
     -   [ ] [Unicorn Companies Dataset (as of March 2022)](https://www.kaggle.com/datasets/deepcontractor/unicorn-companies-dataset)
         -   <input/datasets/Unicorn_Companies (March 2022).csv>
+    -   [ ] [2024 YCombinator All Companies Dataset](https://www.kaggle.com/datasets/sashakorovkina/ycombinator-all-funded-companies-dataset)
