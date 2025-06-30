@@ -54,9 +54,9 @@
 #+LaTeX_HEADER: \renewcommand\labelitemi{\bullet}
 
 * Introduction
-- *What is a Unicorn Startup?*
+- *What is a Unicorn Company?*
 
-  In business, a unicorn is a startup company valued at over US$1 billion which is privately owned and not listed on a share market.
+  In business, a unicorn is a privately held startup company valued at over $1 billion. The term was first popularised in 2013 by venture capitalist Aileen Lee, choosing the mythical animal to represent the statistical rarity of such successful ventures.
 
 * Setup
 ** Import Packages
@@ -70,14 +70,14 @@ import re
 #+end_src
 
 #+RESULTS:
-** Theming
+** Global Settings
 #+begin_src jupyter-python
-sns.set_theme(palette='husl')
+sns.set_theme(palette='husl', rc={"figure.dpi": 200})
 #+end_src
 
 #+RESULTS:
 
-* Data Preparation
+* Data Processing
 ** Load Data
 
 #+begin_src jupyter-python
@@ -90,11 +90,10 @@ df_wiki = pd.read_csv('input/raw_data/list-of-unicorn-startups_20250619 (wikiped
 
 ** Data Cleaning
 #+begin_src jupyter-python
-def convert_years_months(s):
+def clean_years_to_unicorn_labels(s):
     m = re.match(r'(\d+)y?\s?(\d+)m?o?', s)
     return f'{m[1]}y{m[2]}m' if m else s
-
-df['Years to Unicorn'] = df['Years to Unicorn'].apply(convert_years_months)
+df['Years to Unicorn'] = df['Years to Unicorn'].apply(clean_years_to_unicorn_labels)
 
 def correct_industry_labels(s):
     if s == 'Health':
@@ -102,20 +101,18 @@ def correct_industry_labels(s):
     if s == 'West Palm Beach':
         return 'Enterprise Tech'
     return s
-
 df['Industry'] = df['Industry'].apply(correct_industry_labels)
 
 def correct_company_names(s):
     if s == 'Scale':
         return 'Scale AI'
     return s
-
 df['Company'] = df['Company'].apply(correct_company_names)
 #+end_src
 
 #+RESULTS:
 
-** Prepare Data
+** Data Preparation
 *** Column Types
 #+begin_src jupyter-python
 df['Unicorn Date'] = pd.to_datetime(df['Unicorn Date'])
@@ -128,6 +125,7 @@ df['Investors'] = df['Select Investors'].str.split(', ')
 #+end_src
 
 #+RESULTS:
+
 *** Time to Unicorn
 #+begin_src jupyter-python
 def convert_years_to_months(years_str):
@@ -143,23 +141,39 @@ def convert_years_to_months(years_str):
         return int(months)
     else:
         return None
-df['Years to Unicorn (Months)'] = df['Years to Unicorn'].apply(convert_years_to_months)
-df['Years to Unicorn (Converted)'] = df['Years to Unicorn (Months)'] / 12
+df['Months to Unicorn'] = df['Years to Unicorn'].apply(convert_years_to_months)
+df['Years to Unicorn'] = df['Months to Unicorn'] / 12
 #+end_src
 
 #+RESULTS:
 
-*** Merge datasets (Latest Valuations and Founders)
-#+begin_src jupyter-python
-df_wiki.rename(columns={'Valuation (US$ billions)': 'Latest Valuation ($B)'}, inplace=True)
-df_wiki = df_wiki.drop_duplicates('Company')
-df_wiki['Company'] = df_wiki['Company'].str.strip()
-df_wiki['Founder(s)'] = df_wiki['Founder(s)'].str.replace(' and ', ', ').str.split(', ')
-df = df.merge(df_wiki[['Company', 'Latest Valuation ($B)', 'Founder(s)']], on='Company', how='left')
-df['Latest Valuation ($B)'] = pd.to_numeric(df['Latest Valuation ($B)'].fillna(value=df['Valuation ($B)']))
-#+end_src
+*** Merge datasets
+- Scraped data from Wikepedia (Latest Valuations, Sectors and Founders)
 
-#+RESULTS:
+  #+begin_src jupyter-python
+  df_wiki.rename(columns={'Valuation (US$ billions)': 'Latest Valuation ($B)',
+                          'Industry': 'Sector'},
+                 inplace=True)
+  df_wiki = df_wiki.drop_duplicates('Company')
+  df_wiki['Company'] = df_wiki['Company'].str.strip()
+  df_wiki['Founder(s)'] = df_wiki['Founder(s)'].str.replace(' and ', ', ').str.split(', ')
+  def list_of_sectors(s):
+      sectors = s.replace(' and ', ', ').split(', ')
+      return list(map(lambda x: x.strip().title(), sectors))
+  df_wiki['Sector'] = df_wiki['Sector'].dropna().apply(list_of_sectors)
+  df_wiki = df_wiki.assign(tmp_col=lambda x: x.Company.str.lower()) # Create a tmp col for Company matching
+  df = df.assign(tmp_col=lambda x: x.Company.str.lower())\
+         .merge(df_wiki[['tmp_col', 'Latest Valuation ($B)', 'Sector', 'Founder(s)']], on='tmp_col', how='left')\
+         .drop(['tmp_col'], axis=1)
+  df['Latest Valuation ($B)'] = pd.to_numeric(df['Latest Valuation ($B)'].fillna(value=df['Valuation ($B)']))
+  # Determine unicorn type based on latest valuations
+  df['Unicorn Type'] = pd.cut(df['Latest Valuation ($B)'],
+                              labels=['Unicorn', 'Decacorn', 'Centicorn'],
+                              bins=[0, 10, 100, df['Latest Valuation ($B)'].max()])
+  #+end_src
+
+  #+RESULTS:
+
 
 ** Preview
 
@@ -171,2321 +185,146 @@ df['Latest Valuation ($B)'] = pd.to_numeric(df['Latest Valuation ($B)'].fillna(v
   #+begin_example
   <class 'pandas.core.frame.DataFrame'>
   RangeIndex: 1244 entries, 0 to 1243
-  Data columns (total 19 columns):
-   #   Column                        Non-Null Count  Dtype
-  ---  ------                        --------------  -----
-   0   Company                       1244 non-null   object
-   1   Valuation ($B)                1244 non-null   float64
-   2   Total Equity Funding ($)      1244 non-null   int64
-   3   Unicorn Date                  1244 non-null   datetime64[ns]
-   4   Date Founded                  1244 non-null   int64
-   5   Years to Unicorn              1244 non-null   object
-   6   Industry                      1244 non-null   object
-   7   Country                       1244 non-null   object
-   8   City                          1244 non-null   object
-   9   Select Investors              1244 non-null   object
-   10  Valuation ($)                 1244 non-null   float64
-   11  Unicorn Year                  1244 non-null   int32
-   12  Funding ($B)                  1244 non-null   float64
-   13  Funding ($M)                  1244 non-null   float64
-   14  Investors                     1244 non-null   object
-   15  Years to Unicorn (Months)     1244 non-null   int64
-   16  Years to Unicorn (Converted)  1244 non-null   float64
-   17  Latest Valuation ($B)         1244 non-null   float64
-   18  Founder(s)                    130 non-null    object
-  dtypes: datetime64[ns](1), float64(6), int32(1), int64(3), object(8)
-  memory usage: 179.9+ KB
+  Data columns (total 20 columns):
+   #   Column                    Non-Null Count  Dtype
+  ---  ------                    --------------  -----
+   0   Company                   1244 non-null   object
+   1   Valuation ($B)            1244 non-null   float64
+   2   Total Equity Funding ($)  1244 non-null   int64
+   3   Unicorn Date              1244 non-null   datetime64[ns]
+   4   Date Founded              1244 non-null   int64
+   5   Years to Unicorn          1244 non-null   float64
+   6   Industry                  1244 non-null   object
+   7   Country                   1244 non-null   object
+   8   City                      1244 non-null   object
+   9   Select Investors          1244 non-null   object
+   10  Valuation ($)             1244 non-null   float64
+   11  Unicorn Year              1244 non-null   int32
+   12  Funding ($B)              1244 non-null   float64
+   13  Funding ($M)              1244 non-null   float64
+   14  Investors                 1244 non-null   object
+   15  Months to Unicorn         1244 non-null   int64
+   16  Latest Valuation ($B)     1244 non-null   float64
+   17  Sector                    429 non-null    object
+   18  Founder(s)                139 non-null    object
+   19  Unicorn Type              1244 non-null   category
+  dtypes: category(1), datetime64[ns](1), float64(6), int32(1), int64(3), object(8)
+  memory usage: 181.3+ KB
   #+end_example
 
-* Descriptive Analysis
-** Distribution
-*** Valuations
-**** Distribution of Valuations across Different Industries
+* Exploratory Data Analysis
+** Industry-Based Analysis
+*** Distribution of Companies across Different Industries
 
   #+begin_src jupyter-python
-  industry_valuation_df = df.groupby('Industry')['Valuation ($B)'].sum().reset_index().sort_values('Valuation ($B)', ascending=False)
-  industry_valuation_df
+  _df = df.groupby('Industry').size()
+  _df
   #+end_src
 
   #+RESULTS:
-  #+begin_export html
-  <div>
-  <style scoped>
-      .dataframe tbody tr th:only-of-type {
-          vertical-align: middle;
-      }
-
-      .dataframe tbody tr th {
-          vertical-align: top;
-      }
-
-      .dataframe thead th {
-          text-align: right;
-      }
-  </style>
-  <table border="1" class="dataframe">
-    <thead>
-      <tr style="text-align: right;">
-        <th></th>
-        <th>Industry</th>
-        <th>Valuation ($B)</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <th>1</th>
-        <td>Enterprise Tech</td>
-        <td>1762.04</td>
-      </tr>
-      <tr>
-        <th>2</th>
-        <td>Financial Services</td>
-        <td>760.16</td>
-      </tr>
-      <tr>
-        <th>4</th>
-        <td>Industrials</td>
-        <td>678.55</td>
-      </tr>
-      <tr>
-        <th>0</th>
-        <td>Consumer &amp; Retail</td>
-        <td>593.30</td>
-      </tr>
-      <tr>
-        <th>3</th>
-        <td>Healthcare &amp; Life Sciences</td>
-        <td>399.95</td>
-      </tr>
-      <tr>
-        <th>6</th>
-        <td>Media &amp; Entertainment</td>
-        <td>200.29</td>
-      </tr>
-      <tr>
-        <th>5</th>
-        <td>Insurance</td>
-        <td>117.06</td>
-      </tr>
-    </tbody>
-  </table>
-  </div>
-  #+end_export
-
-  [[file:./.ob-jupyter/a9336f62e6c8e5d2ac6655162a890402fd653dc6.png]]
-
-**** Mean Distribution of Valuations across Different Industries
+  : Industry
+  : Consumer & Retail             202
+  : Enterprise Tech               405
+  : Financial Services            226
+  : Healthcare & Life Sciences    118
+  : Industrials                   183
+  : Insurance                      25
+  : Media & Entertainment          85
+  : dtype: int64
 
   #+begin_src jupyter-python
-  fig, ax = plt.subplots(figsize=(12, 6), dpi=300)
-  sns.boxplot(df, y='Industry', x='Valuation ($B)', hue='Industry', showfliers=False)
-  plt.suptitle('Distribution of Valuations across Different Industries')
-  ax.set(xlabel='Total Valuation ($B)',
-         ylabel='Industry')
-  plt.grid(axis='x', alpha=0.7)
+  fig, ax = plt.subplots(figsize=(12,8), constrained_layout=True)
+  total = _df.sum()
+  _df.plot.pie(legend=True, labels=None,
+               autopct=lambda pct:f"{round(total*pct/100)}\n({pct:.1f}%)",
+               wedgeprops=dict(width=0.7, edgecolor='w'))
+  plt.suptitle('Distribution of Companies across Different Industries')
   plt.show()
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/69ee8baa97f1cd2a0ec1d03e6e990ad9249a4c62.png]]
+  [[file:./.ob-jupyter/46a922945a6e33adbb8d5ffa34aca2258dacf152.png]]
+
+*** Distribution of Valuation across Different Industries
 
   #+begin_src jupyter-python
-  industry_valuation_df = df.groupby('Industry')['Valuation ($B)'].mean().reset_index().sort_values('Valuation ($B)', ascending=False)
-  industry_valuation_df
-  #+end_src
+  _df = df.groupby('Industry')['Latest Valuation ($B)'].sum().sort_values(ascending=False)
 
-  #+RESULTS:
-  #+begin_export html
-  <div>
-  <style scoped>
-      .dataframe tbody tr th:only-of-type {
-          vertical-align: middle;
-      }
+  fig = plt.figure(figsize=(12, 6))
+  gs = fig.add_gridspec(nrows=2, ncols=2)
 
-      .dataframe tbody tr th {
-          vertical-align: top;
-      }
+  ax1 = fig.add_subplot(gs[0, 0])
+  ax2 = fig.add_subplot(gs[0, 1])
+  ax1.sharey(ax2)
+  # ax3 = fig.add_subplot(gs[1, :])
 
-      .dataframe thead th {
-          text-align: right;
-      }
-  </style>
-  <table border="1" class="dataframe">
-    <thead>
-      <tr style="text-align: right;">
-        <th></th>
-        <th>Industry</th>
-        <th>Valuation ($B)</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <th>5</th>
-        <td>Insurance</td>
-        <td>4.682400</td>
-      </tr>
-      <tr>
-        <th>1</th>
-        <td>Enterprise Tech</td>
-        <td>4.350716</td>
-      </tr>
-      <tr>
-        <th>4</th>
-        <td>Industrials</td>
-        <td>3.707923</td>
-      </tr>
-      <tr>
-        <th>3</th>
-        <td>Healthcare &amp; Life Sciences</td>
-        <td>3.389407</td>
-      </tr>
-      <tr>
-        <th>2</th>
-        <td>Financial Services</td>
-        <td>3.363540</td>
-      </tr>
-      <tr>
-        <th>0</th>
-        <td>Consumer &amp; Retail</td>
-        <td>2.937129</td>
-      </tr>
-      <tr>
-        <th>6</th>
-        <td>Media &amp; Entertainment</td>
-        <td>2.356353</td>
-      </tr>
-    </tbody>
-  </table>
-  </div>
-  #+end_export
+  g = sns.barplot(y=_df.index, x=_df.values, hue=_df.index, ax=ax1)
+  for i in ax1.containers:
+      ax1.bar_label(i, fmt='%.2f')
+  ax1.set_xlabel('Total Valuation ($B)')
+  ax1.set_ylabel(None)
+  sns.boxplot(df, y='Industry', x='Latest Valuation ($B)', hue='Industry', showfliers=False, ax=ax2)
+  ax2.get_yaxis().set_visible(False)
+  ax2.set_xlabel('Mean Valuation ($B)')
 
-  #+begin_src jupyter-python
-  plt.figure(figsize=(12, 6),dpi=300)
-  ax = sns.barplot(industry_valuation_df,
-                   y='Industry',
-                   x='Valuation ($B)',
-                   hue='Industry')
-  for i in ax.containers:
-      ax.bar_label(i, fmt='%.2f')
-  plt.title('Mean Distribution of Valuations across Different Industries')
-  plt.xlabel('Mean Valuation ($B)')
-  plt.ylabel('Industry')
   plt.grid(axis='x', alpha=0.75)
+  plt.suptitle('Distribution of Valuation across Different Industries')
+
+  plt.ylabel(None)
+  plt.show()
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/5073deb1c30d98fb5c842eaec27fc16edc190b6d.png]]
+  [[file:./.ob-jupyter/551d2c34f4ea3540caa27da915d8523a7492f6e8.png]]
 
-**** Distribution of Valuations across Different Countries
-
-  #+begin_src jupyter-python
-  country_valuation_df = df.groupby('Country')['Valuation ($B)'].sum().reset_index().sort_values('Valuation ($B)', ascending=False).head(20)
-  country_valuation_df
-  #+end_src
-
-  #+RESULTS:
-  #+begin_export html
-  <div>
-  <style scoped>
-      .dataframe tbody tr th:only-of-type {
-          vertical-align: middle;
-      }
-
-      .dataframe tbody tr th {
-          vertical-align: top;
-      }
-
-      .dataframe thead th {
-          text-align: right;
-      }
-  </style>
-  <table border="1" class="dataframe">
-    <thead>
-      <tr style="text-align: right;">
-        <th></th>
-        <th>Country</th>
-        <th>Valuation ($B)</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <th>53</th>
-        <td>United States</td>
-        <td>2564.14</td>
-      </tr>
-      <tr>
-        <th>10</th>
-        <td>China</td>
-        <td>835.65</td>
-      </tr>
-      <tr>
-        <th>52</th>
-        <td>United Kingdom</td>
-        <td>197.35</td>
-      </tr>
-      <tr>
-        <th>24</th>
-        <td>India</td>
-        <td>172.07</td>
-      </tr>
-      <tr>
-        <th>43</th>
-        <td>Singapore</td>
-        <td>92.06</td>
-      </tr>
-      <tr>
-        <th>21</th>
-        <td>Germany</td>
-        <td>85.90</td>
-      </tr>
-      <tr>
-        <th>20</th>
-        <td>France</td>
-        <td>70.86</td>
-      </tr>
-      <tr>
-        <th>27</th>
-        <td>Israel</td>
-        <td>56.22</td>
-      </tr>
-      <tr>
-        <th>6</th>
-        <td>Canada</td>
-        <td>56.00</td>
-      </tr>
-      <tr>
-        <th>1</th>
-        <td>Australia</td>
-        <td>48.84</td>
-      </tr>
-      <tr>
-        <th>5</th>
-        <td>Brazil</td>
-        <td>34.13</td>
-      </tr>
-      <tr>
-        <th>45</th>
-        <td>South Korea</td>
-        <td>31.34</td>
-      </tr>
-      <tr>
-        <th>47</th>
-        <td>Sweden</td>
-        <td>29.42</td>
-      </tr>
-      <tr>
-        <th>36</th>
-        <td>Netherlands</td>
-        <td>24.46</td>
-      </tr>
-      <tr>
-        <th>35</th>
-        <td>Mexico</td>
-        <td>18.70</td>
-      </tr>
-      <tr>
-        <th>19</th>
-        <td>Finland</td>
-        <td>14.91</td>
-      </tr>
-      <tr>
-        <th>3</th>
-        <td>Belgium</td>
-        <td>11.95</td>
-      </tr>
-      <tr>
-        <th>42</th>
-        <td>Seychelles</td>
-        <td>11.80</td>
-      </tr>
-      <tr>
-        <th>26</th>
-        <td>Ireland</td>
-        <td>11.05</td>
-      </tr>
-      <tr>
-        <th>29</th>
-        <td>Japan</td>
-        <td>10.82</td>
-      </tr>
-    </tbody>
-  </table>
-  </div>
-  #+end_export
+*** Distribution of Equity Funding across Different Industries
 
   #+begin_src jupyter-python
-  plt.subplots(figsize=(12, 8), dpi=300)
-  ax = sns.barplot(country_valuation_df,
-                   y='Country',
-                   x='Valuation ($B)',
-                   hue='Country')
-  for i in ax.containers:
-      ax.bar_label(i, fmt='%.2f')
-  plt.suptitle('Distribution of Valuations across Different Countries')
-  plt.xlabel('Total Valuation ($B)')
-  plt.ylabel('Countries')
+  _df = df.groupby('Industry')['Funding ($B)'].sum().sort_values(ascending=False)
+
+  fig = plt.figure(figsize=(12, 6))
+  gs = fig.add_gridspec(nrows=2, ncols=2)
+
+  ax1 = fig.add_subplot(gs[0, 0])
+  ax2 = fig.add_subplot(gs[0, 1])
+  ax1.sharey(ax2)
+
+  g = sns.barplot(y=_df.index, x=_df.values, hue=_df.index, ax=ax1)
+  for i in ax1.containers:
+      ax1.bar_label(i, fmt='%.2f')
+  ax1.set_xlabel('Total Equity Funding ($B)')
+  ax1.set_ylabel(None)
+  sns.boxplot(df, y='Industry', x='Funding ($M)', hue='Industry', showfliers=False, ax=ax2)
+  ax2.get_yaxis().set_visible(False)
+  ax2.set_xlabel('Mean Equity Funding ($M)')
+
   plt.grid(axis='x', alpha=0.75)
-  plt.xscale('log')
+  plt.suptitle('Distribution of Equity Funding across Different Industries')
+
+  plt.ylabel(None)
   plt.show()
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/f05e6c0f46ae7c19abfd1eb84b0fa2c74da48689.png]]
-
-**** Mean Distribution of Valuations across Different Countries
+  [[file:./.ob-jupyter/77a5f1ad8e76d99e065bb92e1d1c36e23407ed3f.png]]
+** Geographical Analysis
 
   #+begin_src jupyter-python
-  fig, ax = plt.subplots(figsize=(12, 8), dpi=300)
-  sns.boxplot(df[df['Country'].isin(country_valuation_df['Country'])],
-              y='Country',
-              x='Valuation ($B)',
-              hue='Country',
-              showfliers=False)
-  plt.suptitle('Distribution of Valuations across Different Countries')
-  ax.set(xlabel='Total Valuation ($B)',
-         ylabel='Country')
-  plt.grid(axis='x', alpha=0.7)
-  plt.show()
+  top_countries = df.groupby('Country')['Latest Valuation ($B)'].sum().sort_values(ascending=False).head(30)
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/14b2ea8e778390abd7e447fb2b3880a74531c52f.png]]
+
+*** Top Countries by Valuation
 
   #+begin_src jupyter-python
-  mean_country_valuation_df = df[df['Country'].isin(country_valuation_df['Country'])].groupby('Country')['Valuation ($B)'].mean().reset_index().sort_values('Valuation ($B)', ascending=False).head(20)
-  mean_country_valuation_df
-  #+end_src
-
-  #+RESULTS:
-  #+begin_export html
-  <div>
-  <style scoped>
-      .dataframe tbody tr th:only-of-type {
-          vertical-align: middle;
-      }
-
-      .dataframe tbody tr th {
-          vertical-align: top;
-      }
-
-      .dataframe thead th {
-          text-align: right;
-      }
-  </style>
-  <table border="1" class="dataframe">
-    <thead>
-      <tr style="text-align: right;">
-        <th></th>
-        <th>Country</th>
-        <th>Valuation ($B)</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <th>14</th>
-        <td>Seychelles</td>
-        <td>5.900000</td>
-      </tr>
-      <tr>
-        <th>15</th>
-        <td>Singapore</td>
-        <td>5.753750</td>
-      </tr>
-      <tr>
-        <th>4</th>
-        <td>China</td>
-        <td>5.461765</td>
-      </tr>
-      <tr>
-        <th>0</th>
-        <td>Australia</td>
-        <td>5.426667</td>
-      </tr>
-      <tr>
-        <th>17</th>
-        <td>Sweden</td>
-        <td>4.903333</td>
-      </tr>
-      <tr>
-        <th>1</th>
-        <td>Belgium</td>
-        <td>3.983333</td>
-      </tr>
-      <tr>
-        <th>19</th>
-        <td>United States</td>
-        <td>3.748743</td>
-      </tr>
-      <tr>
-        <th>5</th>
-        <td>Finland</td>
-        <td>3.727500</td>
-      </tr>
-      <tr>
-        <th>18</th>
-        <td>United Kingdom</td>
-        <td>3.588182</td>
-      </tr>
-      <tr>
-        <th>7</th>
-        <td>Germany</td>
-        <td>2.770968</td>
-      </tr>
-      <tr>
-        <th>13</th>
-        <td>Netherlands</td>
-        <td>2.717778</td>
-      </tr>
-      <tr>
-        <th>3</th>
-        <td>Canada</td>
-        <td>2.666667</td>
-      </tr>
-      <tr>
-        <th>6</th>
-        <td>France</td>
-        <td>2.530714</td>
-      </tr>
-      <tr>
-        <th>8</th>
-        <td>India</td>
-        <td>2.530441</td>
-      </tr>
-      <tr>
-        <th>10</th>
-        <td>Israel</td>
-        <td>2.444348</td>
-      </tr>
-      <tr>
-        <th>16</th>
-        <td>South Korea</td>
-        <td>2.410769</td>
-      </tr>
-      <tr>
-        <th>12</th>
-        <td>Mexico</td>
-        <td>2.337500</td>
-      </tr>
-      <tr>
-        <th>2</th>
-        <td>Brazil</td>
-        <td>1.896111</td>
-      </tr>
-      <tr>
-        <th>9</th>
-        <td>Ireland</td>
-        <td>1.578571</td>
-      </tr>
-      <tr>
-        <th>11</th>
-        <td>Japan</td>
-        <td>1.352500</td>
-      </tr>
-    </tbody>
-  </table>
-  </div>
-  #+end_export
-
-  #+begin_src jupyter-python
-  plt.figure(figsize=(12, 8), dpi=300)
-  ax = sns.barplot(mean_country_valuation_df,
-                   y='Country',
-                   x='Valuation ($B)',
-                   hue='Country')
-  for i in ax.containers:
-      ax.bar_label(i, fmt='%.2f')
-  plt.suptitle('Mean Distribution of Valuations across Different Countries')
-  plt.xlabel('Mean Valuation ($B)')
-  plt.ylabel('Countries')
-  plt.grid(axis='x', alpha=0.75)
-  plt.show()
-  #+end_src
-
-  #+RESULTS:
-  [[file:./.ob-jupyter/b32085f51b1c934f8ac141a341760533bb7014fb.png]]
-
-**** Distribution of Valuations by Number of Companies
-  #+begin_src jupyter-python
-  # Define the bins for valuation ranges
-  bins = [0, 1, 1.5, 2, 3, 4, 5, 6, 8, 10, 20, 30, 50, 100, 200, 300, 400]
-  labels =  [f'{a}-{b}' for a, b in zip(bins[:-1], bins[1:])]
-  cuts = pd.cut(df['Valuation ($B)'], bins=bins, labels=labels)
-
-  # Count the number of companies in each bin
-  valuation_distribution = cuts.value_counts().sort_index()
-
-  # Plot the Bar Chart
-  plt.figure(figsize=(12, 6), dpi=300)
-  ax = sns.barplot(x=valuation_distribution.index,
-                   y=valuation_distribution.values, hue=valuation_distribution.values)
-  for i in ax.containers:
-      ax.bar_label(i)
-  plt.suptitle('Distribution of Valuations by Number of Companies')
-  plt.xlabel('Valuation ($B)')
-  plt.ylabel('Number of Companies')
-  plt.xticks(rotation=45)
-  plt.grid(axis='y', alpha=0.75)
-  #plt.yscale('log')
-  plt.show()
-  #+end_src
-
-  #+RESULTS:
-  [[file:./.ob-jupyter/c11e15d352b3ed98f9ef5a451d66283761e0521b.png]]
-
-*** Funding
-**** Distribution of Funding across Different Industries
-
-  #+begin_src jupyter-python
-  industry_funding_df = df.groupby('Industry')['Funding ($B)'].sum().reset_index().sort_values('Funding ($B)', ascending=False)
-  industry_funding_df
-  #+end_src
-
-  #+RESULTS:
-  #+begin_export html
-  <div>
-  <style scoped>
-      .dataframe tbody tr th:only-of-type {
-          vertical-align: middle;
-      }
-
-      .dataframe tbody tr th {
-          vertical-align: top;
-      }
-
-      .dataframe thead th {
-          text-align: right;
-      }
-  </style>
-  <table border="1" class="dataframe">
-    <thead>
-      <tr style="text-align: right;">
-        <th></th>
-        <th>Industry</th>
-        <th>Funding ($B)</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <th>1</th>
-        <td>Enterprise Tech</td>
-        <td>254.609</td>
-      </tr>
-      <tr>
-        <th>2</th>
-        <td>Financial Services</td>
-        <td>128.215</td>
-      </tr>
-      <tr>
-        <th>4</th>
-        <td>Industrials</td>
-        <td>122.847</td>
-      </tr>
-      <tr>
-        <th>0</th>
-        <td>Consumer &amp; Retail</td>
-        <td>116.818</td>
-      </tr>
-      <tr>
-        <th>3</th>
-        <td>Healthcare &amp; Life Sciences</td>
-        <td>59.958</td>
-      </tr>
-      <tr>
-        <th>6</th>
-        <td>Media &amp; Entertainment</td>
-        <td>49.003</td>
-      </tr>
-      <tr>
-        <th>5</th>
-        <td>Insurance</td>
-        <td>13.096</td>
-      </tr>
-    </tbody>
-  </table>
-  </div>
-  #+end_export
-
-  #+begin_src jupyter-python
-  plt.figure(figsize=(12, 6), dpi=300)
-  ax = sns.barplot(industry_funding_df,
-              y='Industry', x='Funding ($B)', hue='Industry')
-  for i in ax.containers:
-      ax.bar_label(i, fmt='%.2f')
-  plt.suptitle('Distribution of Funding across Different Industries')
-  plt.xlabel('Total Funding ($B)')
-  plt.ylabel('Industry')
-  plt.grid(axis='x', alpha=0.75)
-  #+end_src
-
-  #+RESULTS:
-  [[file:./.ob-jupyter/51c4d8a9a32ca8c1203e36b04ad2e32a8ca58214.png]]
-
-**** Mean Distribution of Funding across Different Industries
-
-  #+begin_src jupyter-python
-  fig, ax = plt.subplots(figsize=(12, 6), dpi=300)
-  sns.boxplot(df, y='Industry', x='Funding ($M)', hue='Industry', showfliers=False)
-  plt.suptitle('Distribution of Funding across Different Industries')
-  ax.set(xlabel='Total Funding ($M)',
-         ylabel='Industry')
-  plt.grid(axis='x', alpha=0.7)
-  plt.show()
-  #+end_src
-
-  #+RESULTS:
-  [[file:./.ob-jupyter/ce120bcc0a8df946a8aa05155ef6bccacb68dad9.png]]
-
-  #+begin_src jupyter-python
-  industry_funding_df = df.groupby('Industry')['Funding ($M)'].mean().reset_index().sort_values('Funding ($M)', ascending=False)
-  industry_funding_df
-  #+end_src
-
-  #+RESULTS:
-  #+begin_export html
-  <div>
-  <style scoped>
-      .dataframe tbody tr th:only-of-type {
-          vertical-align: middle;
-      }
-
-      .dataframe tbody tr th {
-          vertical-align: top;
-      }
-
-      .dataframe thead th {
-          text-align: right;
-      }
-  </style>
-  <table border="1" class="dataframe">
-    <thead>
-      <tr style="text-align: right;">
-        <th></th>
-        <th>Industry</th>
-        <th>Funding ($M)</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <th>4</th>
-        <td>Industrials</td>
-        <td>671.295082</td>
-      </tr>
-      <tr>
-        <th>1</th>
-        <td>Enterprise Tech</td>
-        <td>628.664198</td>
-      </tr>
-      <tr>
-        <th>0</th>
-        <td>Consumer &amp; Retail</td>
-        <td>578.306933</td>
-      </tr>
-      <tr>
-        <th>6</th>
-        <td>Media &amp; Entertainment</td>
-        <td>576.505882</td>
-      </tr>
-      <tr>
-        <th>2</th>
-        <td>Financial Services</td>
-        <td>567.323009</td>
-      </tr>
-      <tr>
-        <th>5</th>
-        <td>Insurance</td>
-        <td>523.840000</td>
-      </tr>
-      <tr>
-        <th>3</th>
-        <td>Healthcare &amp; Life Sciences</td>
-        <td>508.118644</td>
-      </tr>
-    </tbody>
-  </table>
-  </div>
-  #+end_export
-
-  #+begin_src jupyter-python
-  plt.figure(figsize=(12, 6), dpi=300)
-  ax = sns.barplot(industry_funding_df,
-                   y='Industry',
-                   x='Funding ($M)',
-                   hue='Industry')
-  for i in ax.containers:
-      ax.bar_label(i, fmt='%.2f')
-  plt.suptitle('Distribution of Funding across Different Industries')
-  plt.xlabel('Mean Funding ($M)')
-  plt.ylabel('Industry')
-  plt.grid(axis='x', alpha=0.75)
-  plt.show()
-  #+end_src
-
-  #+RESULTS:
-  [[file:./.ob-jupyter/a19a57cb164cf145e18296570c84ce993e852311.png]]
-
-**** Distribution of Funding across Different Countries
-
-  #+begin_src jupyter-python
-  country_funding_df = df.groupby('Country')['Funding ($B)'].sum().reset_index().sort_values('Funding ($B)', ascending=False).head(20)
-  country_funding_df
-  #+end_src
-
-  #+RESULTS:
-  #+begin_export html
-  <div>
-  <style scoped>
-      .dataframe tbody tr th:only-of-type {
-          vertical-align: middle;
-      }
-
-      .dataframe tbody tr th {
-          vertical-align: top;
-      }
-
-      .dataframe thead th {
-          text-align: right;
-      }
-  </style>
-  <table border="1" class="dataframe">
-    <thead>
-      <tr style="text-align: right;">
-        <th></th>
-        <th>Country</th>
-        <th>Funding ($B)</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <th>53</th>
-        <td>United States</td>
-        <td>402.858</td>
-      </tr>
-      <tr>
-        <th>10</th>
-        <td>China</td>
-        <td>119.010</td>
-      </tr>
-      <tr>
-        <th>24</th>
-        <td>India</td>
-        <td>44.207</td>
-      </tr>
-      <tr>
-        <th>52</th>
-        <td>United Kingdom</td>
-        <td>34.566</td>
-      </tr>
-      <tr>
-        <th>21</th>
-        <td>Germany</td>
-        <td>23.249</td>
-      </tr>
-      <tr>
-        <th>20</th>
-        <td>France</td>
-        <td>15.458</td>
-      </tr>
-      <tr>
-        <th>43</th>
-        <td>Singapore</td>
-        <td>11.893</td>
-      </tr>
-      <tr>
-        <th>5</th>
-        <td>Brazil</td>
-        <td>10.591</td>
-      </tr>
-      <tr>
-        <th>47</th>
-        <td>Sweden</td>
-        <td>10.433</td>
-      </tr>
-      <tr>
-        <th>6</th>
-        <td>Canada</td>
-        <td>9.817</td>
-      </tr>
-      <tr>
-        <th>27</th>
-        <td>Israel</td>
-        <td>8.695</td>
-      </tr>
-      <tr>
-        <th>45</th>
-        <td>South Korea</td>
-        <td>4.607</td>
-      </tr>
-      <tr>
-        <th>35</th>
-        <td>Mexico</td>
-        <td>4.268</td>
-      </tr>
-      <tr>
-        <th>25</th>
-        <td>Indonesia</td>
-        <td>3.617</td>
-      </tr>
-      <tr>
-        <th>1</th>
-        <td>Australia</td>
-        <td>3.475</td>
-      </tr>
-      <tr>
-        <th>36</th>
-        <td>Netherlands</td>
-        <td>2.865</td>
-      </tr>
-      <tr>
-        <th>11</th>
-        <td>Colombia</td>
-        <td>2.659</td>
-      </tr>
-      <tr>
-        <th>23</th>
-        <td>Hong Kong</td>
-        <td>2.399</td>
-      </tr>
-      <tr>
-        <th>29</th>
-        <td>Japan</td>
-        <td>2.347</td>
-      </tr>
-      <tr>
-        <th>46</th>
-        <td>Spain</td>
-        <td>2.212</td>
-      </tr>
-    </tbody>
-  </table>
-  </div>
-  #+end_export
-
-  #+begin_src jupyter-python
-  plt.figure(figsize=(12, 8), dpi=300)
-  ax = sns.barplot(country_funding_df, y='Country', x='Funding ($B)', hue='Country')
-  for i in ax.containers:
-      ax.bar_label(i, fmt='%.2f')
-  plt.suptitle('Distribution of Funding across Different Countries')
-  plt.xlabel('Funding ($B)')
-  plt.ylabel('Countries')
-  plt.grid(axis='x', alpha=0.75)
-  plt.xscale('log')
-  plt.show()
-  #+end_src
-
-  #+RESULTS:
-  [[file:./.ob-jupyter/6c0f4abb81549409122bd27d4fea332be17ab66a.png]]
-
-**** Mean Distribution of Funding across Different Countries
-  #+begin_src jupyter-python
-  fig, ax = plt.subplots(figsize=(12,8), dpi=300)
-  sns.boxplot(df[df['Country'].isin(country_funding_df['Country'])], y='Country', x='Funding ($M)', hue='Country', showfliers=False)
-  plt.suptitle('Distribution of Funding across Different Countries')
-  ax.set(xlabel='Funding ($M)',
-         ylabel='Country')
-  plt.grid(axis='x', alpha=0.7)
-  plt.show()
-  #+end_src
-
-  #+RESULTS:
-  [[file:./.ob-jupyter/9661b37f23fd037b29b57cb5c30fd4b898431222.png]]
-
-  #+begin_src jupyter-python
-  mean_country_funding_df = df[df['Country'].isin(country_funding_df['Country'])].groupby('Country')['Funding ($M)'].mean().reset_index().sort_values('Funding ($M)', ascending=False).head(20)
-  mean_country_funding_df
-  #+end_src
-
-  #+RESULTS:
-  #+begin_export html
-  <div>
-  <style scoped>
-      .dataframe tbody tr th:only-of-type {
-          vertical-align: middle;
-      }
-
-      .dataframe tbody tr th {
-          vertical-align: top;
-      }
-
-      .dataframe thead th {
-          text-align: right;
-      }
-  </style>
-  <table border="1" class="dataframe">
-    <thead>
-      <tr style="text-align: right;">
-        <th></th>
-        <th>Country</th>
-        <th>Funding ($M)</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <th>17</th>
-        <td>Sweden</td>
-        <td>1738.833333</td>
-      </tr>
-      <tr>
-        <th>4</th>
-        <td>Colombia</td>
-        <td>886.333333</td>
-      </tr>
-      <tr>
-        <th>3</th>
-        <td>China</td>
-        <td>777.843137</td>
-      </tr>
-      <tr>
-        <th>6</th>
-        <td>Germany</td>
-        <td>749.967742</td>
-      </tr>
-      <tr>
-        <th>14</th>
-        <td>Singapore</td>
-        <td>743.312500</td>
-      </tr>
-      <tr>
-        <th>8</th>
-        <td>India</td>
-        <td>650.102941</td>
-      </tr>
-      <tr>
-        <th>18</th>
-        <td>United Kingdom</td>
-        <td>628.472727</td>
-      </tr>
-      <tr>
-        <th>19</th>
-        <td>United States</td>
-        <td>588.973684</td>
-      </tr>
-      <tr>
-        <th>1</th>
-        <td>Brazil</td>
-        <td>588.388889</td>
-      </tr>
-      <tr>
-        <th>5</th>
-        <td>France</td>
-        <td>552.071429</td>
-      </tr>
-      <tr>
-        <th>12</th>
-        <td>Mexico</td>
-        <td>533.500000</td>
-      </tr>
-      <tr>
-        <th>9</th>
-        <td>Indonesia</td>
-        <td>516.714286</td>
-      </tr>
-      <tr>
-        <th>2</th>
-        <td>Canada</td>
-        <td>467.476190</td>
-      </tr>
-      <tr>
-        <th>16</th>
-        <td>Spain</td>
-        <td>442.400000</td>
-      </tr>
-      <tr>
-        <th>0</th>
-        <td>Australia</td>
-        <td>386.111111</td>
-      </tr>
-      <tr>
-        <th>10</th>
-        <td>Israel</td>
-        <td>378.043497</td>
-      </tr>
-      <tr>
-        <th>15</th>
-        <td>South Korea</td>
-        <td>354.384615</td>
-      </tr>
-      <tr>
-        <th>7</th>
-        <td>Hong Kong</td>
-        <td>342.714286</td>
-      </tr>
-      <tr>
-        <th>13</th>
-        <td>Netherlands</td>
-        <td>318.333333</td>
-      </tr>
-      <tr>
-        <th>11</th>
-        <td>Japan</td>
-        <td>293.375000</td>
-      </tr>
-    </tbody>
-  </table>
-  </div>
-  #+end_export
-
-  #+begin_src jupyter-python
-  plt.figure(figsize=(12, 8), dpi=300)
-  ax = sns.barplot(mean_country_funding_df,
-                   y='Country',
-                   x='Funding ($M)',
-                   hue='Country')
-  for i in ax.containers:
-      ax.bar_label(i, fmt='%.2f')
-  plt.suptitle('Mean Distribution of Funding across Different Countries')
-  plt.xlabel('Mean Funding ($M)')
-  plt.ylabel('Countries')
-  plt.grid(axis='x', alpha=0.75)
-  plt.show()
-  #+end_src
-
-  #+RESULTS:
-  [[file:./.ob-jupyter/e9fd9611e3e328320e295fff8c6f23a770b5ac70.png]]
-
-**** Distribution of Funding by Number of Companies
-
-  #+begin_src jupyter-python
-    # Define the bins for funding ranges
-    # bins = [0, 0.2, 0.3, 0.5, 0.8, 1, 2, 4, 6, 8, 10, 12, 15, 20]
-    # labels =  [f'{a}-{b}' for a, b in zip(bins[:-1], bins[1:])]
-    bins = [0,50,100,150,200,250,300,350,400,450,500,550,600,650,700,750,800,850,900,950,1000,1500,2000,4000,6000,8000,10000,15000,20000]
-    labels =  [f'{a}-{b}' for a, b in zip(bins[:-1], bins[1:])]
-    cuts = pd.cut(df['Funding ($M)'], bins=bins, labels=labels)
-
-    # Count the number of companies in each bin
-    funding_distribution = cuts.value_counts().sort_index()
-
-    # Plot the Bar Chart
-    plt.figure(figsize=(12, 6), dpi=300)
-    ax = sns.barplot(x=funding_distribution.index,
-                     y=funding_distribution.values, hue=funding_distribution.values)
-    for i in ax.containers:
-        ax.bar_label(i)
-    plt.suptitle('Distribution of Funding by Number of Companies')
-    plt.xlabel('Funding ($M)')
-    plt.ylabel('Number of Companies')
-    plt.xticks(rotation=90)
-    plt.grid(axis='y', alpha=0.75)
-    # plt.yscale('log')
-    plt.show()
-  #+end_src
-
-  #+RESULTS:
-  [[file:./.ob-jupyter/99f2eeea3301d67ae9cd9b09636a97e4944d898f.png]]
-
-* Comparative Analysis
-** Top Companies by Valuation
-
-  #+begin_src jupyter-python
-  top_companies = df.sort_values(by='Latest Valuation ($B)', ascending=False).head(20)
-  top_companies
-  #+end_src
-
-  #+RESULTS:
-  #+begin_export html
-  <div>
-  <style scoped>
-      .dataframe tbody tr th:only-of-type {
-          vertical-align: middle;
-      }
-
-      .dataframe tbody tr th {
-          vertical-align: top;
-      }
-
-      .dataframe thead th {
-          text-align: right;
-      }
-  </style>
-  <table border="1" class="dataframe">
-    <thead>
-      <tr style="text-align: right;">
-        <th></th>
-        <th>Company</th>
-        <th>Valuation ($B)</th>
-        <th>Total Equity Funding ($)</th>
-        <th>Unicorn Date</th>
-        <th>Date Founded</th>
-        <th>Years to Unicorn</th>
-        <th>Industry</th>
-        <th>Country</th>
-        <th>City</th>
-        <th>Select Investors</th>
-        <th>Valuation ($)</th>
-        <th>Unicorn Year</th>
-        <th>Funding ($B)</th>
-        <th>Funding ($M)</th>
-        <th>Investors</th>
-        <th>Years to Unicorn (Months)</th>
-        <th>Years to Unicorn (Converted)</th>
-        <th>Latest Valuation ($B)</th>
-        <th>Founder(s)</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <th>0</th>
-        <td>SpaceX</td>
-        <td>350.00</td>
-        <td>9000000000</td>
-        <td>2012-12-01</td>
-        <td>2002</td>
-        <td>10y3m</td>
-        <td>Enterprise Tech</td>
-        <td>United States</td>
-        <td>Hawthorne</td>
-        <td>Opus Capital, RRE Ventures, Relay Ventures</td>
-        <td>3.500000e+11</td>
-        <td>2012</td>
-        <td>9.000</td>
-        <td>9000.0</td>
-        <td>[Opus Capital, RRE Ventures, Relay Ventures]</td>
-        <td>123</td>
-        <td>10.250000</td>
-        <td>350.00</td>
-        <td>[Elon Musk]</td>
-      </tr>
-      <tr>
-        <th>1</th>
-        <td>ByteDance</td>
-        <td>300.00</td>
-        <td>8000000000</td>
-        <td>2017-04-07</td>
-        <td>2011</td>
-        <td>6y3m</td>
-        <td>Enterprise Tech</td>
-        <td>China</td>
-        <td>Beijing</td>
-        <td>Breyer Capital, Parkway VC, TIME Ventures</td>
-        <td>3.000000e+11</td>
-        <td>2017</td>
-        <td>8.000</td>
-        <td>8000.0</td>
-        <td>[Breyer Capital, Parkway VC, TIME Ventures]</td>
-        <td>75</td>
-        <td>6.250000</td>
-        <td>315.00</td>
-        <td>[Zhang Yiming, Liang Rubo]</td>
-      </tr>
-      <tr>
-        <th>2</th>
-        <td>OpenAI</td>
-        <td>157.00</td>
-        <td>18000000000</td>
-        <td>2019-07-22</td>
-        <td>2015</td>
-        <td>4y6m</td>
-        <td>Industrials</td>
-        <td>United States</td>
-        <td>San Francisco</td>
-        <td>Dynamo VC, Susa Ventures, Founders Fund</td>
-        <td>1.570000e+11</td>
-        <td>2019</td>
-        <td>18.000</td>
-        <td>18000.0</td>
-        <td>[Dynamo VC, Susa Ventures, Founders Fund]</td>
-        <td>54</td>
-        <td>4.500000</td>
-        <td>300.00</td>
-        <td>[Sam Altman, Greg Brockman, Ilya Sutskever]</td>
-      </tr>
-      <tr>
-        <th>3</th>
-        <td>Ant Group</td>
-        <td>150.00</td>
-        <td>19000000000</td>
-        <td>2017-01-01</td>
-        <td>2014</td>
-        <td>3y</td>
-        <td>Financial Services</td>
-        <td>China</td>
-        <td>Hangzhou</td>
-        <td>Alibaba Group, CPP Investments, The Carlyle Group</td>
-        <td>1.500000e+11</td>
-        <td>2017</td>
-        <td>19.000</td>
-        <td>19000.0</td>
-        <td>[Alibaba Group, CPP Investments, The Carlyle G...</td>
-        <td>36</td>
-        <td>3.000000</td>
-        <td>150.00</td>
-        <td>NaN</td>
-      </tr>
-      <tr>
-        <th>7</th>
-        <td>xAI</td>
-        <td>50.00</td>
-        <td>12000000000</td>
-        <td>2024-05-26</td>
-        <td>2006</td>
-        <td>18y4m</td>
-        <td>Consumer &amp; Retail</td>
-        <td>United States</td>
-        <td>Burlingame</td>
-        <td>Prysm Capital, Baillie Gifford &amp; Co., TDM Grow...</td>
-        <td>5.000000e+10</td>
-        <td>2024</td>
-        <td>12.000</td>
-        <td>12000.0</td>
-        <td>[Prysm Capital, Baillie Gifford &amp; Co., TDM Gro...</td>
-        <td>220</td>
-        <td>18.333333</td>
-        <td>113.00</td>
-        <td>[Elon Musk]</td>
-      </tr>
-      <tr>
-        <th>4</th>
-        <td>Stripe</td>
-        <td>70.00</td>
-        <td>9000000000</td>
-        <td>2014-01-23</td>
-        <td>2009</td>
-        <td>5y</td>
-        <td>Consumer &amp; Retail</td>
-        <td>United States</td>
-        <td>San Francisco</td>
-        <td>Sequoia Capital China, ZhenFund, K2 Ventures</td>
-        <td>7.000000e+10</td>
-        <td>2014</td>
-        <td>9.000</td>
-        <td>9000.0</td>
-        <td>[Sequoia Capital China, ZhenFund, K2 Ventures]</td>
-        <td>60</td>
-        <td>5.000000</td>
-        <td>91.50</td>
-        <td>[Patrick, John Collison]</td>
-      </tr>
-      <tr>
-        <th>5</th>
-        <td>SHEIN</td>
-        <td>66.00</td>
-        <td>4000000000</td>
-        <td>2018-07-03</td>
-        <td>2008</td>
-        <td>10y6m</td>
-        <td>Financial Services</td>
-        <td>Singapore</td>
-        <td>Singapore</td>
-        <td>369 Growth Partners, GTM Capital, Berkeley Hil...</td>
-        <td>6.600000e+10</td>
-        <td>2018</td>
-        <td>4.000</td>
-        <td>4000.0</td>
-        <td>[369 Growth Partners, GTM Capital, Berkeley Hi...</td>
-        <td>126</td>
-        <td>10.500000</td>
-        <td>66.00</td>
-        <td>NaN</td>
-      </tr>
-      <tr>
-        <th>6</th>
-        <td>Databricks</td>
-        <td>62.00</td>
-        <td>14000000000</td>
-        <td>2019-02-05</td>
-        <td>2013</td>
-        <td>6y1m</td>
-        <td>Industrials</td>
-        <td>United States</td>
-        <td>San Francisco</td>
-        <td>Holtzbrinck Ventures, Unternehmertum Venture C...</td>
-        <td>6.200000e+10</td>
-        <td>2019</td>
-        <td>14.000</td>
-        <td>14000.0</td>
-        <td>[Holtzbrinck Ventures, Unternehmertum Venture ...</td>
-        <td>73</td>
-        <td>6.083333</td>
-        <td>62.00</td>
-        <td>[Ali Ghodsi]</td>
-      </tr>
-      <tr>
-        <th>16</th>
-        <td>Anthropic</td>
-        <td>16.05</td>
-        <td>8000000000</td>
-        <td>2023-02-03</td>
-        <td>2021</td>
-        <td>2y2m</td>
-        <td>Enterprise Tech</td>
-        <td>United States</td>
-        <td>San Francisco</td>
-        <td>New Enterprise Associates, Institutional Ventu...</td>
-        <td>1.605000e+10</td>
-        <td>2023</td>
-        <td>8.000</td>
-        <td>8000.0</td>
-        <td>[New Enterprise Associates, Institutional Vent...</td>
-        <td>26</td>
-        <td>2.166667</td>
-        <td>61.50</td>
-        <td>[Dario Amodei]</td>
-      </tr>
-      <tr>
-        <th>150</th>
-        <td>Safe Superintelligence</td>
-        <td>5.00</td>
-        <td>1000000000</td>
-        <td>2024-09-04</td>
-        <td>1995</td>
-        <td>29y8m</td>
-        <td>Consumer &amp; Retail</td>
-        <td>United States</td>
-        <td>San Francisco</td>
-        <td>General Catalyst, Inspired Capital, Flybridge ...</td>
-        <td>5.000000e+09</td>
-        <td>2024</td>
-        <td>1.000</td>
-        <td>1000.0</td>
-        <td>[General Catalyst, Inspired Capital, Flybridge...</td>
-        <td>356</td>
-        <td>29.666667</td>
-        <td>32.00</td>
-        <td>[Ilya Sutskever, Daniel Gross, Daniel Levy]</td>
-      </tr>
-      <tr>
-        <th>9</th>
-        <td>Canva</td>
-        <td>32.00</td>
-        <td>580000000</td>
-        <td>2018-01-08</td>
-        <td>2012</td>
-        <td>6y</td>
-        <td>Healthcare &amp; Life Sciences</td>
-        <td>Australia</td>
-        <td>Surry Hills</td>
-        <td>Index Ventures, Temasek, Portag3 Ventures</td>
-        <td>3.200000e+10</td>
-        <td>2018</td>
-        <td>0.580</td>
-        <td>580.0</td>
-        <td>[Index Ventures, Temasek, Portag3 Ventures]</td>
-        <td>72</td>
-        <td>6.000000</td>
-        <td>32.00</td>
-        <td>[Melanie Perkins, Clifford Obrecht, Cameron Ad...</td>
-      </tr>
-      <tr>
-        <th>13</th>
-        <td>Epic Games</td>
-        <td>22.50</td>
-        <td>8000000000</td>
-        <td>2018-10-26</td>
-        <td>1991</td>
-        <td>27y9m</td>
-        <td>Financial Services</td>
-        <td>United States</td>
-        <td>Cary</td>
-        <td>Warburg Pincus, The Rise Fund, HarbourVest Par...</td>
-        <td>2.250000e+10</td>
-        <td>2018</td>
-        <td>8.000</td>
-        <td>8000.0</td>
-        <td>[Warburg Pincus, The Rise Fund, HarbourVest Pa...</td>
-        <td>333</td>
-        <td>27.750000</td>
-        <td>31.50</td>
-        <td>[Tim Sweeney]</td>
-      </tr>
-      <tr>
-        <th>26</th>
-        <td>Scale AI</td>
-        <td>13.80</td>
-        <td>2000000000</td>
-        <td>2019-08-05</td>
-        <td>2016</td>
-        <td>3y7m</td>
-        <td>Financial Services</td>
-        <td>United States</td>
-        <td>San Francisco</td>
-        <td>Accel,Y Combinator, Index Ventures, Founders Fund</td>
-        <td>1.380000e+10</td>
-        <td>2019</td>
-        <td>2.000</td>
-        <td>2000.0</td>
-        <td>[Accel,Y Combinator, Index Ventures, Founders ...</td>
-        <td>43</td>
-        <td>3.583333</td>
-        <td>29.00</td>
-        <td>[Alexandr Wang, Lucy Guo]</td>
-      </tr>
-      <tr>
-        <th>10</th>
-        <td>Fanatics</td>
-        <td>31.00</td>
-        <td>5000000000</td>
-        <td>2012-06-06</td>
-        <td>2011</td>
-        <td>1y5m</td>
-        <td>Financial Services</td>
-        <td>United States</td>
-        <td>Jacksonville</td>
-        <td>Liberty City Ventures, RRE Ventures, Mithril C...</td>
-        <td>3.100000e+10</td>
-        <td>2012</td>
-        <td>5.000</td>
-        <td>5000.0</td>
-        <td>[Liberty City Ventures, RRE Ventures, Mithril ...</td>
-        <td>17</td>
-        <td>1.416667</td>
-        <td>27.00</td>
-        <td>[Alan Trager, Mitch Trager, Michael Rubin[34]]</td>
-      </tr>
-      <tr>
-        <th>11</th>
-        <td>Chime</td>
-        <td>25.00</td>
-        <td>2000000000</td>
-        <td>2019-03-05</td>
-        <td>2012</td>
-        <td>7y2m</td>
-        <td>Enterprise Tech</td>
-        <td>United States</td>
-        <td>San Francisco</td>
-        <td>Blackstone, ICONIQ Growth, General Atlantic</td>
-        <td>2.500000e+10</td>
-        <td>2019</td>
-        <td>2.000</td>
-        <td>2000.0</td>
-        <td>[Blackstone, ICONIQ Growth, General Atlantic]</td>
-        <td>86</td>
-        <td>7.166667</td>
-        <td>25.00</td>
-        <td>[Chris Britt, Ryan King]</td>
-      </tr>
-      <tr>
-        <th>12</th>
-        <td>CoreWeave</td>
-        <td>23.00</td>
-        <td>2000000000</td>
-        <td>2023-04-20</td>
-        <td>2019</td>
-        <td>4y3m</td>
-        <td>Healthcare &amp; Life Sciences</td>
-        <td>United States</td>
-        <td>Roseland</td>
-        <td>The Column Group, Foresite Capital, Foresite C...</td>
-        <td>2.300000e+10</td>
-        <td>2023</td>
-        <td>2.000</td>
-        <td>2000.0</td>
-        <td>[The Column Group, Foresite Capital, Foresite ...</td>
-        <td>51</td>
-        <td>4.250000</td>
-        <td>23.00</td>
-        <td>NaN</td>
-      </tr>
-      <tr>
-        <th>8</th>
-        <td>Revolut</td>
-        <td>45.00</td>
-        <td>2000000000</td>
-        <td>2018-04-26</td>
-        <td>2015</td>
-        <td>3y3m</td>
-        <td>Insurance</td>
-        <td>United Kingdom</td>
-        <td>London</td>
-        <td>CMFG Ventures, Accomplice, Moderne Ventures</td>
-        <td>4.500000e+10</td>
-        <td>2018</td>
-        <td>2.000</td>
-        <td>2000.0</td>
-        <td>[CMFG Ventures, Accomplice, Moderne Ventures]</td>
-        <td>39</td>
-        <td>3.250000</td>
-        <td>17.75</td>
-        <td>[Nikolay Storonsky, Vlad Yatsenko]</td>
-      </tr>
-      <tr>
-        <th>14</th>
-        <td>Miro</td>
-        <td>17.50</td>
-        <td>476000000</td>
-        <td>2022-01-05</td>
-        <td>2012</td>
-        <td>1y0m</td>
-        <td>Healthcare &amp; Life Sciences</td>
-        <td>United States</td>
-        <td>San Francisco</td>
-        <td>Sequoia Capital China, China Life Investment H...</td>
-        <td>1.750000e+10</td>
-        <td>2022</td>
-        <td>0.476</td>
-        <td>476.0</td>
-        <td>[Sequoia Capital China, China Life Investment ...</td>
-        <td>12</td>
-        <td>1.000000</td>
-        <td>17.50</td>
-        <td>[Andrey Khusid]</td>
-      </tr>
-      <tr>
-        <th>1119</th>
-        <td>Nature's Fynd</td>
-        <td>1.00</td>
-        <td>463000000</td>
-        <td>2021-07-19</td>
-        <td>2009</td>
-        <td>12y6m</td>
-        <td>Media &amp; Entertainment</td>
-        <td>United States</td>
-        <td>Chicago</td>
-        <td>Lightspeed Venture Partners, Access Industries...</td>
-        <td>1.000000e+09</td>
-        <td>2021</td>
-        <td>0.463</td>
-        <td>463.0</td>
-        <td>[Lightspeed Venture Partners, Access Industrie...</td>
-        <td>150</td>
-        <td>12.500000</td>
-        <td>17.00</td>
-        <td>[Thomas Jonas, Mark Kozubal, Yuval Avniel, Ric...</td>
-      </tr>
-      <tr>
-        <th>17</th>
-        <td>Yuanfudao</td>
-        <td>15.50</td>
-        <td>4000000000</td>
-        <td>2017-05-31</td>
-        <td>2012</td>
-        <td>5y4m</td>
-        <td>Enterprise Tech</td>
-        <td>China</td>
-        <td>Beijing</td>
-        <td>Craft Ventures, F-Prime Capital, Sound Ventures</td>
-        <td>1.550000e+10</td>
-        <td>2017</td>
-        <td>4.000</td>
-        <td>4000.0</td>
-        <td>[Craft Ventures, F-Prime Capital, Sound Ventures]</td>
-        <td>64</td>
-        <td>5.333333</td>
-        <td>15.50</td>
-        <td>[Yong Li]</td>
-      </tr>
-    </tbody>
-  </table>
-  </div>
-  #+end_export
-
-  #+begin_src jupyter-python
-  # Set the positions and width for the bars
-  N = len(top_companies)
-  ind = np.arange(N)  # the x locations for the groups
-  width = 0.35  # the width of the bars
-
-  # Create the bars for valuation and funding
-  fig, ax = plt.subplots(figsize=(12, 6), dpi=300)
-  bars1 = ax.bar(ind, top_companies['Valuation ($B)'], width, label='2024')
-  bars2 = ax.bar(ind + width, top_companies['Latest Valuation ($B)'], width, label='2025')
-
-  # Add labels and title
-  ax.set(xlabel='Companies',
-         ylabel='Valuation ($B)')
-  ax.set_xticks(ind+width/2, top_companies['Company'], rotation=45, ha='right')
-  ax.legend()
-  ax.grid(axis='y', alpha=0.75)
-  plt.suptitle('Top Companies by Valuation')
-  plt.show()
-  #+end_src
-
-  #+RESULTS:
-  [[file:./.ob-jupyter/069b79734eb467d49ab273df855942140939aa9a.png]]
-
-** Most-Funded Companies
-
-  #+begin_src jupyter-python
-  df_filtered = df[df['Funding ($M)']>2000].sort_values(by='Funding ($M)', ascending=False).head(30)
-  df_filtered
-  #+end_src
-
-  #+RESULTS:
-  #+begin_export html
-  <div>
-  <style scoped>
-      .dataframe tbody tr th:only-of-type {
-          vertical-align: middle;
-      }
-
-      .dataframe tbody tr th {
-          vertical-align: top;
-      }
-
-      .dataframe thead th {
-          text-align: right;
-      }
-  </style>
-  <table border="1" class="dataframe">
-    <thead>
-      <tr style="text-align: right;">
-        <th></th>
-        <th>Company</th>
-        <th>Valuation ($B)</th>
-        <th>Total Equity Funding ($)</th>
-        <th>Unicorn Date</th>
-        <th>Date Founded</th>
-        <th>Years to Unicorn</th>
-        <th>Industry</th>
-        <th>Country</th>
-        <th>City</th>
-        <th>Select Investors</th>
-        <th>Valuation ($)</th>
-        <th>Unicorn Year</th>
-        <th>Funding ($B)</th>
-        <th>Funding ($M)</th>
-        <th>Investors</th>
-        <th>Years to Unicorn (Months)</th>
-        <th>Years to Unicorn (Converted)</th>
-        <th>Latest Valuation ($B)</th>
-        <th>Founder(s)</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <th>3</th>
-        <td>Ant Group</td>
-        <td>150.00</td>
-        <td>19000000000</td>
-        <td>2017-01-01</td>
-        <td>2014</td>
-        <td>3y</td>
-        <td>Financial Services</td>
-        <td>China</td>
-        <td>Hangzhou</td>
-        <td>Alibaba Group, CPP Investments, The Carlyle Group</td>
-        <td>1.500000e+11</td>
-        <td>2017</td>
-        <td>19.0</td>
-        <td>19000.0</td>
-        <td>[Alibaba Group, CPP Investments, The Carlyle G...</td>
-        <td>36</td>
-        <td>3.000000</td>
-        <td>150.00</td>
-        <td>NaN</td>
-      </tr>
-      <tr>
-        <th>2</th>
-        <td>OpenAI</td>
-        <td>157.00</td>
-        <td>18000000000</td>
-        <td>2019-07-22</td>
-        <td>2015</td>
-        <td>4y6m</td>
-        <td>Industrials</td>
-        <td>United States</td>
-        <td>San Francisco</td>
-        <td>Dynamo VC, Susa Ventures, Founders Fund</td>
-        <td>1.570000e+11</td>
-        <td>2019</td>
-        <td>18.0</td>
-        <td>18000.0</td>
-        <td>[Dynamo VC, Susa Ventures, Founders Fund]</td>
-        <td>54</td>
-        <td>4.500000</td>
-        <td>300.00</td>
-        <td>[Sam Altman, Greg Brockman, Ilya Sutskever]</td>
-      </tr>
-      <tr>
-        <th>38</th>
-        <td>JUUL Labs</td>
-        <td>12.00</td>
-        <td>15000000000</td>
-        <td>2017-12-20</td>
-        <td>2011</td>
-        <td>6y11m</td>
-        <td>Enterprise Tech</td>
-        <td>United States</td>
-        <td>San Francisco</td>
-        <td>Boxin Capital, DT Capital Partners, IDG Capital</td>
-        <td>1.200000e+10</td>
-        <td>2017</td>
-        <td>15.0</td>
-        <td>15000.0</td>
-        <td>[Boxin Capital, DT Capital Partners, IDG Capital]</td>
-        <td>83</td>
-        <td>6.916667</td>
-        <td>5.00</td>
-        <td>NaN</td>
-      </tr>
-      <tr>
-        <th>6</th>
-        <td>Databricks</td>
-        <td>62.00</td>
-        <td>14000000000</td>
-        <td>2019-02-05</td>
-        <td>2013</td>
-        <td>6y1m</td>
-        <td>Industrials</td>
-        <td>United States</td>
-        <td>San Francisco</td>
-        <td>Holtzbrinck Ventures, Unternehmertum Venture C...</td>
-        <td>6.200000e+10</td>
-        <td>2019</td>
-        <td>14.0</td>
-        <td>14000.0</td>
-        <td>[Holtzbrinck Ventures, Unternehmertum Venture ...</td>
-        <td>73</td>
-        <td>6.083333</td>
-        <td>62.00</td>
-        <td>[Ali Ghodsi]</td>
-      </tr>
-      <tr>
-        <th>7</th>
-        <td>xAI</td>
-        <td>50.00</td>
-        <td>12000000000</td>
-        <td>2024-05-26</td>
-        <td>2006</td>
-        <td>18y4m</td>
-        <td>Consumer &amp; Retail</td>
-        <td>United States</td>
-        <td>Burlingame</td>
-        <td>Prysm Capital, Baillie Gifford &amp; Co., TDM Grow...</td>
-        <td>5.000000e+10</td>
-        <td>2024</td>
-        <td>12.0</td>
-        <td>12000.0</td>
-        <td>[Prysm Capital, Baillie Gifford &amp; Co., TDM Gro...</td>
-        <td>220</td>
-        <td>18.333333</td>
-        <td>113.00</td>
-        <td>[Elon Musk]</td>
-      </tr>
-      <tr>
-        <th>0</th>
-        <td>SpaceX</td>
-        <td>350.00</td>
-        <td>9000000000</td>
-        <td>2012-12-01</td>
-        <td>2002</td>
-        <td>10y3m</td>
-        <td>Enterprise Tech</td>
-        <td>United States</td>
-        <td>Hawthorne</td>
-        <td>Opus Capital, RRE Ventures, Relay Ventures</td>
-        <td>3.500000e+11</td>
-        <td>2012</td>
-        <td>9.0</td>
-        <td>9000.0</td>
-        <td>[Opus Capital, RRE Ventures, Relay Ventures]</td>
-        <td>123</td>
-        <td>10.250000</td>
-        <td>350.00</td>
-        <td>[Elon Musk]</td>
-      </tr>
-      <tr>
-        <th>4</th>
-        <td>Stripe</td>
-        <td>70.00</td>
-        <td>9000000000</td>
-        <td>2014-01-23</td>
-        <td>2009</td>
-        <td>5y</td>
-        <td>Consumer &amp; Retail</td>
-        <td>United States</td>
-        <td>San Francisco</td>
-        <td>Sequoia Capital China, ZhenFund, K2 Ventures</td>
-        <td>7.000000e+10</td>
-        <td>2014</td>
-        <td>9.0</td>
-        <td>9000.0</td>
-        <td>[Sequoia Capital China, ZhenFund, K2 Ventures]</td>
-        <td>60</td>
-        <td>5.000000</td>
-        <td>91.50</td>
-        <td>[Patrick, John Collison]</td>
-      </tr>
-      <tr>
-        <th>1</th>
-        <td>ByteDance</td>
-        <td>300.00</td>
-        <td>8000000000</td>
-        <td>2017-04-07</td>
-        <td>2011</td>
-        <td>6y3m</td>
-        <td>Enterprise Tech</td>
-        <td>China</td>
-        <td>Beijing</td>
-        <td>Breyer Capital, Parkway VC, TIME Ventures</td>
-        <td>3.000000e+11</td>
-        <td>2017</td>
-        <td>8.0</td>
-        <td>8000.0</td>
-        <td>[Breyer Capital, Parkway VC, TIME Ventures]</td>
-        <td>75</td>
-        <td>6.250000</td>
-        <td>315.00</td>
-        <td>[Zhang Yiming, Liang Rubo]</td>
-      </tr>
-      <tr>
-        <th>13</th>
-        <td>Epic Games</td>
-        <td>22.50</td>
-        <td>8000000000</td>
-        <td>2018-10-26</td>
-        <td>1991</td>
-        <td>27y9m</td>
-        <td>Financial Services</td>
-        <td>United States</td>
-        <td>Cary</td>
-        <td>Warburg Pincus, The Rise Fund, HarbourVest Par...</td>
-        <td>2.250000e+10</td>
-        <td>2018</td>
-        <td>8.0</td>
-        <td>8000.0</td>
-        <td>[Warburg Pincus, The Rise Fund, HarbourVest Pa...</td>
-        <td>333</td>
-        <td>27.750000</td>
-        <td>31.50</td>
-        <td>[Tim Sweeney]</td>
-      </tr>
-      <tr>
-        <th>16</th>
-        <td>Anthropic</td>
-        <td>16.05</td>
-        <td>8000000000</td>
-        <td>2023-02-03</td>
-        <td>2021</td>
-        <td>2y2m</td>
-        <td>Enterprise Tech</td>
-        <td>United States</td>
-        <td>San Francisco</td>
-        <td>New Enterprise Associates, Institutional Ventu...</td>
-        <td>1.605000e+10</td>
-        <td>2023</td>
-        <td>8.0</td>
-        <td>8000.0</td>
-        <td>[New Enterprise Associates, Institutional Vent...</td>
-        <td>26</td>
-        <td>2.166667</td>
-        <td>61.50</td>
-        <td>[Dario Amodei]</td>
-      </tr>
-      <tr>
-        <th>44</th>
-        <td>Global Switch</td>
-        <td>11.10</td>
-        <td>5000000000</td>
-        <td>2016-12-22</td>
-        <td>1998</td>
-        <td>19y2m</td>
-        <td>Enterprise Tech</td>
-        <td>United Kingdom</td>
-        <td>London</td>
-        <td>Jiangsu Shagang Group, IDC, Barclays, Credit S...</td>
-        <td>1.110000e+10</td>
-        <td>2016</td>
-        <td>5.0</td>
-        <td>5000.0</td>
-        <td>[Jiangsu Shagang Group, IDC, Barclays, Credit ...</td>
-        <td>230</td>
-        <td>19.166667</td>
-        <td>11.10</td>
-        <td>NaN</td>
-      </tr>
-      <tr>
-        <th>10</th>
-        <td>Fanatics</td>
-        <td>31.00</td>
-        <td>5000000000</td>
-        <td>2012-06-06</td>
-        <td>2011</td>
-        <td>1y5m</td>
-        <td>Financial Services</td>
-        <td>United States</td>
-        <td>Jacksonville</td>
-        <td>Liberty City Ventures, RRE Ventures, Mithril C...</td>
-        <td>3.100000e+10</td>
-        <td>2012</td>
-        <td>5.0</td>
-        <td>5000.0</td>
-        <td>[Liberty City Ventures, RRE Ventures, Mithril ...</td>
-        <td>17</td>
-        <td>1.416667</td>
-        <td>27.00</td>
-        <td>[Alan Trager, Mitch Trager, Michael Rubin[34]]</td>
-      </tr>
-      <tr>
-        <th>42</th>
-        <td>BYJU's</td>
-        <td>11.50</td>
-        <td>5000000000</td>
-        <td>2017-07-25</td>
-        <td>2011</td>
-        <td>7y8m</td>
-        <td>Healthcare &amp; Life Sciences</td>
-        <td>India</td>
-        <td>Bengaluru</td>
-        <td>Greylock Partners, Venrock, Providence Ventures</td>
-        <td>1.150000e+10</td>
-        <td>2017</td>
-        <td>5.0</td>
-        <td>5000.0</td>
-        <td>[Greylock Partners, Venrock, Providence Ventures]</td>
-        <td>92</td>
-        <td>7.666667</td>
-        <td>11.50</td>
-        <td>NaN</td>
-      </tr>
-      <tr>
-        <th>40</th>
-        <td>Xingsheng Selected</td>
-        <td>12.00</td>
-        <td>5000000000</td>
-        <td>2020-07-22</td>
-        <td>2009</td>
-        <td>11y6m</td>
-        <td>Media &amp; Entertainment</td>
-        <td>China</td>
-        <td>Changsha</td>
-        <td>Temasek, Guggenheim Investments, Qatar Investm...</td>
-        <td>1.200000e+10</td>
-        <td>2020</td>
-        <td>5.0</td>
-        <td>5000.0</td>
-        <td>[Temasek, Guggenheim Investments, Qatar Invest...</td>
-        <td>138</td>
-        <td>11.500000</td>
-        <td>12.00</td>
-        <td>NaN</td>
-      </tr>
-      <tr>
-        <th>48</th>
-        <td>Chehaoduo</td>
-        <td>10.00</td>
-        <td>4000000000</td>
-        <td>2016-03-12</td>
-        <td>2014</td>
-        <td>2y2m</td>
-        <td>Healthcare &amp; Life Sciences</td>
-        <td>China</td>
-        <td>Beijing</td>
-        <td>China Health Industry Investment Fund, China R...</td>
-        <td>1.000000e+10</td>
-        <td>2016</td>
-        <td>4.0</td>
-        <td>4000.0</td>
-        <td>[China Health Industry Investment Fund, China ...</td>
-        <td>26</td>
-        <td>2.166667</td>
-        <td>10.00</td>
-        <td>NaN</td>
-      </tr>
-      <tr>
-        <th>60</th>
-        <td>Northvolt</td>
-        <td>9.08</td>
-        <td>4000000000</td>
-        <td>2019-06-12</td>
-        <td>2016</td>
-        <td>3y5m</td>
-        <td>Industrials</td>
-        <td>Sweden</td>
-        <td>Stockholm</td>
-        <td>Aqua-Spark, Wavemaker Partners, Peak XV Partners</td>
-        <td>9.080000e+09</td>
-        <td>2019</td>
-        <td>4.0</td>
-        <td>4000.0</td>
-        <td>[Aqua-Spark, Wavemaker Partners, Peak XV Partn...</td>
-        <td>41</td>
-        <td>3.416667</td>
-        <td>11.75</td>
-        <td>[Peter Carlsson, Paolo Cerrutim, Harald Mix, C...</td>
-      </tr>
-      <tr>
-        <th>213</th>
-        <td>Hozon Auto</td>
-        <td>3.95</td>
-        <td>4000000000</td>
-        <td>2022-02-22</td>
-        <td>2009</td>
-        <td>12y1m</td>
-        <td>Media &amp; Entertainment</td>
-        <td>China</td>
-        <td>Shanghai</td>
-        <td>Yichun Jinheng Equity Investments, Nanning Min...</td>
-        <td>3.950000e+09</td>
-        <td>2022</td>
-        <td>4.0</td>
-        <td>4000.0</td>
-        <td>[Yichun Jinheng Equity Investments, Nanning Mi...</td>
-        <td>145</td>
-        <td>12.083333</td>
-        <td>3.95</td>
-        <td>NaN</td>
-      </tr>
-      <tr>
-        <th>24</th>
-        <td>Anduril</td>
-        <td>14.00</td>
-        <td>4000000000</td>
-        <td>2019-09-11</td>
-        <td>2017</td>
-        <td>2y8m</td>
-        <td>Enterprise Tech</td>
-        <td>United States</td>
-        <td>Irvine</td>
-        <td>Norwest Venture Partners, Goldman Sachs, Dell ...</td>
-        <td>1.400000e+10</td>
-        <td>2019</td>
-        <td>4.0</td>
-        <td>4000.0</td>
-        <td>[Norwest Venture Partners, Goldman Sachs, Dell...</td>
-        <td>32</td>
-        <td>2.666667</td>
-        <td>14.00</td>
-        <td>NaN</td>
-      </tr>
-      <tr>
-        <th>23</th>
-        <td>Klarna</td>
-        <td>14.50</td>
-        <td>4000000000</td>
-        <td>2011-12-12</td>
-        <td>2005</td>
-        <td>9y2m</td>
-        <td>Enterprise Tech</td>
-        <td>Sweden</td>
-        <td>Stockholm</td>
-        <td>OneVentures, AirTree Ventures, AMP New Ventures</td>
-        <td>1.450000e+10</td>
-        <td>2011</td>
-        <td>4.0</td>
-        <td>4000.0</td>
-        <td>[OneVentures, AirTree Ventures, AMP New Ventures]</td>
-        <td>110</td>
-        <td>9.166667</td>
-        <td>6.50</td>
-        <td>[Sebastian Siemiatkowski, Niklas Adalberth, Vi...</td>
-      </tr>
-      <tr>
-        <th>17</th>
-        <td>Yuanfudao</td>
-        <td>15.50</td>
-        <td>4000000000</td>
-        <td>2017-05-31</td>
-        <td>2012</td>
-        <td>5y4m</td>
-        <td>Enterprise Tech</td>
-        <td>China</td>
-        <td>Beijing</td>
-        <td>Craft Ventures, F-Prime Capital, Sound Ventures</td>
-        <td>1.550000e+10</td>
-        <td>2017</td>
-        <td>4.0</td>
-        <td>4000.0</td>
-        <td>[Craft Ventures, F-Prime Capital, Sound Ventures]</td>
-        <td>64</td>
-        <td>5.333333</td>
-        <td>15.50</td>
-        <td>[Yong Li]</td>
-      </tr>
-      <tr>
-        <th>5</th>
-        <td>SHEIN</td>
-        <td>66.00</td>
-        <td>4000000000</td>
-        <td>2018-07-03</td>
-        <td>2008</td>
-        <td>10y6m</td>
-        <td>Financial Services</td>
-        <td>Singapore</td>
-        <td>Singapore</td>
-        <td>369 Growth Partners, GTM Capital, Berkeley Hil...</td>
-        <td>6.600000e+10</td>
-        <td>2018</td>
-        <td>4.0</td>
-        <td>4000.0</td>
-        <td>[369 Growth Partners, GTM Capital, Berkeley Hi...</td>
-        <td>126</td>
-        <td>10.500000</td>
-        <td>66.00</td>
-        <td>NaN</td>
-      </tr>
-      <tr>
-        <th>20</th>
-        <td>Gopuff</td>
-        <td>15.00</td>
-        <td>3000000000</td>
-        <td>2020-10-08</td>
-        <td>2013</td>
-        <td>7y9m</td>
-        <td>Financial Services</td>
-        <td>United States</td>
-        <td>Philadelphia</td>
-        <td>RRE Ventures, Tiger Global, August Capital</td>
-        <td>1.500000e+10</td>
-        <td>2020</td>
-        <td>3.0</td>
-        <td>3000.0</td>
-        <td>[RRE Ventures, Tiger Global, August Capital]</td>
-        <td>93</td>
-        <td>7.750000</td>
-        <td>15.00</td>
-        <td>NaN</td>
-      </tr>
-      <tr>
-        <th>62</th>
-        <td>OYO Rooms</td>
-        <td>9.00</td>
-        <td>3000000000</td>
-        <td>2018-09-25</td>
-        <td>2012</td>
-        <td>6y8m</td>
-        <td>Consumer &amp; Retail</td>
-        <td>India</td>
-        <td>Gurugram</td>
-        <td>Tencent Holdings, Tiger Global Management, Glo...</td>
-        <td>9.000000e+09</td>
-        <td>2018</td>
-        <td>3.0</td>
-        <td>3000.0</td>
-        <td>[Tencent Holdings, Tiger Global Management, Gl...</td>
-        <td>80</td>
-        <td>6.666667</td>
-        <td>9.00</td>
-        <td>NaN</td>
-      </tr>
-      <tr>
-        <th>95</th>
-        <td>SVOLT</td>
-        <td>6.51</td>
-        <td>3000000000</td>
-        <td>2020-06-08</td>
-        <td>2010</td>
-        <td>10y5m</td>
-        <td>Consumer &amp; Retail</td>
-        <td>China</td>
-        <td>Changzhou</td>
-        <td>QiMing Venture Partners, Temasek Holdings, Sil...</td>
-        <td>6.510000e+09</td>
-        <td>2020</td>
-        <td>3.0</td>
-        <td>3000.0</td>
-        <td>[QiMing Venture Partners, Temasek Holdings, Si...</td>
-        <td>125</td>
-        <td>10.416667</td>
-        <td>6.51</td>
-        <td>NaN</td>
-      </tr>
-      <tr>
-        <th>294</th>
-        <td>FlixMobility</td>
-        <td>3.00</td>
-        <td>3000000000</td>
-        <td>2019-07-18</td>
-        <td>2013</td>
-        <td>6y6m</td>
-        <td>Consumer &amp; Retail</td>
-        <td>Germany</td>
-        <td>Munich</td>
-        <td>Knox Lane, Ainge Advisory, Carlson Private Cap...</td>
-        <td>3.000000e+09</td>
-        <td>2019</td>
-        <td>3.0</td>
-        <td>3000.0</td>
-        <td>[Knox Lane, Ainge Advisory, Carlson Private Ca...</td>
-        <td>78</td>
-        <td>6.500000</td>
-        <td>2.00</td>
-        <td>NaN</td>
-      </tr>
-      <tr>
-        <th>322</th>
-        <td>Zuoyebang</td>
-        <td>3.00</td>
-        <td>3000000000</td>
-        <td>2018-07-18</td>
-        <td>2015</td>
-        <td>5y8m</td>
-        <td>Enterprise Tech</td>
-        <td>China</td>
-        <td>Beijing</td>
-        <td>Google Ventures, Accel, Data Collective</td>
-        <td>3.000000e+09</td>
-        <td>2018</td>
-        <td>3.0</td>
-        <td>3000.0</td>
-        <td>[Google Ventures, Accel, Data Collective]</td>
-        <td>68</td>
-        <td>5.666667</td>
-        <td>1.00</td>
-        <td>NaN</td>
-      </tr>
-      <tr>
-        <th>491</th>
-        <td>Magic Leap</td>
-        <td>2.00</td>
-        <td>3000000000</td>
-        <td>2014-10-21</td>
-        <td>2011</td>
-        <td>3y9m</td>
-        <td>Enterprise Tech</td>
-        <td>United States</td>
-        <td>Plantation</td>
-        <td>Scale Venture Partners, Sapphire Ventures, Bat...</td>
-        <td>2.000000e+09</td>
-        <td>2014</td>
-        <td>3.0</td>
-        <td>3000.0</td>
-        <td>[Scale Venture Partners, Sapphire Ventures, Ba...</td>
-        <td>45</td>
-        <td>3.750000</td>
-        <td>4.50</td>
-        <td>NaN</td>
-      </tr>
-      <tr>
-        <th>51</th>
-        <td>Huolala</td>
-        <td>10.00</td>
-        <td>2400000000</td>
-        <td>2019-02-21</td>
-        <td>2016</td>
-        <td>3y1m</td>
-        <td>Industrials</td>
-        <td>China</td>
-        <td>Guangzhou</td>
-        <td>Fifty Years Fund, Refactor Capital, Temasek</td>
-        <td>1.000000e+10</td>
-        <td>2019</td>
-        <td>2.4</td>
-        <td>2400.0</td>
-        <td>[Fifty Years Fund, Refactor Capital, Temasek]</td>
-        <td>37</td>
-        <td>3.083333</td>
-        <td>10.00</td>
-        <td>NaN</td>
-      </tr>
-    </tbody>
-  </table>
-  </div>
-  #+end_export
-
-  #+begin_src jupyter-python
-  plt.subplots(figsize=(12, 8), dpi=300)
-  ax = sns.barplot(df_filtered, y='Company', x='Funding ($M)', hue='Company')
-  for i in ax.containers:
-      ax.bar_label(i)
-  plt.suptitle('Companies Received Most Funding')
-  plt.xlabel('Amount ($M)')
-  plt.grid(axis='x', alpha=0.75)
-  plt.show()
-  #+end_src
-
-  #+RESULTS:
-  [[file:./.ob-jupyter/984cac3a4f902bd2d1f5c43df35aa8e933f7515a.png]]
-** Top Countries
-
-  #+begin_src jupyter-python
-  _df = df.groupby('Country')['Valuation ($B)']\
+  _df = df.groupby('Country')['Latest Valuation ($B)']\
           .agg(['count', 'sum'])\
           .sort_values(by='sum', ascending=False)\
           .head(30)
-  fig, ax = plt.subplots(2, 1, figsize=(12, 8), dpi=300, sharex=True)
+  fig, ax = plt.subplots(2, 1, figsize=(12, 8), sharex=True, gridspec_kw={'height_ratios': [2, 1]})
   g = sns.barplot(_df, x=_df.index, y='sum', hue=_df.index, ax=ax[0])
-  g.set(ylabel='Valuation ($B)',
+  g.set(ylabel='Latest Valuation ($B)',
         yscale='log')
   for i in ax[0].containers:
       ax[0].bar_label(i, rotation=45, fontsize=8)
@@ -2502,29 +341,21 @@ df['Latest Valuation ($B)'] = pd.to_numeric(df['Latest Valuation ($B)'].fillna(v
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/cce0f0b71ca561669c24ebf1cad4bd2fcd44456b.png]]
+  [[file:./.ob-jupyter/50378d71c7b9489b75d0f03c45ebc339dde1b6ae.png]]
 
-** Top Countries across Different Industries
+*** Top Countries across Different Industries
 
   #+begin_src jupyter-python
-  top_countries = df\
-      .groupby('Country')['Valuation ($B)']\
-      .sum()\
-      .sort_values(ascending=False)\
-      .head(10)\
-      .index
-  df_filtered =  df[df['Country'].isin(top_countries)]\
-      .groupby(['Country', 'Industry'])['Valuation ($B)']\
+  df_filtered =  df[df['Country'].isin(top_countries.head(10).index)]\
+      .groupby(['Country', 'Industry'])['Latest Valuation ($B)']\
       .agg(['count', 'sum'])\
       .reset_index()
   #+end_src
 
   #+RESULTS:
 
-
-
   #+begin_src jupyter-python
-  fig, ax = plt.subplots(2, 1, figsize=(12, 8), dpi=300, sharex=True)
+  fig, ax = plt.subplots(2, 1, figsize=(12, 8), sharex=True)
   g = sns.barplot(df_filtered, x='Country', y='sum', hue='Industry', ax=ax[0])
   sns.move_legend(ax[0], 'upper left', bbox_to_anchor=(1, .55), frameon=False)
   g.set(ylabel='Valuation ($B)',
@@ -2544,8 +375,377 @@ df['Latest Valuation ($B)'] = pd.to_numeric(df['Latest Valuation ($B)'].fillna(v
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/1fdb98eab7befc2f6ddca637c1f03af7301b2181.png]]
+  [[file:./.ob-jupyter/ce1b295cc70e2382317d7c5a5291972f682db8e4.png]]
 
+*** Mean Distribution of Valuations across Different Countries
+
+  #+begin_src jupyter-python
+  fig, ax = plt.subplots(figsize=(12, 8))
+  sns.boxplot(df[df['Country'].isin(top_countries.index)],
+              y='Country',
+              x='Latest Valuation ($B)',
+              hue='Country',
+              showfliers=False)
+  plt.suptitle('Distribution of Valuations across Different Countries')
+  ax.set(xlabel='Total Valuation ($B)',
+         ylabel='Country')
+  plt.grid(axis='x', alpha=0.7)
+  plt.show()
+  #+end_src
+
+  #+RESULTS:
+  [[file:./.ob-jupyter/f8596841371ce5dbfa474011d8a05c1bfc65ad64.png]]
+
+*** Mean Distribution of Equity Funding across Different Countries
+  #+begin_src jupyter-python
+  fig, ax = plt.subplots(figsize=(12,8), dpi=300)
+  sns.boxplot(df[df['Country'].isin(top_countries.index)], y='Country', x='Funding ($M)', hue='Country', showfliers=False)
+  plt.suptitle('Distribution of Funding across Different Countries')
+  ax.set(xlabel='Funding ($M)',
+         ylabel='Country')
+  plt.grid(axis='x', alpha=0.7)
+  plt.show()
+  #+end_src
+
+  #+RESULTS:
+  [[file:./.ob-jupyter/02b00eac659a6e6baf5fcdd877250ed0c3c5fd38.png]]
+
+** Sector-Based Analysis
+*** Top Sectors
+  #+begin_src jupyter-python
+  _df = df.explode('Sector')[['Sector', 'Latest Valuation ($B)', 'Funding ($B)']]\
+          .groupby('Sector')[['Latest Valuation ($B)', 'Funding ($B)']]\
+          .agg({'Latest Valuation ($B)': ['sum', 'count'], 'Funding ($B)': 'sum'})
+  _df.columns = ['Valuation ($B)', 'Number of Companies', 'Funding ($B)']
+  _df = _df.sort_values(by='Valuation ($B)', ascending=False).head(20)
+  print(_df)
+  #+end_src
+
+  #+RESULTS:
+  #+begin_example
+                           Valuation ($B)  Number of Companies  Funding ($B)
+  Sector
+  Artificial Intelligence          591.48                   23        49.843
+  Aerospace                        354.20                    2        10.000
+  Internet                         320.00                    4         9.373
+  Software                         214.06                   44        35.165
+  Financial Technology             185.27                   53        34.698
+  E-Commerce                       169.11                   22        23.460
+  Financial Services               142.55                   14        21.798
+  Cybersecurity                     54.08                   21        12.301
+  Marketplace                       48.03                   14        13.480
+  Cryptocurrency                    41.90                   11         4.204
+  Video Games                       39.70                    4         9.375
+  Educational Technology            33.47                    9         9.586
+  Transportation                    33.45                    8        12.480
+  Graphic Design                    33.00                    2         0.775
+  Software As A Service             32.70                   11         4.542
+  Healthcare                        31.30                   11         6.196
+  Collaborative Software            24.00                    2         1.400
+  Finance                           21.30                    4         2.359
+  Blockchain                        20.80                    4         2.060
+  Logistics                         18.02                    9         6.418
+  #+end_example
+
+  #+begin_src jupyter-python
+  fig, ax = plt.subplots(2, 1, figsize=(12, 8), dpi=DPI, sharex=True, gridspec_kw={'height_ratios': [2, 1]})
+  g = sns.barplot(_df, x=_df.index, y='Valuation ($B)', ax=ax[0], hue=_df.index)
+  for i in ax[0].containers:
+      g.bar_label(i, fmt='%d', fontsize=10)
+  # g = sns.barplot(_df, x=_df.index, y='Funding ($B)', ax=ax[1], hue=_df.index)
+  # for i in ax[1].containers:
+  #     g.bar_label(i, fmt='%.1f', fontsize=10)
+  g = sns.barplot(_df, x=_df.index, y='Number of Companies', ax=ax[1], hue=_df.index)
+  ax[1].set(ylabel='Companies')
+  for i in ax[1].containers:
+      g.bar_label(i, fmt='%d', fontsize=10)
+  plt.xticks(rotation=45, ha='right')
+  plt.xlabel(None)
+  plt.suptitle('Top Sectors')
+  plt.show()
+  #+end_src
+
+  #+RESULTS:
+  [[file:./.ob-jupyter/4e9b1f6f24a38f2fdf2c4b487f6d4a7ea556f067.png]]
+
+** Company-Based Analysis
+*** Top Companies by Valuation
+
+  #+begin_src jupyter-python
+  top_companies = df.sort_values(by='Latest Valuation ($B)', ascending=False).head(20)
+  top_companies['Growth Rate'] = (top_companies['Latest Valuation ($B)'] - top_companies['Valuation ($B)']) / top_companies['Valuation ($B)'] * 100
+  #+end_src
+
+  #+RESULTS:
+
+  #+begin_src jupyter-python
+  # Set the positions and width for the bars
+  N = len(top_companies)
+  ind = np.arange(N)  # the x locations for the groups
+  width = 0.35  # the width of the bars
+
+  # Create the bars for valuation and funding
+  fig, ax = plt.subplots(2, 1, figsize=(12, 6), dpi=DPI, gridspec_kw={'height_ratios': [3, 1]}, sharex=True)
+  ax[0].bar(ind, top_companies['Valuation ($B)'], width, label='2024')
+  ax[0].bar(ind + width, top_companies['Latest Valuation ($B)'], width, label='2025')
+
+  ax[0].set(ylabel='Valuation ($B)')
+  ax[0].legend()
+  ax[0].grid(axis='y', alpha=0.75)
+
+  ax[1].bar(ind, top_companies['Growth Rate'], color=np.where(top_companies['Growth Rate']>0,'g','r'))
+  ax[1].set(title='Growth Rate (%)')
+  for i in ax[1].containers:
+      ax[1].bar_label(i, fmt='%d%%', fontsize=8)
+  ax[1].set(ylim=(-100,1600))
+  plt.xticks(ind+width/2, top_companies['Company'], rotation=45, ha='right')
+  plt.suptitle('Top Companies by Valuation')
+  plt.show()
+  #+end_src
+
+  #+RESULTS:
+  [[file:./.ob-jupyter/e71cd675c93b7a1216e55ebc3329880a7d537447.png]]
+
+*** Most-Funded Companies
+
+  #+begin_src jupyter-python
+  df_filtered = df[df['Funding ($M)']>2000].sort_values(by='Funding ($M)', ascending=False).head(30)
+  #+end_src
+
+  #+RESULTS:
+
+  #+begin_src jupyter-python
+  plt.subplots(figsize=(12, 8), dpi=300)
+  ax = sns.barplot(df_filtered, y='Company', x='Funding ($M)', hue='Company')
+  for i in ax.containers:
+      ax.bar_label(i)
+  plt.suptitle('Companies Received Most Funding')
+  plt.xlabel('Amount ($M)')
+  plt.grid(axis='x', alpha=0.75)
+  plt.show()
+  #+end_src
+
+  #+RESULTS:
+  [[file:./.ob-jupyter/984cac3a4f902bd2d1f5c43df35aa8e933f7515a.png]]
+*** Distribution of Valuation by Companies
+  #+begin_src jupyter-python
+  # Define the bins for valuation ranges
+  # bins = [0, 1, 1.5, 2, 3, 4, 5, 6, 8, 10, 20, 30, 50, 100, 200, 300, 400]
+  # labels =  [f'{a}-{b}' for a, b in zip(bins[:-1], bins[1:])]
+  # cuts = pd.cut(df['Valuation ($B)'], bins=bins, labels=labels)
+
+  cuts = pd.qcut(df['Latest Valuation ($B)'], 50, duplicates='drop')
+
+  # Count the number of companies in each bin
+  distribution = cuts.value_counts().sort_index()
+
+  # Plot the Bar Chart
+  plt.figure(figsize=(12, 6))
+  ax = sns.barplot(x=distribution.index,
+                   y=distribution.values, hue=distribution.values)
+  for i in ax.containers:
+      ax.bar_label(i)
+  plt.suptitle('Distribution of Valuations by Companies')
+  plt.xlabel('Valuation ($B)')
+  plt.ylabel('Number of Companies')
+  plt.xticks(rotation=45, ha='right')
+  plt.grid(axis='y', alpha=0.75)
+  plt.show()
+  #+end_src
+
+  #+RESULTS:
+  [[file:./.ob-jupyter/2d9f8b315567f746c1e8ecb40605cc022ba1e668.png]]
+
+*** Distribution of Equity Funding by Companies
+  #+begin_src jupyter-python
+  cuts = pd.qcut(df['Funding ($M)'], 30, duplicates='drop')
+
+  # Count the number of companies in each bin
+  distribution = cuts.value_counts().sort_index()
+
+  # Plot the Bar Chart
+  plt.figure(figsize=(12, 6))
+  ax = sns.barplot(x=distribution.index,
+                   y=distribution.values, hue=distribution.values)
+  for i in ax.containers:
+      ax.bar_label(i)
+  plt.suptitle('Distribution of Equity Funding by Companies')
+  plt.xlabel('Equity Funding ($M)')
+  plt.ylabel('Number of Companies')
+  plt.xticks(rotation=45, ha='right')
+  plt.grid(axis='y', alpha=0.75)
+  plt.show()
+  #+end_src
+
+  #+RESULTS:
+  [[file:./.ob-jupyter/3430b04a00fe06ea101ce3496a0c2b4bb14d4bf5.png]]
+
+** COMMENT Unicorn Types
+Unicorns with over $10 billion in valuation have been designated as "decacorn" companies. For private companies valued over $100 billion, the terms "centicorn" and "hectocorn" have been used.
+** Investor Analysis
+*** Top Investors
+  #+begin_src jupyter-python
+  top_investors = df.explode('Investors')\
+                    .groupby('Investors')['Latest Valuation ($B)']\
+                    .agg(['count', 'sum'])\
+                    .sort_values(by=['sum', 'count'], ascending=False)\
+                    .head(50)
+  print(top_investors)
+  #+end_src
+
+  #+RESULTS:
+  #+begin_example
+                                  count     sum
+  Investors
+  RRE Ventures                        5  397.60
+  Founders Fund                      24  363.01
+  Relay Ventures                      2  358.00
+  Opus Capital                        2  355.70
+  Breyer Capital                      5  320.16
+  Parkway VC                          2  316.00
+  TIME Ventures                       1  315.00
+  Susa Ventures                       2  304.90
+  Dynamo VC                           1  300.00
+  Andreessen Horowitz                72  184.51
+  Sequoia Capital China              40  183.61
+  Sequoia Capital                    59  177.57
+  Alibaba Group                       9  163.39
+  Accel                              65  163.21
+  New Enterprise Associates          26  158.00
+  The Carlyle Group                   5  154.55
+  CPP Investments                     1  150.00
+  Tiger Global Management            56  144.53
+  Index Ventures                     38  139.65
+  General Atlantic                   30  138.95
+  Lightspeed Venture Partners        42  121.19
+  TDM Growth Partners                 2  121.00
+  Insight Partners                   49  120.07
+  Baillie Gifford & Co.               3  117.40
+  Prysm Capital                       2  115.10
+  General Catalyst                   41  113.46
+  ZhenFund                            7  108.20
+  K2 Ventures                         1   91.50
+  Institutional Venture Partners     13   85.74
+  Temasek                            10   74.58
+  IDG Capital                        27   72.08
+  Bessemer Venture Partners          32   71.36
+  Tencent Holdings                   29   69.03
+  Google Ventures                    28   68.81
+  369 Growth Partners                 1   66.00
+  Berkeley Hills Capital              1   66.00
+  GTM Capital                         1   66.00
+  Holtzbrinck Ventures                2   64.00
+  Unternehmertum Venture Capital      1   62.00
+  NVentures                           1   61.50
+  SoftBank Group                     29   59.68
+  Sequoia Capital India              23   57.97
+  Coatue Management                  21   53.79
+  Norwest Venture Partners           18   53.43
+  Bain Capital Ventures              17   52.66
+  Thrive Capital                     20   49.68
+  Foresite Capital                    4   49.20
+  CRV                                17   48.18
+  Battery Ventures                   20   48.07
+  Warburg Pincus                     10   46.37
+  #+end_example
+
+  #+begin_src jupyter-python
+  fig, ax = plt.subplots(2, 1, figsize=(12, 8), dpi=300, sharex=True)
+
+  sns.barplot(top_investors, ax=ax[0], y='sum', x=top_investors.index, hue=top_investors.index, legend=False)
+  ax[0].set(ylabel='Valuations ($B)', title='Valuations of Invested Companies ($B)')
+
+  sns.barplot(top_investors, ax=ax[1], y='count', x=top_investors.index, hue=top_investors.index, legend=False)
+  ax[1].set(ylabel='Times Invested', title='Number of Companies Invested')
+
+  plt.xticks(rotation=90)
+  plt.suptitle('Top Investors')
+  plt.show()
+  #+end_src
+
+  #+RESULTS:
+  [[file:./.ob-jupyter/baa50a132771fbcaa1c91b732fafd3d88dfc659a.png]]
+
+** Founder Analysis
+*** Top Founders
+  #+begin_src jupyter-python
+  top_founders = df.explode('Founder(s)')\
+                    .groupby('Founder(s)')['Latest Valuation ($B)']\
+                    .agg(['count', 'sum'])\
+                    .sort_values(by=['sum', 'count'], ascending=False)\
+                    .head(50)
+  print(top_founders)
+  #+end_src
+
+  #+RESULTS:
+  #+begin_example
+                        count     sum
+  Founder(s)
+  Elon Musk                 3  468.70
+  Ilya Sutskever            2  332.00
+  Liang Rubo                1  315.00
+  Zhang Yiming              1  315.00
+  Greg Brockman             1  300.00
+  Sam Altman                1  300.00
+  John Collison             1   91.50
+  Patrick                   1   91.50
+  Ali Ghodsi                1   62.00
+  Dario Amodei              1   61.50
+  Cameron Adams             1   32.00
+  Clifford Obrecht          1   32.00
+  Daniel Gross              1   32.00
+  Daniel Levy               1   32.00
+  Melanie Perkins           1   32.00
+  Tim Sweeney               1   31.50
+  Alexandr Wang             1   29.00
+  Lucy Guo                  1   29.00
+  Alan Trager               1   27.00
+  Michael Rubin[34]         1   27.00
+  Mitch Trager              1   27.00
+  Chris Britt               1   25.00
+  Ryan King                 1   25.00
+  Nikolay Storonsky         1   17.75
+  Vlad Yatsenko             1   17.75
+  Andrey Khusid             1   17.50
+  Daniel Livny              1   17.00
+  Mark Kozubal              1   17.00
+  Matthew Strongin          1   17.00
+  Rich Macur                1   17.00
+  Thomas Jonas              1   17.00
+  Yuval Avniel              1   17.00
+  Markus Villig             2   16.80
+  Yong Li                   1   15.50
+  Jason Citron              1   15.00
+  Stanislav Vishnevsky      1   15.00
+  Charlwin Mao Wenchao      1   14.00
+  Miranda Qu Fang           1   14.00
+  William Hockey            1   13.40
+  Zach Perret               1   13.40
+  Alex Shevchenko           1   13.00
+  Dmytro Lider              1   13.00
+  Max Lytvyn,               1   13.00
+  Todd Park                 1   12.60
+  Max Rhodes                1   12.40
+  Henrique Dubugras         1   12.30
+  Pedro Franceschi          1   12.30
+  Hayes Barnard             1   12.00
+  Jason Walker              1   12.00
+  Matt Dawson               1   12.00
+  #+end_example
+
+  #+begin_src jupyter-python
+  fig, ax = plt.subplots(figsize=(12, 8), dpi=300, sharex=True)
+
+  ax = sns.barplot(top_founders, y='sum', x=top_founders.index, hue='sum', legend=False)
+  ax.set(ylabel='Company Valuations ($B)', xlabel='Founder')
+
+  plt.xticks(rotation=90)
+  plt.suptitle('Top Founders by Company Valuations')
+  plt.show()
+  #+end_src
+
+  #+RESULTS:
+  [[file:./.ob-jupyter/fe616e143b3cf0d9418694a18bba4589f67a6f38.png]]
 * Time-Based Analysis
 ** Unicorn Growth Over Time
 
@@ -2880,10 +1080,14 @@ df['Latest Valuation ($B)'] = pd.to_numeric(df['Latest Valuation ($B)'].fillna(v
                    (df['Valuation ($)'] >= df['Valuation ($)'].quantile(0.05)) &
                    (df['Valuation ($)'] <= df['Valuation ($)'].quantile(0.95))]
 
-  plt.subplots(figsize=(12, 8), dpi=300)
-  sns.scatterplot(df_filtered, x='Total Equity Funding ($)', y='Valuation ($)', alpha=0.6, hue='Industry')
+  # plt.subplots(figsize=(12, 8), dpi=300)
+  # sns.relplot(df, x='Total Equity Funding ($)', y='Valuation ($)', alpha=0.6, hue='Industry', row='Unicorn Type')
+  # print(df[df['Unicorn Type']=='Centicorn'][['Valuation ($B)', 'Funding ($B)']].corr())
+  sns.relplot(df, x='Funding ($M)', y='Latest Valuation ($B)',
+              alpha=0.6, hue='Industry', col='Unicorn Type',
+              facet_kws={'sharey':False, 'sharex':False})
   # sns.jointplot(df_filtered, x='Total Equity Funding ($)', y='Valuation ($)', kind='reg', truncate=False, height=7)
-  plt.suptitle('Relationship between Funding and Valuation')
+  # plt.suptitle('Relationship between Funding and Valuation')
   plt.xlabel('Funding ($)')
   plt.ylabel('Valuation ($)')
   plt.grid(True)
@@ -2893,18 +1097,18 @@ df['Latest Valuation ($B)'] = pd.to_numeric(df['Latest Valuation ($B)'].fillna(v
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/84f67eec0c55e7952a662cbbde663e93138f33cd.png]]
+  [[file:./.ob-jupyter/7477ec2004d7b519ba52048b215f3af96e13c018.png]]
 ** Relationship between Time to Unicorn and Valuation
 
   #+begin_src jupyter-python
   # Filter out values outside the 5th and 95th percentiles
-  df_filtered = df[(df['Years to Unicorn (Converted)'] >= df['Years to Unicorn (Converted)'].quantile(0.05)) &
-                   (df['Years to Unicorn (Converted)'] <= df['Years to Unicorn (Converted)'].quantile(0.95)) &
+  df_filtered = df[(df['Years to Unicorn'] >= df['Years to Unicorn'].quantile(0.05)) &
+                   (df['Years to Unicorn'] <= df['Years to Unicorn'].quantile(0.95)) &
                    (df['Valuation ($)'] >= df['Valuation ($)'].quantile(0.05)) &
                    (df['Valuation ($)'] <= df['Valuation ($)'].quantile(0.95))]
 
   plt.subplots(figsize=(12, 8), dpi=300)
-  sns.scatterplot(df, x=df_filtered['Years to Unicorn (Converted)'], y=df['Valuation ($)'], alpha=0.6, hue='Industry')
+  sns.scatterplot(df, x=df_filtered['Years to Unicorn'], y=df['Valuation ($)'], alpha=0.6, hue='Industry')
   plt.suptitle('Relationship between Time to Unicorn and Valuation')
   plt.xlabel('Years')
   plt.ylabel('Valuation ($)')
@@ -2928,170 +1132,6 @@ df['Latest Valuation ($B)'] = pd.to_numeric(df['Latest Valuation ($B)'].fillna(v
   #+RESULTS:
   [[file:./.ob-jupyter/af99a0e65576014542fc9aed62cbb3bcb59b94a1.png]]
 
-* Investor Analysis
-** Top Investors
-  #+begin_src jupyter-python
-  top_investors = df.explode('Investors')\
-                    .groupby('Investors')['Latest Valuation ($B)']\
-                    .agg(['count', 'sum'])\
-                    .sort_values(by=['sum', 'count'], ascending=False)\
-                    .head(50)
-  print(top_investors)
-  #+end_src
-
-  #+RESULTS:
-  #+begin_example
-                                  count     sum
-  Investors
-  RRE Ventures                        5  397.60
-  Founders Fund                      24  363.01
-  Relay Ventures                      2  358.00
-  Opus Capital                        2  355.70
-  Breyer Capital                      5  320.16
-  Parkway VC                          2  316.00
-  TIME Ventures                       1  315.00
-  Susa Ventures                       2  304.90
-  Dynamo VC                           1  300.00
-  Andreessen Horowitz                72  184.51
-  Sequoia Capital China              40  183.61
-  Sequoia Capital                    59  177.57
-  Alibaba Group                       9  163.39
-  Accel                              65  163.21
-  New Enterprise Associates          26  158.00
-  The Carlyle Group                   5  154.55
-  CPP Investments                     1  150.00
-  Tiger Global Management            56  144.53
-  Index Ventures                     38  139.65
-  General Atlantic                   30  138.95
-  Lightspeed Venture Partners        42  121.19
-  TDM Growth Partners                 2  121.00
-  Insight Partners                   49  120.07
-  Baillie Gifford & Co.               3  117.40
-  Prysm Capital                       2  115.10
-  General Catalyst                   41  113.46
-  ZhenFund                            7  108.20
-  K2 Ventures                         1   91.50
-  Institutional Venture Partners     13   85.74
-  Temasek                            10   74.58
-  IDG Capital                        27   72.08
-  Bessemer Venture Partners          32   71.36
-  Tencent Holdings                   29   69.03
-  Google Ventures                    28   68.81
-  369 Growth Partners                 1   66.00
-  Berkeley Hills Capital              1   66.00
-  GTM Capital                         1   66.00
-  Holtzbrinck Ventures                2   64.00
-  Unternehmertum Venture Capital      1   62.00
-  NVentures                           1   61.50
-  SoftBank Group                     29   59.68
-  Sequoia Capital India              23   57.97
-  Coatue Management                  21   53.79
-  Norwest Venture Partners           18   53.43
-  Bain Capital Ventures              17   52.66
-  Thrive Capital                     20   49.68
-  Foresite Capital                    4   49.20
-  CRV                                17   48.18
-  Battery Ventures                   20   48.07
-  Warburg Pincus                     10   46.37
-  #+end_example
-
-  #+begin_src jupyter-python
-  fig, ax = plt.subplots(2, 1, figsize=(12, 8), dpi=300, sharex=True)
-
-  sns.barplot(top_investors, ax=ax[0], y='sum', x=top_investors.index, hue=top_investors.index, legend=False)
-  ax[0].set(ylabel='Valuations ($B)', title='Valuations of Invested Companies ($B)')
-
-  sns.barplot(top_investors, ax=ax[1], y='count', x=top_investors.index, hue=top_investors.index, legend=False)
-  ax[1].set(ylabel='Times Invested', title='Number of Companies Invested')
-
-  plt.xticks(rotation=90)
-  plt.suptitle('Top Investors')
-  plt.show()
-  #+end_src
-
-  #+RESULTS:
-  [[file:./.ob-jupyter/baa50a132771fbcaa1c91b732fafd3d88dfc659a.png]]
-
-* Founder Analysis
-** Top Founders
-  #+begin_src jupyter-python
-  top_founders = df.explode('Founder(s)')\
-                    .groupby('Founder(s)')['Latest Valuation ($B)']\
-                    .agg(['count', 'sum'])\
-                    .sort_values(by=['sum', 'count'], ascending=False)\
-                    .head(50)
-  print(top_founders)
-  #+end_src
-
-  #+RESULTS:
-  #+begin_example
-                        count     sum
-  Founder(s)
-  Elon Musk                 3  468.70
-  Ilya Sutskever            2  332.00
-  Liang Rubo                1  315.00
-  Zhang Yiming              1  315.00
-  Greg Brockman             1  300.00
-  Sam Altman                1  300.00
-  John Collison             1   91.50
-  Patrick                   1   91.50
-  Ali Ghodsi                1   62.00
-  Dario Amodei              1   61.50
-  Cameron Adams             1   32.00
-  Clifford Obrecht          1   32.00
-  Daniel Gross              1   32.00
-  Daniel Levy               1   32.00
-  Melanie Perkins           1   32.00
-  Tim Sweeney               1   31.50
-  Alexandr Wang             1   29.00
-  Lucy Guo                  1   29.00
-  Alan Trager               1   27.00
-  Michael Rubin[34]         1   27.00
-  Mitch Trager              1   27.00
-  Chris Britt               1   25.00
-  Ryan King                 1   25.00
-  Nikolay Storonsky         1   17.75
-  Vlad Yatsenko             1   17.75
-  Andrey Khusid             1   17.50
-  Daniel Livny              1   17.00
-  Mark Kozubal              1   17.00
-  Matthew Strongin          1   17.00
-  Rich Macur                1   17.00
-  Thomas Jonas              1   17.00
-  Yuval Avniel              1   17.00
-  Markus Villig             2   16.80
-  Yong Li                   1   15.50
-  Jason Citron              1   15.00
-  Stanislav Vishnevsky      1   15.00
-  Charlwin Mao Wenchao      1   14.00
-  Miranda Qu Fang           1   14.00
-  William Hockey            1   13.40
-  Zach Perret               1   13.40
-  Alex Shevchenko           1   13.00
-  Dmytro Lider              1   13.00
-  Max Lytvyn,               1   13.00
-  Todd Park                 1   12.60
-  Max Rhodes                1   12.40
-  Henrique Dubugras         1   12.30
-  Pedro Franceschi          1   12.30
-  Hayes Barnard             1   12.00
-  Jason Walker              1   12.00
-  Matt Dawson               1   12.00
-  #+end_example
-
-  #+begin_src jupyter-python
-  fig, ax = plt.subplots(figsize=(12, 8), dpi=300, sharex=True)
-
-  ax = sns.barplot(top_founders, y='sum', x=top_founders.index, hue='sum', legend=False)
-  ax.set(ylabel='Company Valuations ($B)', xlabel='Founder')
-
-  plt.xticks(rotation=90)
-  plt.suptitle('Top Founders by Company Valuations')
-  plt.show()
-  #+end_src
-
-  #+RESULTS:
-  [[file:./.ob-jupyter/fe616e143b3cf0d9418694a18bba4589f67a6f38.png]]
 * Historical Analysis
 ** Survival and Acquisition
 
@@ -3183,7 +1223,6 @@ df['Latest Valuation ($B)'] = pd.to_numeric(df['Latest Valuation ($B)'].fillna(v
 
    #+RESULTS:
    [[file:./.ob-jupyter/0cf21fd4dcde7853381d8001fdcd8e79c7051378.png]]
-
 
 *** Exit Reasons of Former Unicorns
 
