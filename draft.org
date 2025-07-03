@@ -20,6 +20,25 @@
 #+RESULTS:
 : t
 
+#+begin_src jupyter-python
+try:
+  import IPython
+  from tabulate import tabulate
+  class OrgFormatter(IPython.core.formatters.BaseFormatter):
+      def __call__(self, obj):
+        try:
+          return tabulate(obj, headers='keys', tablefmt='orgtbl', showindex='always')
+        except:
+          return None
+
+  ip = get_ipython()
+  ip.display_formatter.formatters['text/org'] = OrgFormatter()
+except ImportError:
+  print("no tabulate")
+#+end_src
+
+#+RESULTS:
+
 #+latex_class: article
 #+latex_class_options: [a4paper,12pt]
 
@@ -73,6 +92,7 @@ import re
 ** Global Settings
 #+begin_src jupyter-python
 sns.set_theme(palette='husl', rc={"figure.dpi": 200})
+pd.set_option('display.max_columns', 50, 'display.width', 200)
 #+end_src
 
 #+RESULTS:
@@ -81,7 +101,6 @@ sns.set_theme(palette='husl', rc={"figure.dpi": 200})
 ** Load Data
 
 #+begin_src jupyter-python
-pd.set_option('display.max_columns', 50, 'display.width', 200)
 df = pd.read_csv('input/datasets/Unicorns_Completed (2024).csv')
 df_wiki = pd.read_csv('input/raw_data/list-of-unicorn-startups_20250619 (wikipedia).csv')
 #+end_src
@@ -108,6 +127,9 @@ def correct_company_names(s):
         return 'Scale AI'
     return s
 df['Company'] = df['Company'].apply(correct_company_names)
+
+# Remove duplicates
+df = df[~df.duplicated(['Company'])]
 #+end_src
 
 #+RESULTS:
@@ -174,7 +196,6 @@ df['Years to Unicorn'] = df['Months to Unicorn'] / 12
 
   #+RESULTS:
 
-
 ** Preview
 
   #+begin_src jupyter-python
@@ -184,32 +205,32 @@ df['Years to Unicorn'] = df['Months to Unicorn'] / 12
   #+RESULTS:
   #+begin_example
   <class 'pandas.core.frame.DataFrame'>
-  RangeIndex: 1244 entries, 0 to 1243
+  RangeIndex: 1240 entries, 0 to 1239
   Data columns (total 20 columns):
    #   Column                    Non-Null Count  Dtype
   ---  ------                    --------------  -----
-   0   Company                   1244 non-null   object
-   1   Valuation ($B)            1244 non-null   float64
-   2   Total Equity Funding ($)  1244 non-null   int64
-   3   Unicorn Date              1244 non-null   datetime64[ns]
-   4   Date Founded              1244 non-null   int64
-   5   Years to Unicorn          1244 non-null   float64
-   6   Industry                  1244 non-null   object
-   7   Country                   1244 non-null   object
-   8   City                      1244 non-null   object
-   9   Select Investors          1244 non-null   object
-   10  Valuation ($)             1244 non-null   float64
-   11  Unicorn Year              1244 non-null   int32
-   12  Funding ($B)              1244 non-null   float64
-   13  Funding ($M)              1244 non-null   float64
-   14  Investors                 1244 non-null   object
-   15  Months to Unicorn         1244 non-null   int64
-   16  Latest Valuation ($B)     1244 non-null   float64
-   17  Sector                    429 non-null    object
-   18  Founder(s)                139 non-null    object
-   19  Unicorn Type              1244 non-null   category
+   0   Company                   1240 non-null   object
+   1   Valuation ($B)            1240 non-null   float64
+   2   Total Equity Funding ($)  1240 non-null   int64
+   3   Unicorn Date              1240 non-null   datetime64[ns]
+   4   Date Founded              1240 non-null   int64
+   5   Years to Unicorn          1240 non-null   float64
+   6   Industry                  1240 non-null   object
+   7   Country                   1240 non-null   object
+   8   City                      1240 non-null   object
+   9   Select Investors          1240 non-null   object
+   10  Valuation ($)             1240 non-null   float64
+   11  Unicorn Year              1240 non-null   int32
+   12  Funding ($B)              1240 non-null   float64
+   13  Funding ($M)              1240 non-null   float64
+   14  Investors                 1240 non-null   object
+   15  Months to Unicorn         1240 non-null   int64
+   16  Latest Valuation ($B)     1240 non-null   float64
+   17  Sector                    427 non-null    object
+   18  Founder(s)                137 non-null    object
+   19  Unicorn Type              1240 non-null   category
   dtypes: category(1), datetime64[ns](1), float64(6), int32(1), int64(3), object(8)
-  memory usage: 181.3+ KB
+  memory usage: 180.7+ KB
   #+end_example
 
 * Exploratory Data Analysis
@@ -306,10 +327,10 @@ df['Years to Unicorn'] = df['Months to Unicorn'] / 12
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/77a5f1ad8e76d99e065bb92e1d1c36e23407ed3f.png]]
+  [[file:./.ob-jupyter/4f32dcba1dc61b376613cd516201244fc990e7fe.png]]
 ** Geographical Analysis
 
-  #+begin_src jupyter-python
+  #+begin_src jupyter-python :exports none
   top_countries = df.groupby('Country')['Latest Valuation ($B)'].sum().sort_values(ascending=False).head(30)
   #+end_src
 
@@ -506,6 +527,126 @@ df['Years to Unicorn'] = df['Months to Unicorn'] / 12
   #+RESULTS:
   [[file:./.ob-jupyter/e71cd675c93b7a1216e55ebc3329880a7d537447.png]]
 
+**** Top Companies accross Different Industries
+  #+begin_src jupyter-python
+  _df = df.groupby('Industry')[['Company', 'Latest Valuation ($B)']].apply(lambda grp: grp.nlargest(3, 'Latest Valuation ($B)'))[['Company', 'Latest Valuation ($B)']]
+  _df.index = _df.index.droplevel(1)
+  _df = _df.groupby(level=0).apply(lambda x: ', '.join(x['Company'])).reset_index(name='Companies')
+  _df
+  #+end_src
+
+  #+RESULTS:
+  |   | Industry                   | Companies                                   |
+  |---+----------------------------+---------------------------------------------|
+  | 0 | Consumer & Retail          | xAI, Stripe, Safe Superintelligence         |
+  | 1 | Enterprise Tech            | SpaceX, ByteDance, Anthropic                |
+  | 2 | Financial Services         | Ant Group, SHEIN, Epic Games                |
+  | 3 | Healthcare & Life Sciences | Canva, CoreWeave, Miro                      |
+  | 4 | Industrials                | OpenAI, Databricks, Discord                 |
+  | 5 | Insurance                  | Revolut, Gusto, Ramp                        |
+  | 6 | Media & Entertainment      | Nature's Fynd, Xingsheng Selected, Talkdesk |
+\newpage
+**** Top Companies accross Different Countries
+  #+begin_src jupyter-python
+  _df = df[df['Country'].isin(top_countries.index)]\
+      .groupby('Country')[['Company', 'Latest Valuation ($B)']]\
+      .apply(lambda grp: grp.nlargest(3, 'Latest Valuation ($B)'))[['Company', 'Latest Valuation ($B)']]
+  _df.index = _df.index.droplevel(1)
+  _df = _df.groupby(level=0)\
+           .apply(lambda x: ', '.join(x['Company']))\
+           .reset_index(name='Companies')
+  _df
+  #+end_src
+
+  #+RESULTS:
+  |    | Country              | Companies                                                 |
+  |----+----------------------+-----------------------------------------------------------|
+  |  0 | Australia            | Canva, Airwallex, Immutable                               |
+  |  1 | Austria              | BitPanda, GoStudent                                       |
+  |  2 | Belgium              | Collibra, Odoo, Deliverect                                |
+  |  3 | Brazil               | QuintoAndar, Nuvemshop, Wildlife Studios                  |
+  |  4 | Canada               | Dapper Labs, 1Password, Cohere                            |
+  |  5 | China                | ByteDance, Ant Group, Yuanfudao                           |
+  |  6 | Colombia             | Rappi, LifeMiles, Habi                                    |
+  |  7 | Denmark              | Pleo, Lunar                                               |
+  |  8 | Finland              | RELEX, Oura, Aiven                                        |
+  |  9 | France               | Doctolib, Mistral AI, Back Market                         |
+  | 10 | Germany              | Celonis, Personio, Helsing                                |
+  | 11 | Hong Kong            | Babel Finance, Trendy Group International, HashKeyHashKey |
+  | 12 | India                | BYJU's, OYO Rooms, Dream11                                |
+  | 13 | Indonesia            | Traveloka, Akulaku, eFishery                              |
+  | 14 | Ireland              | BrowserStack, Wayflyer, Flipdish                          |
+  | 15 | Israel               | StarkWare, Wiz, Moon Active                               |
+  | 16 | Japan                | Preferred Networks, SmartHR, Spiber                       |
+  | 17 | Lithuania            | Vinted, Nord Security                                     |
+  | 18 | Mexico               | Kavak, Bitso, Clip                                        |
+  | 19 | Netherlands          | Mollie, MessageBird, BackBase                             |
+  | 20 | Seychelles           | KuCoin, Scroll                                            |
+  | 21 | Singapore            | SHEIN, HyalRoute, Coda Payments                           |
+  | 22 | South Korea          | Toss, Yello Mobile, Kurly                                 |
+  | 23 | Spain                | Jobandtalent, Cabify, TravelPerk                          |
+  | 24 | Sweden               | Northvolt, Klarna, Kry                                    |
+  | 25 | Switzerland          | SonarSource, Nexthink, MindMaze                           |
+  | 26 | United Arab Emirates | Vista Global, Tabby, Kitopi                               |
+  | 27 | United Kingdom       | Revolut, Global Switch, Checkout.com                      |
+  | 28 | United States        | SpaceX, OpenAI, xAI                                       |
+  | 29 | Vietnam              | Sky Mavis, MoMo                                           |
+
+  \newpage
+**** Top Companies accross Different Sectors
+
+  #+begin_src jupyter-python
+  top_sectors = df.explode('Sector')\
+          .groupby('Sector')['Latest Valuation ($B)']\
+          .sum()\
+          .sort_values(ascending=False)\
+          .head(30)
+
+  _df = df.explode('Sector')
+  _df = _df[_df['Sector'].isin(top_sectors.index)]\
+      .groupby('Sector')[['Company', 'Latest Valuation ($B)']]\
+      .apply(lambda grp: grp.nlargest(3, 'Latest Valuation ($B)'))[['Company', 'Latest Valuation ($B)']]
+  _df.index = _df.index.droplevel(1)
+  _df = _df.groupby(level=0)\
+           .apply(lambda x: ', '.join(x['Company']))\
+           .reset_index(name='Companies')
+  _df
+  #+end_src
+
+  #+RESULTS:
+  |    | Sector                  | Companies                          |
+  |----+-------------------------+------------------------------------|
+  |  0 | Aerospace               | SpaceX, Relativity Space           |
+  |  1 | Artificial Intelligence | OpenAI, xAI, Anthropic             |
+  |  2 | Batteries               | Northvolt                          |
+  |  3 | Blockchain              | Alchemy, Chainalysis, ConsenSys    |
+  |  4 | Collaborative Software  | Grammarly, Airtable                |
+  |  5 | Consumer Packaged Goods | Nature's Fynd                      |
+  |  6 | Cryptocurrency          | Ripple, KuCoin, Blockchain.com     |
+  |  7 | Cybersecurity           | Tanium, Wiz, OneTrust              |
+  |  8 | E-Commerce              | SHEIN, Fanatics, Gopuff            |
+  |  9 | Educational Technology  | Yuanfudao, Articulate, Unacademy   |
+  | 10 | Fantasy Sports          | Dream11, Sorare                    |
+  | 11 | Finance                 | Brex, Qonto, TradingView           |
+  | 12 | Financial Services      | Stripe, Chime, Airwallex           |
+  | 13 | Financial Technology    | Revolut, Plaid, GoodLeap           |
+  | 14 | Graphic Design          | Canva, PicsArt                     |
+  | 15 | Health Technology       | Ro, Commure, Alan                  |
+  | 16 | Healthcare              | Devoted Health, Noom, Hinge Health |
+  | 17 | Internet                | ByteDance, Automattic, InMobi      |
+  | 18 | Logistics               | Flexport, Zipline, Cart.com        |
+  | 19 | Marketplace             | Chehaoduo, Kavak, Back Market      |
+  | 20 | Retail                  | HEYTEA, Lenskart, Away             |
+  | 21 | Robotics                | Nuro, CMR Surgical, Exotec         |
+  | 22 | Self-Driving Cars       | ZongMu Technology                  |
+  | 23 | Software                | Databricks, Miro, Discord          |
+  | 24 | Software As A Service   | Talkdesk, ContentSquare, Postman   |
+  | 25 | Software Development    | OutSystems, Unqork, Lightricks     |
+  | 26 | Technology              | MEGVII, MURAL, Workato             |
+  | 27 | Transportation          | Bolt, Bolt, Rappi                  |
+  | 28 | Video Games             | Epic Games, Niantic, Sky Mavis     |
+  | 29 | Workforce Management    | Rippling, Papaya Global, Workrise  |
+\newpage
 *** Most-Funded Companies
 
   #+begin_src jupyter-python
@@ -586,77 +727,77 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
 *** Top Investors
   #+begin_src jupyter-python
   top_investors = df.explode('Investors')\
-                    .groupby('Investors')['Latest Valuation ($B)']\
-                    .agg(['count', 'sum'])\
-                    .sort_values(by=['sum', 'count'], ascending=False)\
+                    .groupby('Investors')[['Company', 'Latest Valuation ($B)']]\
+                    .agg(count=('Company', 'count'), valuation=('Latest Valuation ($B)', 'sum'))\
+                    .sort_values(by=['valuation', 'count'], ascending=False)\
                     .head(50)
   print(top_investors)
   #+end_src
 
   #+RESULTS:
   #+begin_example
-                                  count     sum
+                                  count  valuation
   Investors
-  RRE Ventures                        5  397.60
-  Founders Fund                      24  363.01
-  Relay Ventures                      2  358.00
-  Opus Capital                        2  355.70
-  Breyer Capital                      5  320.16
-  Parkway VC                          2  316.00
-  TIME Ventures                       1  315.00
-  Susa Ventures                       2  304.90
-  Dynamo VC                           1  300.00
-  Andreessen Horowitz                72  184.51
-  Sequoia Capital China              40  183.61
-  Sequoia Capital                    59  177.57
-  Alibaba Group                       9  163.39
-  Accel                              65  163.21
-  New Enterprise Associates          26  158.00
-  The Carlyle Group                   5  154.55
-  CPP Investments                     1  150.00
-  Tiger Global Management            56  144.53
-  Index Ventures                     38  139.65
-  General Atlantic                   30  138.95
-  Lightspeed Venture Partners        42  121.19
-  TDM Growth Partners                 2  121.00
-  Insight Partners                   49  120.07
-  Baillie Gifford & Co.               3  117.40
-  Prysm Capital                       2  115.10
-  General Catalyst                   41  113.46
-  ZhenFund                            7  108.20
-  K2 Ventures                         1   91.50
-  Institutional Venture Partners     13   85.74
-  Temasek                            10   74.58
-  IDG Capital                        27   72.08
-  Bessemer Venture Partners          32   71.36
-  Tencent Holdings                   29   69.03
-  Google Ventures                    28   68.81
-  369 Growth Partners                 1   66.00
-  Berkeley Hills Capital              1   66.00
-  GTM Capital                         1   66.00
-  Holtzbrinck Ventures                2   64.00
-  Unternehmertum Venture Capital      1   62.00
-  NVentures                           1   61.50
-  SoftBank Group                     29   59.68
-  Sequoia Capital India              23   57.97
-  Coatue Management                  21   53.79
-  Norwest Venture Partners           18   53.43
-  Bain Capital Ventures              17   52.66
-  Thrive Capital                     20   49.68
-  Foresite Capital                    4   49.20
-  CRV                                17   48.18
-  Battery Ventures                   20   48.07
-  Warburg Pincus                     10   46.37
+  RRE Ventures                        5     397.60
+  Founders Fund                      24     363.01
+  Relay Ventures                      2     358.00
+  Opus Capital                        2     355.68
+  Breyer Capital                      5     320.16
+  Parkway VC                          2     316.00
+  TIME Ventures                       1     315.00
+  Susa Ventures                       2     304.90
+  Dynamo VC                           1     300.00
+  Andreessen Horowitz                72     184.51
+  Sequoia Capital China              40     183.61
+  Sequoia Capital                    59     176.70
+  Alibaba Group                       9     163.39
+  Accel                              65     161.91
+  New Enterprise Associates          26     157.50
+  The Carlyle Group                   5     154.55
+  CPP Investments                     1     150.00
+  Tiger Global Management            56     144.47
+  General Atlantic                   30     138.95
+  Index Ventures                     38     138.65
+  Lightspeed Venture Partners        42     121.19
+  TDM Growth Partners                 2     121.00
+  Insight Partners                   49     120.07
+  Baillie Gifford & Co.               3     117.40
+  Prysm Capital                       2     115.10
+  General Catalyst                   41     113.46
+  ZhenFund                            7     108.20
+  K2 Ventures                         1      91.50
+  Institutional Venture Partners     13      85.24
+  Temasek                            10      74.58
+  IDG Capital                        27      72.08
+  Bessemer Venture Partners          32      70.31
+  Tencent Holdings                   29      69.03
+  Google Ventures                    28      68.81
+  369 Growth Partners                 1      66.00
+  Berkeley Hills Capital              1      66.00
+  GTM Capital                         1      66.00
+  Holtzbrinck Ventures                2      64.00
+  Unternehmertum Venture Capital      1      62.00
+  NVentures                           1      61.50
+  SoftBank Group                     29      59.68
+  Sequoia Capital India              23      57.97
+  Coatue Management                  21      53.79
+  Norwest Venture Partners           18      53.43
+  Bain Capital Ventures              17      52.66
+  Foresite Capital                    4      49.20
+  Thrive Capital                     20      48.81
+  CRV                                17      48.18
+  Battery Ventures                   20      48.05
+  Warburg Pincus                     10      46.37
   #+end_example
 
   #+begin_src jupyter-python
   fig, ax = plt.subplots(2, 1, figsize=(12, 8), dpi=300, sharex=True)
 
-  sns.barplot(top_investors, ax=ax[0], y='sum', x=top_investors.index, hue=top_investors.index, legend=False)
-  ax[0].set(ylabel='Valuations ($B)', title='Valuations of Invested Companies ($B)')
+  sns.barplot(top_investors, ax=ax[0], y='valuation', x=top_investors.index, hue=top_investors.index, legend=False)
+  ax[0].set(ylabel=None, title='Valuations of Invested Companies ($B)')
 
   sns.barplot(top_investors, ax=ax[1], y='count', x=top_investors.index, hue=top_investors.index, legend=False)
-  ax[1].set(ylabel='Times Invested', title='Number of Companies Invested')
+  ax[1].set(ylabel=None, title='Number of Companies Invested')
 
   plt.xticks(rotation=90)
   plt.suptitle('Top Investors')
@@ -664,79 +805,79 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/baa50a132771fbcaa1c91b732fafd3d88dfc659a.png]]
+  [[file:./.ob-jupyter/3f386535673d1e7ccf277c12303bb9f4a4a637b0.png]]
 
 ** Founder Analysis
 *** Top Founders
   #+begin_src jupyter-python
   top_founders = df.explode('Founder(s)')\
-                    .groupby('Founder(s)')['Latest Valuation ($B)']\
-                    .agg(['count', 'sum'])\
-                    .sort_values(by=['sum', 'count'], ascending=False)\
+                    .groupby('Founder(s)')[['Latest Valuation ($B)', 'Company']]\
+                    .agg(count=('Company', 'count'), companies=('Company', lambda x: ', '.join(x)), valuation=('Latest Valuation ($B)', 'sum'))\
+                    .sort_values(by=['valuation', 'count'], ascending=False)\
                     .head(50)
   print(top_founders)
   #+end_src
 
   #+RESULTS:
   #+begin_example
-                        count     sum
+                        count                        companies  valuation
   Founder(s)
-  Elon Musk                 3  468.70
-  Ilya Sutskever            2  332.00
-  Liang Rubo                1  315.00
-  Zhang Yiming              1  315.00
-  Greg Brockman             1  300.00
-  Sam Altman                1  300.00
-  John Collison             1   91.50
-  Patrick                   1   91.50
-  Ali Ghodsi                1   62.00
-  Dario Amodei              1   61.50
-  Cameron Adams             1   32.00
-  Clifford Obrecht          1   32.00
-  Daniel Gross              1   32.00
-  Daniel Levy               1   32.00
-  Melanie Perkins           1   32.00
-  Tim Sweeney               1   31.50
-  Alexandr Wang             1   29.00
-  Lucy Guo                  1   29.00
-  Alan Trager               1   27.00
-  Michael Rubin[34]         1   27.00
-  Mitch Trager              1   27.00
-  Chris Britt               1   25.00
-  Ryan King                 1   25.00
-  Nikolay Storonsky         1   17.75
-  Vlad Yatsenko             1   17.75
-  Andrey Khusid             1   17.50
-  Daniel Livny              1   17.00
-  Mark Kozubal              1   17.00
-  Matthew Strongin          1   17.00
-  Rich Macur                1   17.00
-  Thomas Jonas              1   17.00
-  Yuval Avniel              1   17.00
-  Markus Villig             2   16.80
-  Yong Li                   1   15.50
-  Jason Citron              1   15.00
-  Stanislav Vishnevsky      1   15.00
-  Charlwin Mao Wenchao      1   14.00
-  Miranda Qu Fang           1   14.00
-  William Hockey            1   13.40
-  Zach Perret               1   13.40
-  Alex Shevchenko           1   13.00
-  Dmytro Lider              1   13.00
-  Max Lytvyn,               1   13.00
-  Todd Park                 1   12.60
-  Max Rhodes                1   12.40
-  Henrique Dubugras         1   12.30
-  Pedro Franceschi          1   12.30
-  Hayes Barnard             1   12.00
-  Jason Walker              1   12.00
-  Matt Dawson               1   12.00
+  Elon Musk                 3  SpaceX, xAI, The Boring Company     468.70
+  Ilya Sutskever            2   OpenAI, Safe Superintelligence     332.00
+  Liang Rubo                1                        ByteDance     315.00
+  Zhang Yiming              1                        ByteDance     315.00
+  Greg Brockman             1                           OpenAI     300.00
+  Sam Altman                1                           OpenAI     300.00
+  John Collison             1                           Stripe      91.50
+  Patrick                   1                           Stripe      91.50
+  Chris Xu                  1                            SHEIN      66.00
+  Ali Ghodsi                1                       Databricks      62.00
+  Dario Amodei              1                        Anthropic      61.50
+  Cameron Adams             1                            Canva      32.00
+  Clifford Obrecht          1                            Canva      32.00
+  Daniel Gross              1           Safe Superintelligence      32.00
+  Daniel Levy               1           Safe Superintelligence      32.00
+  Melanie Perkins           1                            Canva      32.00
+  Tim Sweeney               1                       Epic Games      31.50
+  Alexandr Wang             1                         Scale AI      29.00
+  Lucy Guo                  1                         Scale AI      29.00
+  Alan Trager               1                         Fanatics      27.00
+  Michael Rubin[34]         1                         Fanatics      27.00
+  Mitch Trager              1                         Fanatics      27.00
+  Chris Britt               1                            Chime      25.00
+  Ryan King                 1                            Chime      25.00
+  Nikolay Storonsky         1                          Revolut      17.75
+  Vlad Yatsenko             1                          Revolut      17.75
+  Andrey Khusid             1                             Miro      17.50
+  Daniel Livny              1                    Nature's Fynd      17.00
+  Mark Kozubal              1                    Nature's Fynd      17.00
+  Matthew Strongin          1                    Nature's Fynd      17.00
+  Rich Macur                1                    Nature's Fynd      17.00
+  Thomas Jonas              1                    Nature's Fynd      17.00
+  Yuval Avniel              1                    Nature's Fynd      17.00
+  Markus Villig             2                       Bolt, Bolt      16.80
+  Yong Li                   1                        Yuanfudao      15.50
+  Jason Citron              1                          Discord      15.00
+  Rafael Ilishayev          1                           Gopuff      15.00
+  Stanislav Vishnevsky      1                          Discord      15.00
+  Yakir Gola                1                           Gopuff      15.00
+  Charlwin Mao Wenchao      1                      Xiaohongshu      14.00
+  Miranda Qu Fang           1                      Xiaohongshu      14.00
+  William Hockey            1                            Plaid      13.40
+  Zach Perret               1                            Plaid      13.40
+  Alex Shevchenko           1                        Grammarly      13.00
+  Dmytro Lider              1                        Grammarly      13.00
+  Max Lytvyn,               1                        Grammarly      13.00
+  Todd Park                 1                   Devoted Health      12.60
+  Max Rhodes                1                            Faire      12.40
+  Henrique Dubugras         1                             Brex      12.30
+  Pedro Franceschi          1                             Brex      12.30
   #+end_example
 
   #+begin_src jupyter-python
   fig, ax = plt.subplots(figsize=(12, 8), dpi=300, sharex=True)
 
-  ax = sns.barplot(top_founders, y='sum', x=top_founders.index, hue='sum', legend=False)
+  ax = sns.barplot(top_founders, y='valuation', x=top_founders.index, hue='valuation', legend=False)
   ax.set(ylabel='Company Valuations ($B)', xlabel='Founder')
 
   plt.xticks(rotation=90)
@@ -745,7 +886,7 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/fe616e143b3cf0d9418694a18bba4589f67a6f38.png]]
+  [[file:./.ob-jupyter/b1e5d242a1930df934827d9ad8871b2c10a66d7e.png]]
 * Time-Based Analysis
 ** Unicorn Growth Over Time
 
@@ -1083,21 +1224,22 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
   # plt.subplots(figsize=(12, 8), dpi=300)
   # sns.relplot(df, x='Total Equity Funding ($)', y='Valuation ($)', alpha=0.6, hue='Industry', row='Unicorn Type')
   # print(df[df['Unicorn Type']=='Centicorn'][['Valuation ($B)', 'Funding ($B)']].corr())
-  sns.relplot(df, x='Funding ($M)', y='Latest Valuation ($B)',
-              alpha=0.6, hue='Industry', col='Unicorn Type',
-              facet_kws={'sharey':False, 'sharex':False})
+  g = sns.relplot(df, x='Funding ($M)', y='Latest Valuation ($B)',
+                  alpha=0.6, hue='Industry', col='Unicorn Type',
+                  facet_kws={'sharey':False, 'sharex':False})
+  g.axes[0,0].set(xscale='log')
   # sns.jointplot(df_filtered, x='Total Equity Funding ($)', y='Valuation ($)', kind='reg', truncate=False, height=7)
   # plt.suptitle('Relationship between Funding and Valuation')
   plt.xlabel('Funding ($)')
   plt.ylabel('Valuation ($)')
   plt.grid(True)
-  plt.xscale('log')
+  # plt.xscale('log')
   # plt.yscale('log')
   plt.show()
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/7477ec2004d7b519ba52048b215f3af96e13c018.png]]
+  [[file:./.ob-jupyter/5415f9fdec68b2adced350286d8dc2c711078f0a.png]]
 ** Relationship between Time to Unicorn and Valuation
 
   #+begin_src jupyter-python
