@@ -760,72 +760,47 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
                     .groupby('Investors')[['Company', 'Latest Valuation ($B)']]\
                     .apply(top_investors_agg)\
                     .sort_values(by=['valuation', 'count'], ascending=False)\
-                    .head(50)
+                    .head(20)
   top_investors
   #+end_src
 
   #+RESULTS:
-  | Investors                      | count | valuation | companies                                             |
-  |--------------------------------+-------+-----------+-------------------------------------------------------|
-  | RRE Ventures                   |     5 |     397.6 | SpaceX, Fanatics, Gopuff                              |
-  | Founders Fund                  |    24 |    363.01 | OpenAI, Scale AI, Articulate                          |
-  | Relay Ventures                 |     2 |       358 | SpaceX, Flexport                                      |
-  | Opus Capital                   |     2 |    355.68 | SpaceX, RELEX                                         |
-  | Breyer Capital                 |     5 |    320.16 | ByteDance, Promasidor Holdings, Generate Biomedicines |
-  | Parkway VC                     |     2 |       316 | ByteDance, EcoVadis                                   |
-  | TIME Ventures                  |     1 |       315 | ByteDance                                             |
-  | Susa Ventures                  |     2 |     304.9 | OpenAI, Meesho                                        |
-  | Dynamo VC                      |     1 |       300 | OpenAI                                                |
-  | Sequoia Capital China          |    40 |    183.61 | Stripe, Miro, Airwallex                               |
-  | Andreessen Horowitz            |    71 |    179.01 | Bitmain Technologies, Digital Currency Group, KuCoin  |
-  | Sequoia Capital                |    59 |     176.7 | Faire, Bitmain Technologies, Airtable                 |
-  | Alibaba Group                  |     9 |    163.39 | Ant Group, Starburst, Redis                           |
-  | Accel                          |    65 |    161.91 | DJI Innovations, Checkout.com, Dapper Labs            |
-  | New Enterprise Associates      |    26 |     157.5 | Anthropic, DJI Innovations, Celonis                   |
-  | The Carlyle Group              |     5 |    154.55 | Ant Group, Paradox, InCred                            |
-  | CPP Investments                |     1 |       150 | Ant Group                                             |
-  | Tiger Global Management        |    56 |    144.47 | Devoted Health, Ripple, OYO Rooms                     |
-  | General Atlantic               |    30 |    138.95 | Databricks, Chime, Ro                                 |
-  | Index Ventures                 |    38 |    138.65 | Canva, Scale AI, Airtable                             |
-  | Lightspeed Venture Partners    |    42 |    121.19 | Nature's Fynd, Xiaohongshu, ServiceTitan              |
-  | TDM Growth Partners            |     2 |       121 | xAI, FalconX                                          |
-  | Insight Partners               |    49 |    120.07 | OpenSea, Airtable, Gusto                              |
-  | Baillie Gifford & Co.          |     3 |     117.4 | xAI, Carbon, Clip                                     |
-  | Prysm Capital                  |     2 |     115.1 | xAI, GoCardless                                       |
-  | General Catalyst               |    41 |    113.46 | Safe Superintelligence, Dapper Labs, Back Market      |
-  | ZhenFund                       |     7 |     108.2 | Stripe, Dream11, Physical Intelligence                |
-  | K2 Ventures                    |     1 |      91.5 | Stripe                                                |
-  | Institutional Venture Partners |    13 |     85.24 | Anthropic, ClickUp, Flock Safety                      |
-  | Temasek                        |    10 |     74.58 | Canva, Xingsheng Selected, Huolala                    |
-  | IDG Capital                    |    27 |     72.08 | Talkdesk, SumUp, Airwallex                            |
-  | Bessemer Venture Partners      |    32 |     70.31 | OpenSea, ServiceTitan, Dataiku                        |
-  | Tencent Holdings               |    29 |     69.03 | OYO Rooms, Bolt, Gemini                               |
-  | Google Ventures                |    28 |     68.81 | Faire, Attentive, OakNorth Bank                       |
-  | 369 Growth Partners            |     1 |        66 | SHEIN                                                 |
-  | Berkeley Hills Capital         |     1 |        66 | SHEIN                                                 |
-  | GTM Capital                    |     1 |        66 | SHEIN                                                 |
-  | Holtzbrinck Ventures           |     2 |        64 | Databricks, Mysten Labs                               |
-  | Unternehmertum Venture Capital |     1 |        62 | Databricks                                            |
-  | NVentures                      |     1 |      61.5 | Anthropic                                             |
-  | Sequoia Capital India          |    23 |     57.97 | Plaid, ContentSquare, Collibra                        |
-  | SoftBank Group                 |    28 |     54.18 | Trade Republic, Hopper, Impossible Foods              |
-  | Coatue Management              |    21 |     53.79 | Discord, Airwallex, Arctic Wolf Networks              |
-  | Norwest Venture Partners       |    18 |     53.43 | Anduril, Ripple, Houzz                                |
-  | Bain Capital Ventures          |    17 |     52.66 | Kavak, Toss, Ziroom                                   |
-  | Foresite Capital               |     4 |      49.2 | CoreWeave, CoreWeave, Front                           |
-  | Thrive Capital                 |    20 |     48.81 | Netskope, Wiz, Checkr                                 |
-  | CRV                            |    17 |     48.18 | Netskope, Gemini, Helsing                             |
-  | Battery Ventures               |    20 |     48.05 | 1Password, Benchling, RELEX                           |
-  | Warburg Pincus                 |    10 |     46.37 | Epic Games, Automattic, LayerZero Labs                |
+  | Investors                 | count | valuation | companies                                             |
+  |---------------------------+-------+-----------+-------------------------------------------------------|
+  | RRE Ventures              |     5 |     397.6 | SpaceX, Fanatics, Gopuff                              |
+  | Founders Fund             |    24 |    363.01 | OpenAI, Scale AI, Articulate                          |
+  | Relay Ventures            |     2 |       358 | SpaceX, Flexport                                      |
+  | Opus Capital              |     2 |    355.68 | SpaceX, RELEX                                         |
+  | Breyer Capital            |     5 |    320.16 | ByteDance, Promasidor Holdings, Generate Biomedicines |
+  | Parkway VC                |     2 |       316 | ByteDance, EcoVadis                                   |
+  | TIME Ventures             |     1 |       315 | ByteDance                                             |
+  | Susa Ventures             |     2 |     304.9 | OpenAI, Meesho                                        |
+  | Dynamo VC                 |     1 |       300 | OpenAI                                                |
+  | Sequoia Capital China     |    40 |    183.61 | Stripe, Miro, Airwallex                               |
+  | Andreessen Horowitz       |    71 |    179.01 | Bitmain Technologies, Digital Currency Group, KuCoin  |
+  | Sequoia Capital           |    59 |     176.7 | Faire, Bitmain Technologies, Airtable                 |
+  | Alibaba Group             |     9 |    163.39 | Ant Group, Starburst, Redis                           |
+  | Accel                     |    65 |    161.91 | DJI Innovations, Checkout.com, Dapper Labs            |
+  | New Enterprise Associates |    26 |     157.5 | Anthropic, DJI Innovations, Celonis                   |
+  | The Carlyle Group         |     5 |    154.55 | Ant Group, Paradox, InCred                            |
+  | CPP Investments           |     1 |       150 | Ant Group                                             |
+  | Tiger Global Management   |    56 |    144.47 | Devoted Health, Ripple, OYO Rooms                     |
+  | General Atlantic          |    30 |    138.95 | Databricks, Chime, Ro                                 |
+  | Index Ventures            |    38 |    138.65 | Canva, Scale AI, Airtable                             |
 \newpage
 
   #+begin_src jupyter-python
-  fig, ax = plt.subplots(2, 1, figsize=(12, 8), sharex=True)
+  fig, ax = plt.subplots(2, 1, figsize=(12, 8), sharex=True, gridspec_kw={'height_ratios': [2, 1]})
 
   sns.barplot(top_investors, ax=ax[0], y='valuation', x=top_investors.index, hue=top_investors.index, legend=False)
   ax[0].set(ylabel=None, title='Valuations of Invested Companies ($B)')
+  for i in ax[0].containers:
+      ax[0].bar_label(i, rotation=45, fontsize=8)
 
   sns.barplot(top_investors, ax=ax[1], y='count', x=top_investors.index, hue=top_investors.index, legend=False)
+  for i in ax[1].containers:
+      ax[1].bar_label(i, rotation=45, fontsize=8)
+
   ax[1].set(ylabel=None, title='Number of Companies Invested')
 
   plt.xticks(rotation=90)
@@ -834,80 +809,57 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/d376d62201b4230b564516c1a2ce5bc823d7439e.png]]
+  [[file:./.ob-jupyter/f89c5a521e8529dfdc04ce55847db068fb4a9999.png]]
 
 ** Founder Analysis
 *** Top Founders
   #+begin_src jupyter-python
   top_founders = df.explode('Founder(s)')\
-                    .groupby('Founder(s)')[['Latest Valuation ($B)', 'Company']]\
-                    .agg(count=('Company', 'count'), companies=('Company', lambda x: ', '.join(x)), valuation=('Latest Valuation ($B)', 'sum'))\
+                    .groupby('Founder(s)')[['Latest Valuation ($B)', 'Company', 'Funding ($M)']]\
+                    .agg(count=('Company', 'count'), companies=('Company', lambda x: ', '.join(x)), valuation=('Latest Valuation ($B)', 'sum'), funding=('Funding ($M)', 'sum'))\
                     .sort_values(by=['valuation', 'count'], ascending=False)\
-                    .head(50)
+                    .head(20)
   print(top_founders)
   #+end_src
 
   #+RESULTS:
   #+begin_example
-                        count                        companies  valuation
+                    count                        companies  valuation  funding
   Founder(s)
-  Elon Musk                 3  SpaceX, xAI, The Boring Company     468.70
-  Ilya Sutskever            2   OpenAI, Safe Superintelligence     332.00
-  Liang Rubo                1                        ByteDance     315.00
-  Zhang Yiming              1                        ByteDance     315.00
-  Greg Brockman             1                           OpenAI     300.00
-  Sam Altman                1                           OpenAI     300.00
-  John Collison             1                           Stripe      91.50
-  Patrick                   1                           Stripe      91.50
-  Chris Xu                  1                            SHEIN      66.00
-  Ali Ghodsi                1                       Databricks      62.00
-  Dario Amodei              1                        Anthropic      61.50
-  Cameron Adams             1                            Canva      32.00
-  Clifford Obrecht          1                            Canva      32.00
-  Daniel Gross              1           Safe Superintelligence      32.00
-  Daniel Levy               1           Safe Superintelligence      32.00
-  Melanie Perkins           1                            Canva      32.00
-  Tim Sweeney               1                       Epic Games      31.50
-  Alexandr Wang             1                         Scale AI      29.00
-  Lucy Guo                  1                         Scale AI      29.00
-  Alan Trager               1                         Fanatics      27.00
-  Michael Rubin[34]         1                         Fanatics      27.00
-  Mitch Trager              1                         Fanatics      27.00
-  Chris Britt               1                            Chime      25.00
-  Ryan King                 1                            Chime      25.00
-  Nikolay Storonsky         1                          Revolut      17.75
-  Vlad Yatsenko             1                          Revolut      17.75
-  Andrey Khusid             1                             Miro      17.50
-  Daniel Livny              1                    Nature's Fynd      17.00
-  Mark Kozubal              1                    Nature's Fynd      17.00
-  Matthew Strongin          1                    Nature's Fynd      17.00
-  Rich Macur                1                    Nature's Fynd      17.00
-  Thomas Jonas              1                    Nature's Fynd      17.00
-  Yuval Avniel              1                    Nature's Fynd      17.00
-  Markus Villig             2                       Bolt, Bolt      16.80
-  Yong Li                   1                        Yuanfudao      15.50
-  Jason Citron              1                          Discord      15.00
-  Rafael Ilishayev          1                           Gopuff      15.00
-  Stanislav Vishnevsky      1                          Discord      15.00
-  Yakir Gola                1                           Gopuff      15.00
-  Charlwin Mao Wenchao      1                      Xiaohongshu      14.00
-  Miranda Qu Fang           1                      Xiaohongshu      14.00
-  William Hockey            1                            Plaid      13.40
-  Zach Perret               1                            Plaid      13.40
-  Alex Shevchenko           1                        Grammarly      13.00
-  Dmytro Lider              1                        Grammarly      13.00
-  Max Lytvyn,               1                        Grammarly      13.00
-  Todd Park                 1                   Devoted Health      12.60
-  Max Rhodes                1                            Faire      12.40
-  Henrique Dubugras         1                             Brex      12.30
-  Pedro Franceschi          1                             Brex      12.30
+  Elon Musk             3  SpaceX, xAI, The Boring Company      468.7  21908.0
+  Ilya Sutskever        2   OpenAI, Safe Superintelligence      332.0  19000.0
+  Liang Rubo            1                        ByteDance      315.0   8000.0
+  Zhang Yiming          1                        ByteDance      315.0   8000.0
+  Greg Brockman         1                           OpenAI      300.0  18000.0
+  Sam Altman            1                           OpenAI      300.0  18000.0
+  John Collison         1                           Stripe       91.5   9000.0
+  Patrick               1                           Stripe       91.5   9000.0
+  Chris Xu              1                            SHEIN       66.0   4000.0
+  Ali Ghodsi            1                       Databricks       62.0  14000.0
+  Dario Amodei          1                        Anthropic       61.5   8000.0
+  Cameron Adams         1                            Canva       32.0    580.0
+  Clifford Obrecht      1                            Canva       32.0    580.0
+  Daniel Gross          1           Safe Superintelligence       32.0   1000.0
+  Daniel Levy           1           Safe Superintelligence       32.0   1000.0
+  Melanie Perkins       1                            Canva       32.0    580.0
+  Tim Sweeney           1                       Epic Games       31.5   8000.0
+  Alexandr Wang         1                         Scale AI       29.0   2000.0
+  Lucy Guo              1                         Scale AI       29.0   2000.0
+  Alan Trager           1                         Fanatics       27.0   5000.0
   #+end_example
 
   #+begin_src jupyter-python
-  fig, ax = plt.subplots(figsize=(12, 8), dpi=300, sharex=True)
+  fig, ax = plt.subplots(2, 1, figsize=(12, 8), dpi=300, sharex=True, gridspec_kw={'height_ratios': [2, 1]})
 
-  ax = sns.barplot(top_founders, y='valuation', x=top_founders.index, hue='valuation', legend=False)
-  ax.set(ylabel='Company Valuations ($B)', xlabel='Founder')
+  g = sns.barplot(top_founders, y='valuation', x=top_founders.index, hue=top_founders.index, legend=False, ax=ax[0])
+  g.set(ylabel='Company Valuations ($B)', xlabel='Founder')
+  for i in ax[0].containers:
+      ax[0].bar_label(i, rotation=45, fontsize=8)
+
+  g = sns.barplot(top_founders, y='funding', x=top_founders.index, hue=top_founders.index, legend=False, ax=ax[1])
+  g.set(ylabel='Company Funding ($M)')
+  for i in ax[1].containers:
+      ax[1].bar_label(i, rotation=45, fontsize=8)
 
   plt.xticks(rotation=90)
   plt.suptitle('Top Founders by Company Valuations')
@@ -915,7 +867,7 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/b1e5d242a1930df934827d9ad8871b2c10a66d7e.png]]
+  [[file:./.ob-jupyter/02a9d2b9351d536d517d2cbafba18b2f2d3e70f3.png]]
 * Time-Based Analysis
 ** Unicorn Growth Over Time
 
@@ -1091,6 +1043,7 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
   upper_bound = df['Years to Unicorn'].quantile(0.95)
   # Filter out values outside the 5th and 95th percentiles
   df_filtered = df[(df['Years to Unicorn'] >= lower_bound) & (df['Years to Unicorn'] <= upper_bound)]
+  # print(df_filtered['Years to Unicorn'].dropna())
 
   fig, ax = plt.subplots(2, 1, figsize=(12, 8))
   sns.boxplot(df_filtered, x='Years to Unicorn', y='Industry', hue='Industry', ax=ax[0], showfliers=False)
