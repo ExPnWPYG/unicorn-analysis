@@ -72,7 +72,7 @@ except ImportError:
 #+LaTeX_HEADER: \renewcommand\labelitemii{\sqbullet}
 #+LaTeX_HEADER: \renewcommand\labelitemi{\bullet}
 
-* Introduction
+* COMMENT Introduction
 - *What is a Unicorn Company?*
 
   In business, a unicorn is a privately held startup company valued at over $1 billion. The term was first popularised in 2013 by venture capitalist Aileen Lee, choosing the mythical animal to represent the statistical rarity of such successful ventures.
@@ -396,7 +396,7 @@ df['Years to Unicorn'] = df['Months to Unicorn'] / 12
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/ce1b295cc70e2382317d7c5a5291972f682db8e4.png]]
+  [[file:./.ob-jupyter/33900e6d5fea2d6aa2730af6c08c1029c0b26b20.png]]
 
 *** Mean Distribution of Valuations across Different Countries
 
@@ -415,11 +415,24 @@ df['Years to Unicorn'] = df['Months to Unicorn'] / 12
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/f8596841371ce5dbfa474011d8a05c1bfc65ad64.png]]
+  [[file:./.ob-jupyter/39fd31b873ab703c2f80e4c7c699be49ab648904.png]]
+
+  #+begin_src jupyter-python
+  _df = df.pivot_table(index='Country', columns='Industry', values='Latest Valuation ($B)', aggfunc='median')
+  plt.figure(figsize=(15, 14))
+  sns.heatmap(_df, cmap='coolwarm', annot=True, fmt=".2f", linewidths=0.5)
+  plt.xticks(rotation=45, ha='right')
+  plt.suptitle('Median Valuation ($B) by Country and Industry')
+  plt.tight_layout()
+  plt.show()
+  #+end_src
+
+  #+RESULTS:
+  [[file:./.ob-jupyter/8191e29d90b7253a853630fc7935bf3868045f13.png]]
 
 *** Mean Distribution of Equity Funding across Different Countries
   #+begin_src jupyter-python
-  fig, ax = plt.subplots(figsize=(12,8), dpi=300)
+  fig, ax = plt.subplots(figsize=(12,8))
   sns.boxplot(df[df['Country'].isin(top_countries.index)], y='Country', x='Funding ($M)', hue='Country', showfliers=False)
   plt.suptitle('Distribution of Funding across Different Countries')
   ax.set(xlabel='Funding ($M)',
@@ -429,7 +442,20 @@ df['Years to Unicorn'] = df['Months to Unicorn'] / 12
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/02b00eac659a6e6baf5fcdd877250ed0c3c5fd38.png]]
+  [[file:./.ob-jupyter/fa05f2e0e7dfc6eb42b967ec12db60330b88785b.png]]
+
+  #+begin_src jupyter-python
+  _df = df.pivot_table(index='Country', columns='Industry', values='Funding ($M)', aggfunc='median')
+  plt.figure(figsize=(15, 14))
+  sns.heatmap(_df, cmap='coolwarm', annot=True, fmt=".2f", linewidths=0.5)
+  plt.xticks(rotation=45, ha='right')
+  plt.suptitle('Median Funding ($M) by Country and Industry')
+  plt.tight_layout()
+  plt.show()
+  #+end_src
+
+  #+RESULTS:
+  [[file:./.ob-jupyter/1fae544818601e487320f474cee01e7e7688ed42.png]]
 
 ** Sector-Based Analysis
 *** Top Sectors
@@ -726,72 +752,75 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
 ** Investor Analysis
 *** Top Investors
   #+begin_src jupyter-python
+  def top_investors_agg(grp):
+      return pd.Series({'count': grp['Company'].size,
+                        'valuation': grp['Latest Valuation ($B)'].sum(),
+                        'companies': ', '.join(grp.nlargest(3, 'Latest Valuation ($B)')['Company'])})
   top_investors = df.explode('Investors')\
                     .groupby('Investors')[['Company', 'Latest Valuation ($B)']]\
-                    .agg(count=('Company', 'count'), valuation=('Latest Valuation ($B)', 'sum'))\
+                    .apply(top_investors_agg)\
                     .sort_values(by=['valuation', 'count'], ascending=False)\
                     .head(50)
-  print(top_investors)
+  top_investors
   #+end_src
 
   #+RESULTS:
-  #+begin_example
-                                  count  valuation
-  Investors
-  RRE Ventures                        5     397.60
-  Founders Fund                      24     363.01
-  Relay Ventures                      2     358.00
-  Opus Capital                        2     355.68
-  Breyer Capital                      5     320.16
-  Parkway VC                          2     316.00
-  TIME Ventures                       1     315.00
-  Susa Ventures                       2     304.90
-  Dynamo VC                           1     300.00
-  Andreessen Horowitz                72     184.51
-  Sequoia Capital China              40     183.61
-  Sequoia Capital                    59     176.70
-  Alibaba Group                       9     163.39
-  Accel                              65     161.91
-  New Enterprise Associates          26     157.50
-  The Carlyle Group                   5     154.55
-  CPP Investments                     1     150.00
-  Tiger Global Management            56     144.47
-  General Atlantic                   30     138.95
-  Index Ventures                     38     138.65
-  Lightspeed Venture Partners        42     121.19
-  TDM Growth Partners                 2     121.00
-  Insight Partners                   49     120.07
-  Baillie Gifford & Co.               3     117.40
-  Prysm Capital                       2     115.10
-  General Catalyst                   41     113.46
-  ZhenFund                            7     108.20
-  K2 Ventures                         1      91.50
-  Institutional Venture Partners     13      85.24
-  Temasek                            10      74.58
-  IDG Capital                        27      72.08
-  Bessemer Venture Partners          32      70.31
-  Tencent Holdings                   29      69.03
-  Google Ventures                    28      68.81
-  369 Growth Partners                 1      66.00
-  Berkeley Hills Capital              1      66.00
-  GTM Capital                         1      66.00
-  Holtzbrinck Ventures                2      64.00
-  Unternehmertum Venture Capital      1      62.00
-  NVentures                           1      61.50
-  SoftBank Group                     29      59.68
-  Sequoia Capital India              23      57.97
-  Coatue Management                  21      53.79
-  Norwest Venture Partners           18      53.43
-  Bain Capital Ventures              17      52.66
-  Foresite Capital                    4      49.20
-  Thrive Capital                     20      48.81
-  CRV                                17      48.18
-  Battery Ventures                   20      48.05
-  Warburg Pincus                     10      46.37
-  #+end_example
+  | Investors                      | count | valuation | companies                                             |
+  |--------------------------------+-------+-----------+-------------------------------------------------------|
+  | RRE Ventures                   |     5 |     397.6 | SpaceX, Fanatics, Gopuff                              |
+  | Founders Fund                  |    24 |    363.01 | OpenAI, Scale AI, Articulate                          |
+  | Relay Ventures                 |     2 |       358 | SpaceX, Flexport                                      |
+  | Opus Capital                   |     2 |    355.68 | SpaceX, RELEX                                         |
+  | Breyer Capital                 |     5 |    320.16 | ByteDance, Promasidor Holdings, Generate Biomedicines |
+  | Parkway VC                     |     2 |       316 | ByteDance, EcoVadis                                   |
+  | TIME Ventures                  |     1 |       315 | ByteDance                                             |
+  | Susa Ventures                  |     2 |     304.9 | OpenAI, Meesho                                        |
+  | Dynamo VC                      |     1 |       300 | OpenAI                                                |
+  | Sequoia Capital China          |    40 |    183.61 | Stripe, Miro, Airwallex                               |
+  | Andreessen Horowitz            |    71 |    179.01 | Bitmain Technologies, Digital Currency Group, KuCoin  |
+  | Sequoia Capital                |    59 |     176.7 | Faire, Bitmain Technologies, Airtable                 |
+  | Alibaba Group                  |     9 |    163.39 | Ant Group, Starburst, Redis                           |
+  | Accel                          |    65 |    161.91 | DJI Innovations, Checkout.com, Dapper Labs            |
+  | New Enterprise Associates      |    26 |     157.5 | Anthropic, DJI Innovations, Celonis                   |
+  | The Carlyle Group              |     5 |    154.55 | Ant Group, Paradox, InCred                            |
+  | CPP Investments                |     1 |       150 | Ant Group                                             |
+  | Tiger Global Management        |    56 |    144.47 | Devoted Health, Ripple, OYO Rooms                     |
+  | General Atlantic               |    30 |    138.95 | Databricks, Chime, Ro                                 |
+  | Index Ventures                 |    38 |    138.65 | Canva, Scale AI, Airtable                             |
+  | Lightspeed Venture Partners    |    42 |    121.19 | Nature's Fynd, Xiaohongshu, ServiceTitan              |
+  | TDM Growth Partners            |     2 |       121 | xAI, FalconX                                          |
+  | Insight Partners               |    49 |    120.07 | OpenSea, Airtable, Gusto                              |
+  | Baillie Gifford & Co.          |     3 |     117.4 | xAI, Carbon, Clip                                     |
+  | Prysm Capital                  |     2 |     115.1 | xAI, GoCardless                                       |
+  | General Catalyst               |    41 |    113.46 | Safe Superintelligence, Dapper Labs, Back Market      |
+  | ZhenFund                       |     7 |     108.2 | Stripe, Dream11, Physical Intelligence                |
+  | K2 Ventures                    |     1 |      91.5 | Stripe                                                |
+  | Institutional Venture Partners |    13 |     85.24 | Anthropic, ClickUp, Flock Safety                      |
+  | Temasek                        |    10 |     74.58 | Canva, Xingsheng Selected, Huolala                    |
+  | IDG Capital                    |    27 |     72.08 | Talkdesk, SumUp, Airwallex                            |
+  | Bessemer Venture Partners      |    32 |     70.31 | OpenSea, ServiceTitan, Dataiku                        |
+  | Tencent Holdings               |    29 |     69.03 | OYO Rooms, Bolt, Gemini                               |
+  | Google Ventures                |    28 |     68.81 | Faire, Attentive, OakNorth Bank                       |
+  | 369 Growth Partners            |     1 |        66 | SHEIN                                                 |
+  | Berkeley Hills Capital         |     1 |        66 | SHEIN                                                 |
+  | GTM Capital                    |     1 |        66 | SHEIN                                                 |
+  | Holtzbrinck Ventures           |     2 |        64 | Databricks, Mysten Labs                               |
+  | Unternehmertum Venture Capital |     1 |        62 | Databricks                                            |
+  | NVentures                      |     1 |      61.5 | Anthropic                                             |
+  | Sequoia Capital India          |    23 |     57.97 | Plaid, ContentSquare, Collibra                        |
+  | SoftBank Group                 |    28 |     54.18 | Trade Republic, Hopper, Impossible Foods              |
+  | Coatue Management              |    21 |     53.79 | Discord, Airwallex, Arctic Wolf Networks              |
+  | Norwest Venture Partners       |    18 |     53.43 | Anduril, Ripple, Houzz                                |
+  | Bain Capital Ventures          |    17 |     52.66 | Kavak, Toss, Ziroom                                   |
+  | Foresite Capital               |     4 |      49.2 | CoreWeave, CoreWeave, Front                           |
+  | Thrive Capital                 |    20 |     48.81 | Netskope, Wiz, Checkr                                 |
+  | CRV                            |    17 |     48.18 | Netskope, Gemini, Helsing                             |
+  | Battery Ventures               |    20 |     48.05 | 1Password, Benchling, RELEX                           |
+  | Warburg Pincus                 |    10 |     46.37 | Epic Games, Automattic, LayerZero Labs                |
+\newpage
 
   #+begin_src jupyter-python
-  fig, ax = plt.subplots(2, 1, figsize=(12, 8), dpi=300, sharex=True)
+  fig, ax = plt.subplots(2, 1, figsize=(12, 8), sharex=True)
 
   sns.barplot(top_investors, ax=ax[0], y='valuation', x=top_investors.index, hue=top_investors.index, legend=False)
   ax[0].set(ylabel=None, title='Valuations of Invested Companies ($B)')
@@ -805,7 +834,7 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/3f386535673d1e7ccf277c12303bb9f4a4a637b0.png]]
+  [[file:./.ob-jupyter/d376d62201b4230b564516c1a2ce5bc823d7439e.png]]
 
 ** Founder Analysis
 *** Top Founders
@@ -897,125 +926,23 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
   #+end_src
 
   #+RESULTS:
-  #+begin_export html
-  <div>
-  <style scoped>
-      .dataframe tbody tr th:only-of-type {
-          vertical-align: middle;
-      }
-
-      .dataframe tbody tr th {
-          vertical-align: top;
-      }
-
-      .dataframe thead th {
-          text-align: right;
-      }
-  </style>
-  <table border="1" class="dataframe">
-    <thead>
-      <tr style="text-align: right;">
-        <th></th>
-        <th>Unicorn Year</th>
-        <th>Count</th>
-        <th>Accumulated Count</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <th>0</th>
-        <td>2007</td>
-        <td>1</td>
-        <td>1</td>
-      </tr>
-      <tr>
-        <th>1</th>
-        <td>2011</td>
-        <td>1</td>
-        <td>2</td>
-      </tr>
-      <tr>
-        <th>2</th>
-        <td>2012</td>
-        <td>4</td>
-        <td>6</td>
-      </tr>
-      <tr>
-        <th>3</th>
-        <td>2013</td>
-        <td>4</td>
-        <td>10</td>
-      </tr>
-      <tr>
-        <th>4</th>
-        <td>2014</td>
-        <td>9</td>
-        <td>19</td>
-      </tr>
-      <tr>
-        <th>5</th>
-        <td>2015</td>
-        <td>32</td>
-        <td>51</td>
-      </tr>
-      <tr>
-        <th>6</th>
-        <td>2016</td>
-        <td>17</td>
-        <td>68</td>
-      </tr>
-      <tr>
-        <th>7</th>
-        <td>2017</td>
-        <td>35</td>
-        <td>103</td>
-      </tr>
-      <tr>
-        <th>8</th>
-        <td>2018</td>
-        <td>83</td>
-        <td>186</td>
-      </tr>
-      <tr>
-        <th>9</th>
-        <td>2019</td>
-        <td>85</td>
-        <td>271</td>
-      </tr>
-      <tr>
-        <th>10</th>
-        <td>2020</td>
-        <td>91</td>
-        <td>362</td>
-      </tr>
-      <tr>
-        <th>11</th>
-        <td>2021</td>
-        <td>484</td>
-        <td>846</td>
-      </tr>
-      <tr>
-        <th>12</th>
-        <td>2022</td>
-        <td>252</td>
-        <td>1098</td>
-      </tr>
-      <tr>
-        <th>13</th>
-        <td>2023</td>
-        <td>68</td>
-        <td>1166</td>
-      </tr>
-      <tr>
-        <th>14</th>
-        <td>2024</td>
-        <td>78</td>
-        <td>1244</td>
-      </tr>
-    </tbody>
-  </table>
-  </div>
-  #+end_export
+  |    | Unicorn Year | Count | Accumulated Count |
+  |----+--------------+-------+-------------------|
+  |  0 |         2007 |     1 |                 1 |
+  |  1 |         2011 |     1 |                 2 |
+  |  2 |         2012 |     4 |                 6 |
+  |  3 |         2013 |     4 |                10 |
+  |  4 |         2014 |     9 |                19 |
+  |  5 |         2015 |    32 |                51 |
+  |  6 |         2016 |    17 |                68 |
+  |  7 |         2017 |    35 |               103 |
+  |  8 |         2018 |    82 |               185 |
+  |  9 |         2019 |    85 |               270 |
+  | 10 |         2020 |    91 |               361 |
+  | 11 |         2021 |   483 |               844 |
+  | 12 |         2022 |   251 |              1095 |
+  | 13 |         2023 |    67 |              1162 |
+  | 14 |         2024 |    78 |              1240 |
 
   #+begin_src jupyter-python
   plt.subplots(figsize=(12, 6), dpi=300)
@@ -1029,7 +956,7 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/ff8edde5f695a3cb82aff1ed443c31af9a3ebb8a.png]]
+  [[file:./.ob-jupyter/0a5cf29e3459ddb2b8d58d1f467f32a72da5eed3.png]]
 
   The surge of unicorns was reported as [[https://pitchbook.com/news/articles/us-unicorns-2021-venture-capital-valuations]["meteoric"]] for 2021, with $71 billion invested in 340 new companies, a banner year for startups and for the US venture capital industry; the unprecedented number of companies valued at more than $1 billion during 2021 exceeded the sum total of the five previous years.
 
@@ -1160,15 +1087,15 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
 
   #+begin_src jupyter-python
   # Calculate 5th and 95th percentiles
-  lower_bound = df['Years to Unicorn (Converted)'].quantile(0.05)
-  upper_bound = df['Years to Unicorn (Converted)'].quantile(0.95)
+  lower_bound = df['Years to Unicorn'].quantile(0.05)
+  upper_bound = df['Years to Unicorn'].quantile(0.95)
   # Filter out values outside the 5th and 95th percentiles
-  df_filtered = df[(df['Years to Unicorn (Converted)'] >= lower_bound) & (df['Years to Unicorn (Converted)'] <= upper_bound)]
+  df_filtered = df[(df['Years to Unicorn'] >= lower_bound) & (df['Years to Unicorn'] <= upper_bound)]
 
-  fig, ax = plt.subplots(2, 1, figsize=(12, 8), dpi=300)
-  sns.boxplot(df_filtered, x='Years to Unicorn (Converted)', y='Industry', hue='Industry', ax=ax[0], showfliers=False)
+  fig, ax = plt.subplots(2, 1, figsize=(12, 8))
+  sns.boxplot(df_filtered, x='Years to Unicorn', y='Industry', hue='Industry', ax=ax[0], showfliers=False)
   ax[0].set(xlabel=None)
-  sns.histplot(df_filtered['Years to Unicorn (Converted)'].dropna(), bins=300, ax=ax[1])
+  sns.histplot(df_filtered['Years to Unicorn'].dropna(), bins=50, ax=ax[1], kde=True)
   ax[1].set(xlabel='Years', ylabel='Number of Companies')
   plt.suptitle('Distribution of Time to Unicorn')
   plt.grid(alpha=0.75)
@@ -1176,7 +1103,7 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/c7cd9fcbaaac53a19187d40c369039deca5e636e.png]]
+  [[file:./.ob-jupyter/0825b66d8a973708d9c4aeb1b8ae42e1f27a6264.png]]
 
 ** Distribution of Valuations Over Time
 
@@ -1193,7 +1120,7 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/821b3da48fbab4df520bbc025505ea15795d912d.png]]
+  [[file:./.ob-jupyter/0cf3c4dbc2a26edc2d8f22f5da7e274b7c32c389.png]]
 
 ** Distribution of Funding Over Time
 
@@ -1239,7 +1166,7 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/5415f9fdec68b2adced350286d8dc2c711078f0a.png]]
+  [[file:./.ob-jupyter/192589265a76e100ac55302b2ccbbe97c9b59c3c.png]]
 ** Relationship between Time to Unicorn and Valuation
 
   #+begin_src jupyter-python
