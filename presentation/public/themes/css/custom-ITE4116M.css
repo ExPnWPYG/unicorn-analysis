@@ -1,0 +1,35 @@
+.reveal h1 {
+    font-size: 46px;
+}
+
+#sec-title-slide h1 {
+  margin-bottom: 20px;
+  font-size: 42px;
+}
+#sec-title-slide h2 {
+  font-size: 32px;
+}
+
+.center-xy {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translateY(-50%) translateX(-50%);
+  transform: translateY(-50%) translateX(-50%);
+}
+
+#sec-title-slide .author {
+  font-size: 25px;
+  text-align: right;
+  color: #888;
+  font-style: italic;
+  position: absolute;
+  bottom: 10%;
+}
+
+html.reveal-print #sec-title-slide .author {
+  position: initial;
+  margin-top: 3em;
+  height: 5em;
+}
