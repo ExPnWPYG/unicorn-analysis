@@ -6,8 +6,8 @@
 #+macro: zk_topic [[https://brainfck.org/t/$1][$2]]
 #+macro: zk_book [[https://brainfck.org/book/$1][$2]]
 
-# Configure first slide
-#+REVEAL_TITLE_SLIDE: <h1>%t</h1><h2>%s</h2>
+# # Configure first slide
+# #+REVEAL_TITLE_SLIDE: <h1>%t</h1><h2>%s</h2>
 
 # Configure revealjs relevant settings
 #+REVEAL_ROOT: https://cdn.jsdelivr.net/npm/reveal.js
@@ -25,7 +25,7 @@
 # Custom controls
 #+REVEAL_ADD_PLUGIN: customcontrols RevealCustomControls https://cdn.jsdelivr.net/gh/rajgoel/reveal.js-plugins/customcontrols/plugin.js
 
-# #+REVEAL_ADD_PLUGIN: plotly RevealPlotly https://expnwpyg.github.io/unicorn-analysis/js/reveal.js-plugins/plotly.js
+#+REVEAL_ADD_PLUGIN: plotly RevealPlotly https://expnwpyg.github.io/unicorn-analysis/js/reveal.js-plugins/plotly.js
 
 # # Simple menu at the bottom
 # #+REVEAL_ADD_PLUGIN: simplemenu Simplemenu https://cdn.jsdelivr.net/npm/reveal.js-simplemenu/plugin/simplemenu/simplemenu.min.js

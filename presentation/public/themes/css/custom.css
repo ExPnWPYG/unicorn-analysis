@@ -502,6 +502,16 @@ blockquote:before,
   font-size: 52px;
 }
 
+#sec-title-slide h2 {
+  font-size: 24px;
+}
+
+.plotly-plot {
+   resize: vertical;
+   overflow: hidden;
+}
+
+
 @media print {
 	#customcontrols {
 		display: none!important;
