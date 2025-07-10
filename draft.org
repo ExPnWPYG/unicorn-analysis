@@ -244,13 +244,13 @@ df['Years to Unicorn'] = df['Months to Unicorn'] / 12
 
   #+RESULTS:
   : Industry
-  : Consumer & Retail             202
-  : Enterprise Tech               405
-  : Financial Services            226
+  : Consumer & Retail             201
+  : Enterprise Tech               404
+  : Financial Services            225
   : Healthcare & Life Sciences    118
   : Industrials                   183
   : Insurance                      25
-  : Media & Entertainment          85
+  : Media & Entertainment          84
   : dtype: int64
 
   #+begin_src jupyter-python
@@ -1043,12 +1043,11 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
   upper_bound = df['Years to Unicorn'].quantile(0.95)
   # Filter out values outside the 5th and 95th percentiles
   df_filtered = df[(df['Years to Unicorn'] >= lower_bound) & (df['Years to Unicorn'] <= upper_bound)]
-  # print(df_filtered['Years to Unicorn'].dropna())
 
   fig, ax = plt.subplots(2, 1, figsize=(12, 8))
   sns.boxplot(df_filtered, x='Years to Unicorn', y='Industry', hue='Industry', ax=ax[0], showfliers=False)
   ax[0].set(xlabel=None)
-  sns.histplot(df_filtered['Years to Unicorn'].dropna(), bins=50, ax=ax[1], kde=True)
+  sns.histplot(df_filtered, x='Years to Unicorn', hue='Industry', bins=50, ax=ax[1], kde=True, alpha=.4)
   ax[1].set(xlabel='Years', ylabel='Number of Companies')
   plt.suptitle('Distribution of Time to Unicorn')
   plt.grid(alpha=0.75)
@@ -1056,7 +1055,7 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/0825b66d8a973708d9c4aeb1b8ae42e1f27a6264.png]]
+  [[file:./.ob-jupyter/b748c54708e5df43b183ec4b3528060039ce25a3.png]]
 
 ** Distribution of Valuations Over Time
 
@@ -1167,8 +1166,8 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
 
      #+RESULTS:
 
-     #+begin_src jupyter-python :exports results
-     f'{len(df_exit.index)} companies no longer listed in 2024 unicorn list'
+     #+begin_src jupyter-python :exports results :results output raw replace
+     print(f'{len(df_exit.index)} companies no longer listed in 2024 unicorn list')
      #+end_src
 
      #+RESULTS:

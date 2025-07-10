@@ -9,6 +9,7 @@ numpy = "*"
 matplotlib = "*"
 seaborn = "*"
 tabulate = "*"
+plotly = "*"
 
 [dev-packages]
 python-lsp-server = "*"
