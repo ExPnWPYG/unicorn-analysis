@@ -498,6 +498,10 @@ blockquote:before,
 	}
 }
 
+.reveal h1 {
+  font-size: 52px;
+}
+
 @media print {
 	#customcontrols {
 		display: none!important;
