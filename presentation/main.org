@@ -5,9 +5,8 @@
 #+STARTUP: fold
 #+SETUPFILE: ./reveal.org
 #+EXPORT_FILE_NAME: public/index.html
-#+REVEAL_THEME: /themes/css/reveal-code-layers-multicolor.css
+#+REVEAL_THEME: themes/css/reveal-code-layers-multicolor.css
 #+REVEAL_HLEVEL: 1
-
 
 * COMMENT Setup
 #+BEGIN_SRC emacs-lisp
