@@ -89,6 +89,8 @@ import re
 #+end_src
 
 #+RESULTS:
+
+
 ** Global Settings
 #+begin_src jupyter-python
 sns.set_theme(palette='husl', rc={"figure.dpi": 200})
@@ -1044,18 +1046,18 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
   # Filter out values outside the 5th and 95th percentiles
   df_filtered = df[(df['Years to Unicorn'] >= lower_bound) & (df['Years to Unicorn'] <= upper_bound)]
 
-  fig, ax = plt.subplots(2, 1, figsize=(12, 8))
-  sns.boxplot(df_filtered, x='Years to Unicorn', y='Industry', hue='Industry', ax=ax[0], showfliers=False)
-  ax[0].set(xlabel=None)
-  sns.histplot(df_filtered, x='Years to Unicorn', hue='Industry', bins=50, ax=ax[1], kde=True, alpha=.4)
-  ax[1].set(xlabel='Years', ylabel='Number of Companies')
+  fig, ax = plt.subplots(1, 1, figsize=(12, 8))
+  # sns.boxplot(df_filtered, x='Years to Unicorn', y='Industry', hue='Industry', ax=ax[0], showfliers=False)
+  # ax[0].set(xlabel=None)
+  sns.histplot(df_filtered, x='Years to Unicorn', hue='Industry', bins=50, ax=ax, kde=True, alpha=.4)
+  ax.set(xlabel='Years', ylabel='Number of Companies')
   plt.suptitle('Distribution of Time to Unicorn')
   plt.grid(alpha=0.75)
   plt.show()
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/b748c54708e5df43b183ec4b3528060039ce25a3.png]]
+  [[file:./.ob-jupyter/f811cf95b8c4d7ef79f49bb56f9819ea2e6202d2.png]]
 
 ** Distribution of Valuations Over Time
 

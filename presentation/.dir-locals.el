@@ -23,5 +23,6 @@
 							(let ((filename (replace-regexp-in-string ".*=\"" "" (replace-regexp-in-string "\\\" .*" "" text))))
 							  (format  "<img src=\"data:image/png;base64,%s\">" (tob64 filename))))))
 				      ;; On export, convert every PNG file into base64 data
-				      (add-to-list 'org-export-filter-link-functions 'html-base64-images)))))))
+				      ;; (add-to-list 'org-export-filter-link-functions 'html-base64-images)
+					  ))))))
  )
