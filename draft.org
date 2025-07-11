@@ -86,6 +86,8 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 import seaborn as sns
 import re
+import plotly.express as px
+import plotly.io as pio
 #+end_src
 
 #+RESULTS:
@@ -95,6 +97,7 @@ import re
 #+begin_src jupyter-python
 sns.set_theme(palette='husl', rc={"figure.dpi": 200})
 pd.set_option('display.max_columns', 50, 'display.width', 200)
+pio.renderers.default = "browser"
 #+end_src
 
 #+RESULTS:
@@ -266,7 +269,7 @@ df['Years to Unicorn'] = df['Months to Unicorn'] / 12
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/46a922945a6e33adbb8d5ffa34aca2258dacf152.png]]
+  [[file:./.ob-jupyter/aeff573e2c31365d9b14faf86786f0d255eaa1cf.png]]
 
 *** Distribution of Valuation across Different Industries
 
@@ -298,7 +301,7 @@ df['Years to Unicorn'] = df['Months to Unicorn'] / 12
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/551d2c34f4ea3540caa27da915d8523a7492f6e8.png]]
+  [[file:./.ob-jupyter/98af1228c0cc17925995166f2ad13b3e8eb17fd4.png]]
 
 *** Distribution of Equity Funding across Different Industries
 
@@ -329,8 +332,23 @@ df['Years to Unicorn'] = df['Months to Unicorn'] / 12
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/4f32dcba1dc61b376613cd516201244fc990e7fe.png]]
+  [[file:./.ob-jupyter/215e6c23cbc5b3bf332aa16d0f2fb53af47c666f.png]]
 ** Geographical Analysis
+
+  #+begin_src jupyter-python
+  df_worldcities = pd.read_csv('./input/datasets/worldcities.csv')
+  df_worldcities = df_worldcities.drop_duplicates('city_ascii')
+  df_geo = df.merge(df_worldcities[['city_ascii', 'lat', 'lng']], left_on='City', right_on='city_ascii', how='inner')
+  _df = df_geo.groupby(['Country', 'City', 'lat', 'lng'])\
+              .agg(valuation=('Latest Valuation ($B)', 'sum'),
+                   cnt=('Company', 'count'))\
+              .sort_values('valuation', ascending=False)\
+              .reset_index()
+  fig = px.scatter_geo(_df, lat='lat', lon='lng', hover_name='City', size='valuation', color='Country')
+  fig.show()
+  #+end_src
+
+  #+RESULTS:
 
   #+begin_src jupyter-python :exports none
   top_countries = df.groupby('Country')['Latest Valuation ($B)'].sum().sort_values(ascending=False).head(30)
@@ -364,7 +382,7 @@ df['Years to Unicorn'] = df['Months to Unicorn'] / 12
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/50378d71c7b9489b75d0f03c45ebc339dde1b6ae.png]]
+  [[file:./.ob-jupyter/5728821c163ecf170189f8e29f22ba792d629424.png]]
 
 *** Top Countries across Different Industries
 
@@ -474,7 +492,7 @@ df['Years to Unicorn'] = df['Months to Unicorn'] / 12
   #+begin_example
                            Valuation ($B)  Number of Companies  Funding ($B)
   Sector
-  Artificial Intelligence          591.48                   23        49.843
+  Artificial Intelligence          585.98                   22        48.908
   Aerospace                        354.20                    2        10.000
   Internet                         320.00                    4         9.373
   Software                         214.06                   44        35.165
@@ -486,10 +504,10 @@ df['Years to Unicorn'] = df['Months to Unicorn'] / 12
   Cryptocurrency                    41.90                   11         4.204
   Video Games                       39.70                    4         9.375
   Educational Technology            33.47                    9         9.586
-  Transportation                    33.45                    8        12.480
   Graphic Design                    33.00                    2         0.775
   Software As A Service             32.70                   11         4.542
   Healthcare                        31.30                   11         6.196
+  Transportation                    25.05                    7        10.480
   Collaborative Software            24.00                    2         1.400
   Finance                           21.30                    4         2.359
   Blockchain                        20.80                    4         2.060
@@ -497,7 +515,7 @@ df['Years to Unicorn'] = df['Months to Unicorn'] / 12
   #+end_example
 
   #+begin_src jupyter-python
-  fig, ax = plt.subplots(2, 1, figsize=(12, 8), dpi=DPI, sharex=True, gridspec_kw={'height_ratios': [2, 1]})
+  fig, ax = plt.subplots(2, 1, figsize=(12, 8), sharex=True, gridspec_kw={'height_ratios': [2, 1]})
   g = sns.barplot(_df, x=_df.index, y='Valuation ($B)', ax=ax[0], hue=_df.index)
   for i in ax[0].containers:
       g.bar_label(i, fmt='%d', fontsize=10)
@@ -515,7 +533,7 @@ df['Years to Unicorn'] = df['Months to Unicorn'] / 12
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/4e9b1f6f24a38f2fdf2c4b487f6d4a7ea556f067.png]]
+  [[file:./.ob-jupyter/8c900de15d8f038ec9cee86aad5d7978e4f44f15.png]]
 
 ** Company-Based Analysis
 *** Top Companies by Valuation
@@ -534,7 +552,7 @@ df['Years to Unicorn'] = df['Months to Unicorn'] / 12
   width = 0.35  # the width of the bars
 
   # Create the bars for valuation and funding
-  fig, ax = plt.subplots(2, 1, figsize=(12, 6), dpi=DPI, gridspec_kw={'height_ratios': [3, 1]}, sharex=True)
+  fig, ax = plt.subplots(2, 1, figsize=(12, 6), gridspec_kw={'height_ratios': [3, 1]}, sharex=True)
   ax[0].bar(ind, top_companies['Valuation ($B)'], width, label='2024')
   ax[0].bar(ind + width, top_companies['Latest Valuation ($B)'], width, label='2025')
 
@@ -553,7 +571,7 @@ df['Years to Unicorn'] = df['Months to Unicorn'] / 12
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/e71cd675c93b7a1216e55ebc3329880a7d537447.png]]
+  [[file:./.ob-jupyter/e5280d601c8b3020651869b90202313e8f489129.png]]
 
 **** Top Companies accross Different Industries
   #+begin_src jupyter-python
@@ -671,7 +689,7 @@ df['Years to Unicorn'] = df['Months to Unicorn'] / 12
   | 24 | Software As A Service   | Talkdesk, ContentSquare, Postman   |
   | 25 | Software Development    | OutSystems, Unqork, Lightricks     |
   | 26 | Technology              | MEGVII, MURAL, Workato             |
-  | 27 | Transportation          | Bolt, Bolt, Rappi                  |
+  | 27 | Transportation          | Bolt, Rappi, Hello TransTech       |
   | 28 | Video Games             | Epic Games, Niantic, Sky Mavis     |
   | 29 | Workforce Management    | Rippling, Papaya Global, Workrise  |
 \newpage
@@ -684,7 +702,7 @@ df['Years to Unicorn'] = df['Months to Unicorn'] / 12
   #+RESULTS:
 
   #+begin_src jupyter-python
-  plt.subplots(figsize=(12, 8), dpi=300)
+  plt.subplots(figsize=(12, 8))
   ax = sns.barplot(df_filtered, y='Company', x='Funding ($M)', hue='Company')
   for i in ax.containers:
       ax.bar_label(i)
@@ -695,7 +713,7 @@ df['Years to Unicorn'] = df['Months to Unicorn'] / 12
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/984cac3a4f902bd2d1f5c43df35aa8e933f7515a.png]]
+  [[file:./.ob-jupyter/fb1eb3db2c42a7fcca21bbc7173378d3b82bc0f4.png]]
 *** Distribution of Valuation by Companies
   #+begin_src jupyter-python
   # Define the bins for valuation ranges
@@ -723,7 +741,7 @@ df['Years to Unicorn'] = df['Months to Unicorn'] / 12
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/2d9f8b315567f746c1e8ecb40605cc022ba1e668.png]]
+  [[file:./.ob-jupyter/1290126453c588847cb683dc7a0cabf12fd92aab.png]]
 
 *** Distribution of Equity Funding by Companies
   #+begin_src jupyter-python
@@ -747,7 +765,7 @@ df['Years to Unicorn'] = df['Months to Unicorn'] / 12
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/3430b04a00fe06ea101ce3496a0c2b4bb14d4bf5.png]]
+  [[file:./.ob-jupyter/f643140475b4bbeeefc344c7cf3697c9a67c4370.png]]
 
 ** COMMENT Unicorn Types
 Unicorns with over $10 billion in valuation have been designated as "decacorn" companies. For private companies valued over $100 billion, the terms "centicorn" and "hectocorn" have been used.
@@ -851,7 +869,7 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
   #+end_example
 
   #+begin_src jupyter-python
-  fig, ax = plt.subplots(2, 1, figsize=(12, 8), dpi=300, sharex=True, gridspec_kw={'height_ratios': [2, 1]})
+  fig, ax = plt.subplots(2, 1, figsize=(12, 8), sharex=True, gridspec_kw={'height_ratios': [2, 1]})
 
   g = sns.barplot(top_founders, y='valuation', x=top_founders.index, hue=top_founders.index, legend=False, ax=ax[0])
   g.set(ylabel='Company Valuations ($B)', xlabel='Founder')
@@ -869,7 +887,7 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/02a9d2b9351d536d517d2cbafba18b2f2d3e70f3.png]]
+  [[file:./.ob-jupyter/d394407d691197ca3955f2140e342d12a383dad2.png]]
 * Time-Based Analysis
 ** Unicorn Growth Over Time
 
@@ -899,7 +917,7 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
   | 14 |         2024 |    78 |              1240 |
 
   #+begin_src jupyter-python
-  plt.subplots(figsize=(12, 6), dpi=300)
+  plt.subplots(figsize=(12, 6))
   sns.barplot(_df, x='Unicorn Year', y='Count', hue='Count')
   plt.plot(_df['Accumulated Count'], marker='o', linestyle='dashed')
   plt.suptitle('Unicorn Growth Over Time')
@@ -910,7 +928,7 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/0a5cf29e3459ddb2b8d58d1f467f32a72da5eed3.png]]
+  [[file:./.ob-jupyter/d0d12df1781da2dd3b73538a92eaf3d9976e74ee.png]]
 
   The surge of unicorns was reported as [[https://pitchbook.com/news/articles/us-unicorns-2021-venture-capital-valuations]["meteoric"]] for 2021, with $71 billion invested in 340 new companies, a banner year for startups and for the US venture capital industry; the unprecedented number of companies valued at more than $1 billion during 2021 exceeded the sum total of the five previous years.
 
@@ -922,105 +940,88 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
   #+end_src
 
   #+RESULTS:
-  #+begin_export html
-  <div>
-  <style scoped>
-      .dataframe tbody tr th:only-of-type {
-          vertical-align: middle;
-      }
-
-      .dataframe tbody tr th {
-          vertical-align: top;
-      }
-
-      .dataframe thead th {
-          text-align: right;
-      }
-  </style>
-  <table border="1" class="dataframe">
-    <thead>
-      <tr style="text-align: right;">
-        <th></th>
-        <th>Unicorn Year</th>
-        <th>Industry</th>
-        <th>Count</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <th>0</th>
-        <td>2007</td>
-        <td>Healthcare &amp; Life Sciences</td>
-        <td>1</td>
-      </tr>
-      <tr>
-        <th>1</th>
-        <td>2011</td>
-        <td>Enterprise Tech</td>
-        <td>1</td>
-      </tr>
-      <tr>
-        <th>2</th>
-        <td>2012</td>
-        <td>Enterprise Tech</td>
-        <td>2</td>
-      </tr>
-      <tr>
-        <th>3</th>
-        <td>2012</td>
-        <td>Financial Services</td>
-        <td>1</td>
-      </tr>
-      <tr>
-        <th>4</th>
-        <td>2012</td>
-        <td>Industrials</td>
-        <td>1</td>
-      </tr>
-      <tr>
-        <th>...</th>
-        <td>...</td>
-        <td>...</td>
-        <td>...</td>
-      </tr>
-      <tr>
-        <th>72</th>
-        <td>2024</td>
-        <td>Financial Services</td>
-        <td>13</td>
-      </tr>
-      <tr>
-        <th>73</th>
-        <td>2024</td>
-        <td>Healthcare &amp; Life Sciences</td>
-        <td>7</td>
-      </tr>
-      <tr>
-        <th>74</th>
-        <td>2024</td>
-        <td>Industrials</td>
-        <td>10</td>
-      </tr>
-      <tr>
-        <th>75</th>
-        <td>2024</td>
-        <td>Insurance</td>
-        <td>2</td>
-      </tr>
-      <tr>
-        <th>76</th>
-        <td>2024</td>
-        <td>Media &amp; Entertainment</td>
-        <td>8</td>
-      </tr>
-    </tbody>
-  </table>
-  <p>77 rows × 3 columns</p>
-  </div>
-  #+end_export
+  |    | Unicorn Year | Industry                   | Count |
+  |----+--------------+----------------------------+-------|
+  |  0 |         2007 | Healthcare & Life Sciences |     1 |
+  |  1 |         2011 | Enterprise Tech            |     1 |
+  |  2 |         2012 | Enterprise Tech            |     2 |
+  |  3 |         2012 | Financial Services         |     1 |
+  |  4 |         2012 | Industrials                |     1 |
+  |  5 |         2013 | Consumer & Retail          |     1 |
+  |  6 |         2013 | Enterprise Tech            |     2 |
+  |  7 |         2013 | Healthcare & Life Sciences |     1 |
+  |  8 |         2014 | Consumer & Retail          |     1 |
+  |  9 |         2014 | Enterprise Tech            |     5 |
+  | 10 |         2014 | Financial Services         |     3 |
+  | 11 |         2015 | Consumer & Retail          |     2 |
+  | 12 |         2015 | Enterprise Tech            |     8 |
+  | 13 |         2015 | Financial Services         |     6 |
+  | 14 |         2015 | Healthcare & Life Sciences |     8 |
+  | 15 |         2015 | Industrials                |     6 |
+  | 16 |         2015 | Insurance                  |     1 |
+  | 17 |         2015 | Media & Entertainment      |     1 |
+  | 18 |         2016 | Consumer & Retail          |     3 |
+  | 19 |         2016 | Enterprise Tech            |     9 |
+  | 20 |         2016 | Financial Services         |     2 |
+  | 21 |         2016 | Healthcare & Life Sciences |     2 |
+  | 22 |         2016 | Media & Entertainment      |     1 |
+  | 23 |         2017 | Consumer & Retail          |     7 |
+  | 24 |         2017 | Enterprise Tech            |     9 |
+  | 25 |         2017 | Financial Services         |     7 |
+  | 26 |         2017 | Healthcare & Life Sciences |     2 |
+  | 27 |         2017 | Industrials                |     9 |
+  | 28 |         2017 | Media & Entertainment      |     1 |
+  | 29 |         2018 | Consumer & Retail          |    14 |
+  | 30 |         2018 | Enterprise Tech            |    31 |
+  | 31 |         2018 | Financial Services         |    10 |
+  | 32 |         2018 | Healthcare & Life Sciences |    13 |
+  | 33 |         2018 | Industrials                |     8 |
+  | 34 |         2018 | Insurance                  |     2 |
+  | 35 |         2018 | Media & Entertainment      |     4 |
+  | 36 |         2019 | Consumer & Retail          |    14 |
+  | 37 |         2019 | Enterprise Tech            |    27 |
+  | 38 |         2019 | Financial Services         |    16 |
+  | 39 |         2019 | Healthcare & Life Sciences |     5 |
+  | 40 |         2019 | Industrials                |    13 |
+  | 41 |         2019 | Insurance                  |     3 |
+  | 42 |         2019 | Media & Entertainment      |     7 |
+  | 43 |         2020 | Consumer & Retail          |    18 |
+  | 44 |         2020 | Enterprise Tech            |    25 |
+  | 45 |         2020 | Financial Services         |    21 |
+  | 46 |         2020 | Healthcare & Life Sciences |     9 |
+  | 47 |         2020 | Industrials                |     7 |
+  | 48 |         2020 | Insurance                  |     2 |
+  | 49 |         2020 | Media & Entertainment      |     9 |
+  | 50 |         2021 | Consumer & Retail          |    81 |
+  | 51 |         2021 | Enterprise Tech            |   162 |
+  | 52 |         2021 | Financial Services         |    84 |
+  | 53 |         2021 | Healthcare & Life Sciences |    44 |
+  | 54 |         2021 | Industrials                |    70 |
+  | 55 |         2021 | Insurance                  |    10 |
+  | 56 |         2021 | Media & Entertainment      |    32 |
+  | 57 |         2022 | Consumer & Retail          |    37 |
+  | 58 |         2022 | Enterprise Tech            |    81 |
+  | 59 |         2022 | Financial Services         |    45 |
+  | 60 |         2022 | Healthcare & Life Sciences |    21 |
+  | 61 |         2022 | Industrials                |    46 |
+  | 62 |         2022 | Insurance                  |     5 |
+  | 63 |         2022 | Media & Entertainment      |    16 |
+  | 64 |         2023 | Consumer & Retail          |    10 |
+  | 65 |         2023 | Enterprise Tech            |    17 |
+  | 66 |         2023 | Financial Services         |    17 |
+  | 67 |         2023 | Healthcare & Life Sciences |     5 |
+  | 68 |         2023 | Industrials                |    13 |
+  | 69 |         2023 | Media & Entertainment      |     5 |
+  | 70 |         2024 | Consumer & Retail          |    13 |
+  | 71 |         2024 | Enterprise Tech            |    25 |
+  | 72 |         2024 | Financial Services         |    13 |
+  | 73 |         2024 | Healthcare & Life Sciences |     7 |
+  | 74 |         2024 | Industrials                |    10 |
+  | 75 |         2024 | Insurance                  |     2 |
+  | 76 |         2024 | Media & Entertainment      |     8 |
 
   #+begin_src jupyter-python
-  plt.subplots(figsize=(12, 6), dpi=300)
+  plt.subplots(figsize=(12, 6))
   sns.kdeplot(data=grouped_df, x='Unicorn Year', weights='Count', hue='Industry', fill=False)
   plt.suptitle('Number of Companies by Industry')
   plt.xlabel('Year')
@@ -1032,9 +1033,11 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
 
   #+RESULTS:
   :RESULTS:
-  : /tmp/ipykernel_8701/3217005228.py:6: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
-  :   plt.legend(title='Industry')
-  [[file:./.ob-jupyter/950daf4d988cd10a302f3819ef8497b6d546919c.png]]
+  : /tmp/ipykernel_17247/1077879151.py:6: UserWarning:
+  :
+  : No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  :
+  [[file:./.ob-jupyter/57eb0e5705292f4ad74ed00fb9488fab972d9a5a.png]]
   :END:
 
 ** Time to Unicorn
@@ -1046,9 +1049,7 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
   # Filter out values outside the 5th and 95th percentiles
   df_filtered = df[(df['Years to Unicorn'] >= lower_bound) & (df['Years to Unicorn'] <= upper_bound)]
 
-  fig, ax = plt.subplots(1, 1, figsize=(12, 8))
-  # sns.boxplot(df_filtered, x='Years to Unicorn', y='Industry', hue='Industry', ax=ax[0], showfliers=False)
-  # ax[0].set(xlabel=None)
+  fig, ax = plt.subplots(1, 1, figsize=(12, 6))
   sns.histplot(df_filtered, x='Years to Unicorn', hue='Industry', bins=50, ax=ax, kde=True, alpha=.4)
   ax.set(xlabel='Years', ylabel='Number of Companies')
   plt.suptitle('Distribution of Time to Unicorn')
@@ -1057,41 +1058,39 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/f811cf95b8c4d7ef79f49bb56f9819ea2e6202d2.png]]
+  [[file:./.ob-jupyter/3c56a433ece1ec2cf4e83e3ba320a0aee5c2ee70.png]]
 
 ** Distribution of Valuations Over Time
 
   #+begin_src jupyter-python
-  plt.subplots(figsize=(12, 6), dpi=300)
+  plt.subplots(figsize=(12, 6))
   sns.scatterplot(df, x='Unicorn Date', y='Valuation ($B)', alpha=.6, hue='Industry')
   plt.suptitle('Distribution of Valuations Over Time')
   plt.xlabel('Date')
   plt.ylabel('Amount ($B)')
-  # plt.xticks(df['Unicorn Year'].unique(), rotation=45)
   plt.grid(axis='y', alpha=0.5)
   plt.yscale('log')
   plt.show()
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/0cf3c4dbc2a26edc2d8f22f5da7e274b7c32c389.png]]
+  [[file:./.ob-jupyter/3952b0ffe7cc6297ac4c314ed80d5b934e4dd585.png]]
 
 ** Distribution of Funding Over Time
 
   #+begin_src jupyter-python
-  plt.subplots(figsize=(12, 6), dpi=300)
+  plt.subplots(figsize=(12, 6))
   sns.scatterplot(df, x='Unicorn Date', y=df['Funding ($M)'], alpha=0.6, hue='Industry')
   plt.suptitle('Distribution of Funding Over Time')
   plt.xlabel('Date')
   plt.ylabel('Amount ($M)')
-  # plt.xticks(df['Unicorn Year'].unique(), rotation=45)
   plt.grid(axis='y', alpha=0.5)
   # plt.yscale('log')
   plt.show()
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/115cbb444c4bf38e74a55b52151a20a7f74a7c94.png]]
+  [[file:./.ob-jupyter/a358841530629a3897fd535343447d3cbaf3a4bb.png]]
 
 * Correlation Analysis
 ** Relationship between Funding and Valuation
@@ -1130,7 +1129,7 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
                    (df['Valuation ($)'] >= df['Valuation ($)'].quantile(0.05)) &
                    (df['Valuation ($)'] <= df['Valuation ($)'].quantile(0.95))]
 
-  plt.subplots(figsize=(12, 8), dpi=300)
+  plt.subplots(figsize=(12, 8))
   sns.scatterplot(df, x=df_filtered['Years to Unicorn'], y=df['Valuation ($)'], alpha=0.6, hue='Industry')
   plt.suptitle('Relationship between Time to Unicorn and Valuation')
   plt.xlabel('Years')
@@ -1141,19 +1140,19 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/2032a8d64f16288e463c3cccf2269a2f1009dd62.png]]
+  [[file:./.ob-jupyter/ab345d53297c74faf9b4e92ff3afa494318d36dc.png]]
 ** COMMENT Heatmap
 
   #+begin_src jupyter-python
-  plt.subplots(figsize=(12, 12), dpi=300)
+  plt.subplots(figsize=(12, 12))
   labels = ['Valuation', 'Funding', 'Years to Unicorn', 'Date Founded', 'Unicorn Year']
-  sns.heatmap(df[['Valuation ($B)', 'Funding ($B)', 'Years to Unicorn (Converted)', 'Date Founded', 'Unicorn Year']].corr(),
+  sns.heatmap(df[['Valuation ($B)', 'Funding ($B)', 'Years to Unicorn', 'Date Founded', 'Unicorn Year']].corr(),
               annot=True, xticklabels=labels, yticklabels=labels)
   plt.show()
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/af99a0e65576014542fc9aed62cbb3bcb59b94a1.png]]
+  [[file:./.ob-jupyter/333018be4ca7536a69b6fb51e94e52ca64021457.png]]
 
 * Historical Analysis
 ** Survival and Acquisition
@@ -1221,7 +1220,6 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
 
    #+begin_src jupyter-python
    df_exit_top_companies = df_exit.sort_values('Valuation ($B)', ascending=False).head(20)
-   # print(df_exit_top_companies)
    #+end_src
 
    #+RESULTS:
@@ -1229,7 +1227,7 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
    
 
    #+begin_src jupyter-python
-   plt.subplots(figsize=(12, 6), dpi=300)
+   plt.subplots(figsize=(12, 6))
    ax = sns.barplot(df_exit_top_companies,
                     x='Company',
                     y='Valuation ($B)',
@@ -1245,7 +1243,7 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
    #+end_src
 
    #+RESULTS:
-   [[file:./.ob-jupyter/0cf21fd4dcde7853381d8001fdcd8e79c7051378.png]]
+   [[file:./.ob-jupyter/133c08bd485e5a0c21963dce921420f21661f265.png]]
 
 _*Insights:*_
 
@@ -1294,7 +1292,6 @@ _*Insights:*_
           return 'IPO'
       return s
   _df['Exit reason'] = _df['Exit reason'].dropna().apply(correct_exit_reasons)
-  # _df = _df[_df['Company'].str.lower().isin(df_exit['Company'].str.lower())]
   _df['Exit reason'].value_counts()
    #+end_src
 
@@ -1310,8 +1307,7 @@ _*Insights:*_
 
    #+begin_src jupyter-python
    exit_reasons = _df['Exit reason'].value_counts().reset_index(name='Count')
-   # print(exit_reasons.index)
-   plt.subplots(figsize=(12, 6), dpi=300)
+   plt.subplots(figsize=(12, 6))
    ax = sns.barplot(exit_reasons, x='Exit reason', y='Count', hue='Exit reason')
    for i in ax.containers:
        ax.bar_label(i)
@@ -1320,7 +1316,7 @@ _*Insights:*_
    #+end_src
 
    #+RESULTS:
-   [[file:./.ob-jupyter/1537f115c5a981fb2d88c8f46fd7db4a48fc715a.png]]
+   [[file:./.ob-jupyter/34afd3d93d287ad25bbf5513c22e9c274cc880af.png]]
 
    The chart illustrates that most unicorns have successful exit strategies, predominantly through IPOs and acquisitions. The relatively low numbers for defunct, devalued, and bankrupt companies indicate that, despite challenges, the unicorn landscape has robust potential for growth and successful exits. This information is valuable for investors assessing the viability and longevity of unicorn businesses.
 
@@ -1343,7 +1339,6 @@ Y Combinator, founded in 2005 by Paul Graham and others, is a prestigious startu
 
       df_yc_industries = pd.read_csv('input/datasets/2024 YCombinator All Companies Dataset/industries.csv')
       df_yc_tags = pd.read_csv('input/datasets/2024 YCombinator All Companies Dataset/tags.csv')
-      # print(df_yc_tags.groupby('id')['tag'].agg(list).reset_index())
       df_yc_companies = df_yc_companies.merge(df_yc_industries[['id', 'industry']].groupby('id')['industry'].agg(list).reset_index(), on='id', how='left')
       df_yc_companies = df_yc_companies.merge(df_yc_tags.groupby('id')['tag'].agg(list).reset_index(), on='id', how='left')
       df_yc_companies = df_yc_companies[['name', 'slug', 'oneLiner', 'website', 'smallLogoUrl', 'teamSize', 'tag', 'industry', 'batch']].rename(columns={
@@ -1451,41 +1446,42 @@ Y Combinator, founded in 2005 by Paul Graham and others, is a prestigious startu
    #+RESULTS:
    #+begin_example
    <class 'pandas.core.frame.DataFrame'>
-   RangeIndex: 98 entries, 0 to 97
-   Data columns (total 29 columns):
-    #   Column                        Non-Null Count  Dtype
-   ---  ------                        --------------  -----
-    0   Company                       98 non-null     object
-    1   Valuation ($B)                98 non-null     float64
-    2   Total Equity Funding ($)      98 non-null     int64
-    3   Unicorn Date                  98 non-null     datetime64[ns]
-    4   Date Founded                  98 non-null     int64
-    5   Years to Unicorn              98 non-null     object
-    6   Industry                      98 non-null     object
-    7   Country                       98 non-null     object
-    8   City                          98 non-null     object
-    9   Select Investors              98 non-null     object
-    10  Valuation ($)                 98 non-null     float64
-    11  Unicorn Year                  98 non-null     int32
-    12  Funding ($B)                  98 non-null     float64
-    13  Funding ($M)                  98 non-null     float64
-    14  Investors                     98 non-null     object
-    15  Years to Unicorn (Months)     98 non-null     int64
-    16  Years to Unicorn (Converted)  98 non-null     float64
-    17  Latest Valuation ($B)         98 non-null     float64
-    18  Founder(s)                    16 non-null     object
-    19  Slug                          98 non-null     object
-    20  Short Description             97 non-null     object
-    21  Website                       98 non-null     object
-    22  Logo                          95 non-null     object
-    23  Team Size                     96 non-null     float64
-    24  Tags                          92 non-null     object
-    25  Industries                    98 non-null     object
-    26  Batch                         98 non-null     object
-    27  Batch Season                  98 non-null     object
-    28  Batch Year                    98 non-null     int64
-   dtypes: datetime64[ns](1), float64(7), int32(1), int64(4), object(16)
-   memory usage: 21.9+ KB
+   RangeIndex: 96 entries, 0 to 95
+   Data columns (total 30 columns):
+    #   Column                    Non-Null Count  Dtype
+   ---  ------                    --------------  -----
+    0   Company                   96 non-null     object
+    1   Valuation ($B)            96 non-null     float64
+    2   Total Equity Funding ($)  96 non-null     int64
+    3   Unicorn Date              96 non-null     datetime64[ns]
+    4   Date Founded              96 non-null     int64
+    5   Years to Unicorn          96 non-null     float64
+    6   Industry                  96 non-null     object
+    7   Country                   96 non-null     object
+    8   City                      96 non-null     object
+    9   Select Investors          96 non-null     object
+    10  Valuation ($)             96 non-null     float64
+    11  Unicorn Year              96 non-null     int32
+    12  Funding ($B)              96 non-null     float64
+    13  Funding ($M)              96 non-null     float64
+    14  Investors                 96 non-null     object
+    15  Months to Unicorn         96 non-null     int64
+    16  Latest Valuation ($B)     96 non-null     float64
+    17  Sector                    30 non-null     object
+    18  Founder(s)                15 non-null     object
+    19  Unicorn Type              96 non-null     category
+    20  Slug                      96 non-null     object
+    21  Short Description         95 non-null     object
+    22  Website                   96 non-null     object
+    23  Logo                      94 non-null     object
+    24  Team Size                 94 non-null     float64
+    25  Tags                      90 non-null     object
+    26  Industries                96 non-null     object
+    27  Batch                     96 non-null     object
+    28  Batch Season              96 non-null     object
+    29  Batch Year                96 non-null     int64
+   dtypes: category(1), datetime64[ns](1), float64(7), int32(1), int64(4), object(16)
+   memory usage: 21.7+ KB
    None
    #+end_example
 
@@ -1493,7 +1489,7 @@ Y Combinator, founded in 2005 by Paul Graham and others, is a prestigious startu
 
   #+begin_src jupyter-python
   df_top_yc_unicorns = df_yc_unicorns.sort_values(by='Latest Valuation ($B)', ascending=False).head(20)
-  fig, ax = plt.subplots(figsize=(12,6), dpi=200)
+  fig, ax = plt.subplots(figsize=(12,6))
   ax = sns.barplot(data=df_top_yc_unicorns, x='Company', y='Latest Valuation ($B)', hue='Company')
   for i in ax.containers:
       ax.bar_label(i, fmt='%.1f')
@@ -1503,7 +1499,7 @@ Y Combinator, founded in 2005 by Paul Graham and others, is a prestigious startu
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/b80f726c9d16932e3ccd9fd566dc0a07ba2ac91c.png]]
+  [[file:./.ob-jupyter/e02697237892223cfaca11a3e1141f825906d920.png]]
 
   The chart illustrates the valuation landscape of top Y Combinator unicorns, with Stripe leading substantially. The varied valuations reflect a healthy startup ecosystem with strong growth potential across different sectors. Investors may find valuable opportunities by analyzing the performance and sectors of these unicorns.
 
@@ -1556,7 +1552,7 @@ Y Combinator, founded in 2005 by Paul Graham and others, is a prestigious startu
   8         2014       Winter      3
   9         2015       Summer      7
   10        2015       Winter      3
-  11        2016       Summer      6
+  11        2016       Summer      5
   12        2016       Winter     11
   14        2017       Winter      7
   13        2017       Summer      5
@@ -1564,7 +1560,7 @@ Y Combinator, founded in 2005 by Paul Graham and others, is a prestigious startu
   16        2018       Winter      8
   17        2019       Summer      1
   18        2019       Winter      4
-  19        2020       Summer      5
+  19        2020       Summer      4
   20        2020       Winter      3
   21        2021       Summer      1
   22        2021       Winter      3
@@ -1577,7 +1573,7 @@ Y Combinator, founded in 2005 by Paul Graham and others, is a prestigious startu
   #+end_example
 
   #+begin_src jupyter-python
-  plt.subplots(figsize=(12,6),dpi=300)
+  plt.subplots(figsize=(12,6))
   sns.barplot(_df, x='Batch Year', y='count', hue='Batch Season')
   plt.xticks(rotation=45, ha='right')
   plt.suptitle('Batch Distribution of YC Unicorns')
@@ -1585,7 +1581,7 @@ Y Combinator, founded in 2005 by Paul Graham and others, is a prestigious startu
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/3278efb3d7815b3fd73af5d362716fc16954862d.png]]
+  [[file:./.ob-jupyter/a957bd5ab9ebd91a8ccf5e33d105928e81227ae0.png]]
 
 ** Top Countires
 
@@ -1611,26 +1607,26 @@ Y Combinator, founded in 2005 by Paul Graham and others, is a prestigious startu
   1                   Fintech     22
   2                       B2B     17
   3           Developer Tools     10
-  4   Artificial Intelligence      9
+  4   Artificial Intelligence      8
   5          Machine Learning      7
   6               Marketplace      7
   7                   HR Tech      6
   8                E-commerce      5
   9                        AI      5
-  10                 Payments      4
-  11                Logistics      4
-  12                  Climate      4
-  13                Analytics      4
-  14               Enterprise      4
-  15               Automation      3
-  16         Data Engineering      3
-  17            Generative AI      3
-  18            Manufacturing      3
-  19                Education      3
+  10                Analytics      4
+  11               Enterprise      4
+  12                 Payments      4
+  13                Logistics      4
+  14                  Climate      4
+  15                      API      3
+  16            Manufacturing      3
+  17               Compliance      3
+  18            Generative AI      3
+  19                   Retail      3
   #+end_example
 
   #+begin_src jupyter-python
-  plt.subplots(figsize=(12,6), dpi=200)
+  plt.subplots(figsize=(12,6))
   ax = sns.barplot(data=top_categories, x='Tags', y='Count', hue='Tags')
   ax.set(ylabel='Number of Companies',
          xlabel='Category')
@@ -1642,7 +1638,7 @@ Y Combinator, founded in 2005 by Paul Graham and others, is a prestigious startu
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/2f5619eef9eb36619c3c46784c120d73fa28357b.png]]
+  [[file:./.ob-jupyter/038202528157615adc5749cf333224cbea45b3c9.png]]
 
 \subsubsection*{Insights:}
 
@@ -1683,9 +1679,10 @@ The chart illustrates a diverse startup ecosystem with a strong emphasis on SaaS
   #+begin_src jupyter-python
   _df = df_yc_unicorns.explode('Tags')
   _df = _df[_df['Tags'].isin(top_categories['Tags'])]
+  _df = _df.dropna(subset=['Team Size'])
   _df = _df.sort_values(by='Latest Valuation ($B)', ascending=False).head(50)
 
-  plt.subplots(figsize=(12,6), dpi=300)
+  plt.subplots(figsize=(12,6))
   ax = sns.scatterplot(_df, x='Tags', y='Team Size', hue='Company')
   sns.move_legend(ax, "upper left", bbox_to_anchor=(1, 1), frameon=False)
   ax.set(ylabel='Team Size',
@@ -1696,7 +1693,9 @@ The chart illustrates a diverse startup ecosystem with a strong emphasis on SaaS
   #+end_src
 
   #+RESULTS:
-  [[file:./.ob-jupyter/d735a8d7f16b3c14a818627b7c2bd03ca3bcc8df.png]]
+  [[file:./.ob-jupyter/f0324e2e58aae17bb1f06046ece9fa229502be24.png]]
+
+
 
 \subsubsection*{Insights:}
 
