@@ -1,4 +1,4 @@
-% Created 2025-07-11 Fri 16:49
+% Created 2025-07-12 Sat 09:20
 % Intended LaTeX compiler: pdflatex
 \documentclass[a4paper,12pt]{article}
 \usepackage[utf8]{inputenc}
@@ -60,9 +60,9 @@ pdfborderstyle={/S/U/W 1}
 \tableofcontents
 
 \section{Setup}
-\label{sec:orgb277a04}
+\label{sec:orgfe2a2bc}
 \subsection{Import Packages}
-\label{sec:orgd6138f2}
+\label{sec:orgf1cba24}
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 import pandas as pd
 import numpy as np
@@ -74,23 +74,23 @@ import plotly.express as px
 import plotly.io as pio
 \end{minted}
 \subsection{Global Settings}
-\label{sec:orgccc8b6f}
+\label{sec:org29ccb9a}
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 sns.set_theme(palette='husl', rc={"figure.dpi": 200})
 pd.set_option('display.max_columns', 50, 'display.width', 200)
 pio.renderers.default = "browser"
 \end{minted}
 \section{Data Processing}
-\label{sec:orgcd9215a}
+\label{sec:org7528fda}
 \subsection{Load Data}
-\label{sec:org0bb6ff5}
+\label{sec:org713c6c9}
 
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 df = pd.read_csv('input/datasets/Unicorns_Completed (2024).csv')
 df_wiki = pd.read_csv('input/raw_data/list-of-unicorn-startups_20250619 (wikipedia).csv')
 \end{minted}
 \subsection{Data Cleaning}
-\label{sec:org6c8ea24}
+\label{sec:orge1b37ed}
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 def clean_years_to_unicorn_labels(s):
     m = re.match(r'(\d+)y?\s?(\d+)m?o?', s)
@@ -115,9 +115,9 @@ df['Company'] = df['Company'].apply(correct_company_names)
 df = df[~df.duplicated(['Company'])]
 \end{minted}
 \subsection{Data Preparation}
-\label{sec:org3241ffc}
+\label{sec:org8902c98}
 \subsubsection{Column Types}
-\label{sec:orga6d5d8d}
+\label{sec:orgc185560}
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 df['Unicorn Date'] = pd.to_datetime(df['Unicorn Date'])
 df['Valuation ($B)'] = pd.to_numeric(df['Valuation ($B)'])
@@ -128,7 +128,7 @@ df['Funding ($M)'] = df['Total Equity Funding ($)'] / 1e6
 df['Investors'] = df['Select Investors'].str.split(', ')
 \end{minted}
 \subsubsection{Time to Unicorn}
-\label{sec:org4cf8932}
+\label{sec:org019162c}
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 def convert_years_to_months(years_str):
     if 'y' in years_str and 'm' in years_str:
@@ -147,7 +147,7 @@ df['Months to Unicorn'] = df['Years to Unicorn'].apply(convert_years_to_months)
 df['Years to Unicorn'] = df['Months to Unicorn'] / 12
 \end{minted}
 \subsubsection{Merge datasets}
-\label{sec:orgf954ba8}
+\label{sec:orgdbd036a}
 \begin{itemize}
 \item Scraped data from Wikepedia (Latest Valuations, Sectors and Founders)
 
@@ -174,7 +174,7 @@ df['Unicorn Type'] = pd.cut(df['Latest Valuation ($B)'],
 \end{minted}
 \end{itemize}
 \subsection{Preview}
-\label{sec:org25f6014}
+\label{sec:org80dac00}
 
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 df.info()
@@ -212,11 +212,11 @@ dtypes: category(1), datetime64[ns](1), float64(6), int32(1), int64(3), object(8
 memory usage: 180.7+ KB
 \end{verbatim}
 \section{Exploratory Data Analysis}
-\label{sec:org442d7ef}
+\label{sec:orgb82ce34}
 \subsection{Industry-Based Analysis}
-\label{sec:org99093c1}
+\label{sec:org8eb2902}
 \subsubsection{Distribution of Companies across Different Industries}
-\label{sec:orgc9c724b}
+\label{sec:org36481cc}
 
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 _df = df.groupby('Industry').size()
@@ -253,7 +253,7 @@ plt.show()
 \label{}
 \end{center}
 \subsubsection{Distribution of Valuation across Different Industries}
-\label{sec:org23b5115}
+\label{sec:orga475ed1}
 
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 _df = df.groupby('Industry')['Latest Valuation ($B)'].sum().sort_values(ascending=False)
@@ -287,7 +287,7 @@ plt.show()
 \label{}
 \end{center}
 \subsubsection{Distribution of Equity Funding across Different Industries}
-\label{sec:orgadeb30f}
+\label{sec:org2d1a3e8}
 
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 _df = df.groupby('Industry')['Funding ($B)'].sum().sort_values(ascending=False)
@@ -320,7 +320,7 @@ plt.show()
 \label{}
 \end{center}
 \subsection{Geographical Analysis}
-\label{sec:org2c6c647}
+\label{sec:orgfcdbb95}
 
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 df_worldcities = pd.read_csv('./input/datasets/worldcities.csv')
@@ -335,7 +335,7 @@ fig = px.scatter_geo(_df, lat='lat', lon='lng', hover_name='City', size='valuati
 fig.show()
 \end{minted}
 \subsubsection{Top Countries by Valuation}
-\label{sec:org8cb1f6c}
+\label{sec:org7487562}
 
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 _df = df.groupby('Country')['Latest Valuation ($B)']\
@@ -365,7 +365,7 @@ plt.show()
 \label{}
 \end{center}
 \subsubsection{Top Countries across Different Industries}
-\label{sec:org45e6d8e}
+\label{sec:orge8c5c84}
 
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 df_filtered =  df[df['Country'].isin(top_countries.head(10).index)]\
@@ -399,7 +399,7 @@ plt.show()
 \label{}
 \end{center}
 \subsubsection{Mean Distribution of Valuations across Different Countries}
-\label{sec:org5d2d9cd}
+\label{sec:org2567379}
 
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 fig, ax = plt.subplots(figsize=(12, 8))
@@ -435,7 +435,7 @@ plt.show()
 \label{}
 \end{center}
 \subsubsection{Mean Distribution of Equity Funding across Different Countries}
-\label{sec:org3c72c2f}
+\label{sec:org0e7e60d}
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 fig, ax = plt.subplots(figsize=(12,8))
 sns.boxplot(df[df['Country'].isin(top_countries.index)], y='Country', x='Funding ($M)', hue='Country', showfliers=False)
@@ -466,9 +466,9 @@ plt.show()
 \label{}
 \end{center}
 \subsection{Sector-Based Analysis}
-\label{sec:orga013647}
+\label{sec:orgc4bd586}
 \subsubsection{Top Sectors}
-\label{sec:orgf472206}
+\label{sec:org997567b}
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 _df = df.explode('Sector')[['Sector', 'Latest Valuation ($B)', 'Funding ($B)']]\
         .groupby('Sector')[['Latest Valuation ($B)', 'Funding ($B)']]\
@@ -528,9 +528,9 @@ plt.show()
 \label{}
 \end{center}
 \subsection{Company-Based Analysis}
-\label{sec:org41b8dfd}
+\label{sec:org978037f}
 \subsubsection{Top Companies by Valuation}
-\label{sec:orgbf0b300}
+\label{sec:org863c876}
 
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 top_companies = df.sort_values(by='Latest Valuation ($B)', ascending=False).head(20)
@@ -567,7 +567,7 @@ plt.show()
 \label{}
 \end{center}
 \paragraph{Top Companies accross Different Industries}
-\label{sec:orga3c56be}
+\label{sec:orgbcee788}
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 _df = df.groupby('Industry')[['Company', 'Latest Valuation ($B)']].apply(lambda grp: grp.nlargest(3, 'Latest Valuation ($B)'))[['Company', 'Latest Valuation ($B)']]
 _df.index = _df.index.droplevel(1)
@@ -592,7 +592,7 @@ _df
 \end{table}
 \newpage
 \paragraph{Top Companies accross Different Countries}
-\label{sec:orgbeca2ba}
+\label{sec:orge9b3aac}
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 _df = df[df['Country'].isin(top_countries.index)]\
     .groupby('Country')[['Company', 'Latest Valuation ($B)']]\
@@ -645,7 +645,7 @@ _df
 
 \newpage
 \paragraph{Top Companies accross Different Sectors}
-\label{sec:org20b0bad}
+\label{sec:org6b0667e}
 
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 top_sectors = df.explode('Sector')\
@@ -705,7 +705,7 @@ _df
 \end{table}
 \newpage
 \subsubsection{Most-Funded Companies}
-\label{sec:org37f6dfc}
+\label{sec:org7e384f9}
 
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 df_filtered = df[df['Funding ($M)']>2000].sort_values(by='Funding ($M)', ascending=False).head(30)
@@ -727,7 +727,7 @@ plt.show()
 \label{}
 \end{center}
 \subsubsection{Distribution of Valuation by Companies}
-\label{sec:org336f0b5}
+\label{sec:org105fd6b}
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 # Define the bins for valuation ranges
 # bins = [0, 1, 1.5, 2, 3, 4, 5, 6, 8, 10, 20, 30, 50, 100, 200, 300, 400]
@@ -758,7 +758,7 @@ plt.show()
 \label{}
 \end{center}
 \subsubsection{Distribution of Equity Funding by Companies}
-\label{sec:org42bf88d}
+\label{sec:orgdb690d0}
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 cuts = pd.qcut(df['Funding ($M)'], 30, duplicates='drop')
 
@@ -784,9 +784,9 @@ plt.show()
 \label{}
 \end{center}
 \subsection{Investor Analysis}
-\label{sec:orge19725c}
+\label{sec:org3107d5b}
 \subsubsection{Top Investors}
-\label{sec:org81b5453}
+\label{sec:org6f879c5}
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 def top_investors_agg(grp):
     return pd.Series({'count': grp['Company'].size,
@@ -854,9 +854,9 @@ plt.show()
 \label{}
 \end{center}
 \subsection{Founder Analysis}
-\label{sec:org695acce}
+\label{sec:org4035f61}
 \subsubsection{Top Founders}
-\label{sec:orga5c0274}
+\label{sec:orgd6ee03f}
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 top_founders = df.explode('Founder(s)')\
                   .groupby('Founder(s)')[['Latest Valuation ($B)', 'Company', 'Funding ($M)']]\
@@ -916,9 +916,9 @@ plt.show()
 \label{}
 \end{center}
 \section{Time-Based Analysis}
-\label{sec:org9814de2}
+\label{sec:org5cd5b11}
 \subsection{Unicorn Growth Over Time}
-\label{sec:orgb1e000e}
+\label{sec:orgd5006af}
 
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 _df = df.groupby('Unicorn Year').size().reset_index(name='Count')
@@ -965,10 +965,8 @@ plt.show()
 \includegraphics[width=.9\linewidth]{./.ob-jupyter/d0d12df1781da2dd3b73538a92eaf3d9976e74ee.png}
 \label{}
 \end{center}
-
-The surge of unicorns was reported as \href{https://pitchbook.com/news/articles/us-unicorns-2021-venture-capital-valuations}{``meteoric''} for 2021, with \$71 billion invested in 340 new companies, a banner year for startups and for the US venture capital industry; the unprecedented number of companies valued at more than \$1 billion during 2021 exceeded the sum total of the five previous years.
 \subsection{Time to Unicorn}
-\label{sec:org14cc44b}
+\label{sec:orgaa07df8}
 
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 # Calculate 5th and 95th percentiles
@@ -990,7 +988,7 @@ plt.show()
 \label{}
 \end{center}
 \subsection{Distribution of Valuations Over Time}
-\label{sec:orge808ad3}
+\label{sec:org7b7a456}
 
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 plt.subplots(figsize=(12, 6))
@@ -1008,7 +1006,7 @@ plt.show()
 \label{}
 \end{center}
 \subsection{Distribution of Funding Over Time}
-\label{sec:orgfb1a90d}
+\label{sec:org835f413}
 
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 plt.subplots(figsize=(12, 6))
@@ -1026,9 +1024,9 @@ plt.show()
 \label{}
 \end{center}
 \section{Correlation Analysis}
-\label{sec:orgcfc5965}
+\label{sec:org33e7c20}
 \subsection{Relationship between Funding and Valuation}
-\label{sec:org6371ab3}
+\label{sec:org991f4f5}
 
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 df_filtered = df[(df['Total Equity Funding ($)'] >= df['Total Equity Funding ($)'].quantile(0.05)) &
@@ -1058,7 +1056,7 @@ plt.show()
 \label{}
 \end{center}
 \subsection{Relationship between Time to Unicorn and Valuation}
-\label{sec:orgeeaf30d}
+\label{sec:orgcc3437d}
 
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 # Filter out values outside the 5th and 95th percentiles
@@ -1082,9 +1080,9 @@ plt.show()
 \label{}
 \end{center}
 \section{Historical Analysis}
-\label{sec:org0fe5c38}
+\label{sec:org41303c0}
 \subsection{Survival and Acquisition}
-\label{sec:org306ebeb}
+\label{sec:org7e07482}
 
 \begin{itemize}
 \item Find out companies no longer listed as unicorns in 2024
@@ -1147,7 +1145,7 @@ Name: count, dtype: int64
 \end{verbatim}
 \end{itemize}
 \subsubsection{Top Exited Unicorns as of March 2022}
-\label{sec:org1825238}
+\label{sec:orgd9cdf2c}
 
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 df_exit_top_companies = df_exit.sort_values('Valuation ($B)', ascending=False).head(20)
@@ -1211,7 +1209,7 @@ The presence of companies like \textbf{Swiggy} and \textbf{NerdWallet} indicates
 \end{itemize}
 \end{itemize}
 \subsubsection{Exit Reasons of Former Unicorns}
-\label{sec:orgabc4773}
+\label{sec:org295bbbc}
 
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 _df = pd.read_csv('input/raw_data/list-of-unicorn-former-startups_20250619 (wikipedia).csv')
@@ -1263,7 +1261,7 @@ plt.show()
 
 The chart illustrates that most unicorns have successful exit strategies, predominantly through IPOs and acquisitions. The relatively low numbers for defunct, devalued, and bankrupt companies indicate that, despite challenges, the unicorn landscape has robust potential for growth and successful exits. This information is valuable for investors assessing the viability and longevity of unicorn businesses.
 \section{Funded by Y-Combinator}
-\label{sec:orgf272f0c}
+\label{sec:org21d2164}
 
 Y Combinator, founded in 2005 by Paul Graham and others, is a prestigious startup accelerator based in Silicon Valley that provides early-stage companies with seed funding, mentorship, and resources over a three-month program held twice a year. Startups receive initial funding in exchange for equity and culminate in a Demo Day where they pitch to investors. Y Combinator has launched successful companies like Airbnb, Dropbox, and Stripe, significantly impacting the startup ecosystem and inspiring numerous other accelerators globally.
 
@@ -1377,7 +1375,7 @@ None
 \end{itemize}
 \end{itemize}
 \subsection{How many YC companies are in unicorn status currently?}
-\label{sec:orgbe91802}
+\label{sec:org1c128b0}
 
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 df_yc_unicorns = df.assign(tmp_col=df.Company.str.lower()).merge(
@@ -1431,7 +1429,7 @@ memory usage: 21.7+ KB
 None
 \end{verbatim}
 \subsection{Top Companies by Valuation}
-\label{sec:org182caa8}
+\label{sec:orgb570566}
 
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 df_top_yc_unicorns = df_yc_unicorns.sort_values(by='Latest Valuation ($B)', ascending=False).head(20)
@@ -1486,7 +1484,7 @@ The lowest valuation among the listed unicorns is \$4.2B (Relativity Space), sho
 The diversity among the top unicorns, covering industries from fintech to logistics and AI, suggests that venture capitalists are actively investing across various sectors. This diversification can mitigate risks associated with market fluctuations.
 \end{itemize}
 \subsection{YC Batch Distribution}
-\label{sec:orgdff2473}
+\label{sec:orge34e450}
 
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 _df = df_yc_unicorns.groupby(['Batch Year', 'Batch Season']).size().reset_index(name='count').sort_values(by='Batch Year')
@@ -1541,7 +1539,7 @@ plt.show()
 \label{}
 \end{center}
 \subsection{Top Countires}
-\label{sec:org6d4aff6}
+\label{sec:orga0f2844}
 
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 top_countries = df_yc_unicorns['Country'].value_counts().nlargest(20).index
@@ -1554,7 +1552,7 @@ top_countries
 Index(['United States', 'India', 'United Kingdom', 'Canada', 'Mexico', 'Indonesia', 'Colombia', 'Australia', 'Senegal', 'Estonia', 'Spain'], dtype='object', name='Country')
 \end{verbatim}
 \subsection{Top Categories}
-\label{sec:org3423bc9}
+\label{sec:org18b6cb8}
 
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 top_categories = df_yc_unicorns['Tags'].explode().value_counts().head(20).reset_index(name='Count')
@@ -1640,7 +1638,7 @@ Categories such as \textbf{Analytics}, \textbf{Automation}, and \textbf{Educatio
 
 The chart illustrates a diverse startup ecosystem with a strong emphasis on SaaS and fintech. The presence of emerging technologies like AI and machine learning indicates significant innovation potential. Investors may consider these categories for future opportunities, as they highlight areas of growth and market demand.
 \subsubsection{Team Size Distribution across Different Categories}
-\label{sec:org045c2ce}
+\label{sec:orgad94fac}
 
 \begin{minted}[frame=lines,fontsize=\footnotesize,breakautoindent=true,breaklines=true]{python}
 _df = df_yc_unicorns.explode('Tags')
@@ -1697,13 +1695,13 @@ The variability in team sizes within categories suggests that operational strate
 
 The chart highlights the relationship between team size and industry category, showing that larger companies are prevalent in established sectors like fintech and SaaS. In contrast, emerging categories may still have room for growth. This information can guide investors and stakeholders in identifying companies with potential for future expansion and innovation.
 \section{Predictive Analysis}
-\label{sec:org670df0b}
+\label{sec:org06d0bad}
 \begin{itemize}
 \item \textbf{Valuation Predictions:} Use regression models to predict future valuations based on funding and industry factors.
 \item \textbf{Time to Unicorn}: Model the factors influencing the time taken to reach unicorn status.
 \end{itemize}
 \section{References}
-\label{sec:org0b8553c}
+\label{sec:org196f6c4}
 \begin{itemize}
 \item \href{https://en.wikipedia.org/wiki/Unicorn\_(finance)}{Unicorn (finance) [wikipedia]​}
 \item \href{https://www.ycombinator.com/companies}{The YC Startup Directory}

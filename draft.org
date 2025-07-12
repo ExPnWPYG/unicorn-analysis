@@ -930,8 +930,6 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
   #+RESULTS:
   [[file:./.ob-jupyter/d0d12df1781da2dd3b73538a92eaf3d9976e74ee.png]]
 
-  The surge of unicorns was reported as [[https://pitchbook.com/news/articles/us-unicorns-2021-venture-capital-valuations]["meteoric"]] for 2021, with $71 billion invested in 340 new companies, a banner year for startups and for the US venture capital industry; the unprecedented number of companies valued at more than $1 billion during 2021 exceeded the sum total of the five previous years.
-
 *** COMMENT By Industry
 
   #+begin_src jupyter-python

@@ -32,13 +32,13 @@ menu: {
 		</ul>` }
 	        ],
   	themes: [// Specifies the themes that will be available in the themes menu panel. Set to 'true' to show the themes menu panel with the default themes list.
-		{ name: '########## light ##########', theme: '/themes/css/reveal-zenika-light.css' },
-		{ name: 'code-layers-multicolor', theme: '/themes/css/reveal-code-layers-multicolor.css' },
-		{ name: 'containers', theme: '/themes/css/reveal-containers.css' },
-		{ name: 'code-relax', theme: '/themes/css/reveal-code-relax.css' },
-        { name: '########## dark ##########', theme: '/themes/css/reveal-zenika-dark.css' },
-		{ name: 'security-dark', theme: '/themes/css/reveal-security-dark.css' },
-		{ name: 'containers-dark', theme: '/themes/css/reveal-containers-dark.css' }]
+		{ name: '########## light ##########', theme: 'themes/css/reveal-zenika-light.css' },
+		{ name: 'code-layers-multicolor', theme: 'themes/css/reveal-code-layers-multicolor.css' },
+		{ name: 'containers', theme: 'themes/css/reveal-containers.css' },
+		{ name: 'code-relax', theme: 'themes/css/reveal-code-relax.css' },
+        { name: '########## dark ##########', theme: 'themes/css/reveal-zenika-dark.css' },
+		{ name: 'security-dark', theme: 'themes/css/reveal-security-dark.css' },
+		{ name: 'containers-dark', theme: 'themes/css/reveal-containers-dark.css' }]
 },
 // navigationMode: "linear",
 hash: true,
