@@ -352,6 +352,7 @@ mapPlot.on('plotly_click', function (data) {
   mapInfo.innerHTML = '<div style="display:flex"><b style="flex:1">' + customdata[0] + ', ' +customdata[1] + '</b><i class="fa fa-x" style="cursor:pointer;" onclick="javascript:document.getElementById(\'info_geographical\').style.display=\'none\'"></i></div>';
   var table = document.createElement('table');
   table.style.fontSize = '80%';
+  table.style.width = '100%';
   var thead = document.createElement('thead');
   var tbody = document.createElement('tbody');
   var tr = document.createElement('tr');
