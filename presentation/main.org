@@ -351,6 +351,7 @@ mapPlot.on('plotly_click', function (data) {
   var customdata = data.points[0].customdata;
   mapInfo.innerHTML = '<div style="display:flex"><b style="flex:1">' + customdata[0] + ', ' +customdata[1] + '</b><i class="fa fa-x" style="cursor:pointer;" onclick="javascript:document.getElementById(\'info_geographical\').style.display=\'none\'"></i></div>';
   var table = document.createElement('table');
+  table.style.fontSize = '80%';
   var thead = document.createElement('thead');
   var tbody = document.createElement('tbody');
   var tr = document.createElement('tr');
@@ -358,7 +359,7 @@ mapPlot.on('plotly_click', function (data) {
   th.innerHTML = 'Company';
   tr.append(th)
   var th = document.createElement('th');
-  th.innerHTML = 'Valuation ($B)';
+  th.innerHTML = 'Valuation';
   tr.append(th)
   thead.appendChild(tr);
   table.appendChild(thead);
@@ -369,7 +370,7 @@ mapPlot.on('plotly_click', function (data) {
     td.innerHTML = data[0];
     tr.append(td)
     var td = document.createElement('td');
-    td.innerHTML = data[1];
+    td.innerHTML = '$'+data[1]+'B';
     tr.append(td)
     tbody.append(tr)
   })
@@ -509,7 +510,7 @@ print(f'#+REVEAL_HTML: <script>Plotly.newPlot("graph_top_comp_sec", {pio.to_json
 #+REVEAL_HTML: <script>Plotly.newPlot("graph_top_comp_sec", {"data":[{"branchvalues":"total","customdata":[["SpaceX",350.0],["ByteDance",315.0],["OpenAI",300.0],["Stripe",91.5],["SHEIN",66.0],["Databricks",62.0],["xAI",113.0],["Revolut",17.75],["Canva",32.0],["Fanatics",27.0],["Chime",25.0],["Epic Games",31.5],["Miro",17.5],["Xiaohongshu",14.0],["Anthropic",61.5],["Yuanfudao",15.5],["Discord",15.0],["Gopuff",15.0],["Scale AI",29.0],["Plaid",13.4],["Rippling",11.25],["Celonis",11.0],["Grammarly",13.0],["Devoted Health",12.6],["Faire",12.4],["Brex",12.3],["GoodLeap",12.0],["Airtable",11.0],["ZongMu Technology",11.0],["Checkout.com",11.0],["Alchemy",10.2],["Northvolt",11.75],["Safe Superintelligence",32.0],["Nature's Fynd",17.0],["SpaceX",350.0],["ByteDance",315.0],["(?)",535.5],["(?)",116.5],["(?)",134.4],["(?)",105.5],["(?)",54.15],["Canva",32.0],["Epic Games",31.5],["Yuanfudao",15.5],["Rippling",11.25],["(?)",24.0],["Devoted Health",12.6],["Brex",12.3],["ZongMu Technology",11.0],["Alchemy",10.2],["Northvolt",11.75],["Nature's Fynd",17.0],["(?)",1800.15]],"domain":{"x":[0.0,1.0],"y":[0.0,1.0]},"hovertemplate":"labels=%{label}\u003cbr\u003eLatest Valuation ($B)=%{customdata[1]}\u003cbr\u003eparent=%{parent}\u003cbr\u003eid=%{id}\u003cbr\u003eCompany=%{customdata[0]}\u003cextra\u003e\u003c\u002fextra\u003e","ids":["All\u002fAerospace\u002fSpaceX","All\u002fInternet\u002fByteDance","All\u002fArtificial Intelligence\u002fOpenAI","All\u002fFinancial Services\u002fStripe","All\u002fE-Commerce\u002fSHEIN","All\u002fSoftware\u002fDatabricks","All\u002fArtificial Intelligence\u002fxAI","All\u002fFinancial Technology\u002fRevolut","All\u002fGraphic Design\u002fCanva","All\u002fE-Commerce\u002fFanatics","All\u002fFinancial Services\u002fChime","All\u002fVideo Games\u002fEpic Games","All\u002fSoftware\u002fMiro","All\u002fE-Commerce\u002fXiaohongshu","All\u002fArtificial Intelligence\u002fAnthropic","All\u002fEducational Technology\u002fYuanfudao","All\u002fSoftware\u002fDiscord","All\u002fE-Commerce\u002fGopuff","All\u002fArtificial Intelligence\u002fScale AI","All\u002fFinancial Technology\u002fPlaid","All\u002fWorkforce Management\u002fRippling","All\u002fSoftware\u002fCelonis","All\u002fCollaborative Software\u002fGrammarly","All\u002fHealthcare\u002fDevoted Health","All\u002fE-Commerce\u002fFaire","All\u002fFinance\u002fBrex","All\u002fFinancial Technology\u002fGoodLeap","All\u002fCollaborative Software\u002fAirtable","All\u002fSelf-Driving Cars\u002fZongMu Technology","All\u002fFinancial Technology\u002fCheckout.com","All\u002fBlockchain\u002fAlchemy","All\u002fBatteries\u002fNorthvolt","All\u002fArtificial Intelligence\u002fSafe Superintelligence","All\u002fConsumer Packaged Goods\u002fNature's Fynd","All\u002fAerospace","All\u002fInternet","All\u002fArtificial Intelligence","All\u002fFinancial Services","All\u002fE-Commerce","All\u002fSoftware","All\u002fFinancial Technology","All\u002fGraphic Design","All\u002fVideo Games","All\u002fEducational Technology","All\u002fWorkforce Management","All\u002fCollaborative Software","All\u002fHealthcare","All\u002fFinance","All\u002fSelf-Driving Cars","All\u002fBlockchain","All\u002fBatteries","All\u002fConsumer Packaged Goods","All"],"labels":["SpaceX","ByteDance","OpenAI","Stripe","SHEIN","Databricks","xAI","Revolut","Canva","Fanatics","Chime","Epic Games","Miro","Xiaohongshu","Anthropic","Yuanfudao","Discord","Gopuff","Scale AI","Plaid","Rippling","Celonis","Grammarly","Devoted Health","Faire","Brex","GoodLeap","Airtable","ZongMu Technology","Checkout.com","Alchemy","Northvolt","Safe Superintelligence","Nature's Fynd","Aerospace","Internet","Artificial Intelligence","Financial Services","E-Commerce","Software","Financial Technology","Graphic Design","Video Games","Educational Technology","Workforce Management","Collaborative Software","Healthcare","Finance","Self-Driving Cars","Blockchain","Batteries","Consumer Packaged Goods","All"],"name":"","parents":["All\u002fAerospace","All\u002fInternet","All\u002fArtificial Intelligence","All\u002fFinancial Services","All\u002fE-Commerce","All\u002fSoftware","All\u002fArtificial Intelligence","All\u002fFinancial Technology","All\u002fGraphic Design","All\u002fE-Commerce","All\u002fFinancial Services","All\u002fVideo Games","All\u002fSoftware","All\u002fE-Commerce","All\u002fArtificial Intelligence","All\u002fEducational Technology","All\u002fSoftware","All\u002fE-Commerce","All\u002fArtificial Intelligence","All\u002fFinancial Technology","All\u002fWorkforce Management","All\u002fSoftware","All\u002fCollaborative Software","All\u002fHealthcare","All\u002fE-Commerce","All\u002fFinance","All\u002fFinancial Technology","All\u002fCollaborative Software","All\u002fSelf-Driving Cars","All\u002fFinancial Technology","All\u002fBlockchain","All\u002fBatteries","All\u002fArtificial Intelligence","All\u002fConsumer Packaged Goods","All","All","All","All","All","All","All","All","All","All","All","All","All","All","All","All","All","All",""],"values":{"dtype":"f8","bdata":"AAAAAADgdUAAAAAAALBzQAAAAAAAwHJAAAAAAADgVkAAAAAAAIBQQAAAAAAAAE9AAAAAAABAXEAAAAAAAMAxQAAAAAAAAEBAAAAAAAAAO0AAAAAAAAA5QAAAAAAAgD9AAAAAAACAMUAAAAAAAAAsQAAAAAAAwE5AAAAAAAAAL0AAAAAAAAAuQAAAAAAAAC5AAAAAAAAAPUDNzMzMzMwqQAAAAAAAgCZAAAAAAAAAJkAAAAAAAAAqQDMzMzMzMylAzczMzMzMKECamZmZmZkoQAAAAAAAAChAAAAAAAAAJkAAAAAAAAAmQAAAAAAAACZAZmZmZmZmJEAAAAAAAIAnQAAAAAAAAEBAAAAAAAAAMUAAAAAAAOB1QAAAAAAAsHNAAAAAAAC8gEAAAAAAACBdQM3MzMzMzGBAAAAAAABgWkAzMzMzMxNLQAAAAAAAAEBAAAAAAACAP0AAAAAAAAAvQAAAAAAAgCZAAAAAAAAAOEAzMzMzMzMpQJqZmZmZmShAAAAAAAAAJkBmZmZmZmYkQAAAAAAAgCdAAAAAAAAAMUCamZmZmSCcQA=="},"type":"treemap"}],"layout":{"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"}}},"legend":{"tracegroupgap":0},"margin":{"t":60}}})</script>
 
 * Top Investor Analysis
-#+BEGIN_leftcol60
+#+BEGIN_NOTES
 #+begin_src jupyter-python
 def top_investors_agg(grp):
     return pd.Series({'count': grp['Company'].size,
@@ -520,6 +521,36 @@ top_investors = df.explode('Investors')\
                   .apply(top_investors_agg)\
                   .sort_values(by=['valuation', 'count'], ascending=False)\
                   .head(20)
+top_investors[['companies']]
+#+end_src
+
+#+RESULTS:
+| Investors                 | companies                                             |
+|---------------------------+-------------------------------------------------------|
+| RRE Ventures              | SpaceX, Fanatics, Gopuff                              |
+| Founders Fund             | OpenAI, Scale AI, Articulate                          |
+| Relay Ventures            | SpaceX, Flexport                                      |
+| Opus Capital              | SpaceX, RELEX                                         |
+| Breyer Capital            | ByteDance, Promasidor Holdings, Generate Biomedicines |
+| Parkway VC                | ByteDance, EcoVadis                                   |
+| TIME Ventures             | ByteDance                                             |
+| Susa Ventures             | OpenAI, Meesho                                        |
+| Dynamo VC                 | OpenAI                                                |
+| Sequoia Capital China     | Stripe, Miro, Airwallex                               |
+| Andreessen Horowitz       | Bitmain Technologies, Digital Currency Group, KuCoin  |
+| Sequoia Capital           | Faire, Bitmain Technologies, Airtable                 |
+| Alibaba Group             | Ant Group, Starburst, Redis                           |
+| Accel                     | DJI Innovations, Checkout.com, Dapper Labs            |
+| New Enterprise Associates | Anthropic, DJI Innovations, Celonis                   |
+| The Carlyle Group         | Ant Group, Paradox, InCred                            |
+| CPP Investments           | Ant Group                                             |
+| Tiger Global Management   | Devoted Health, Ripple, OYO Rooms                     |
+| General Atlantic          | Databricks, Chime, Ro                                 |
+| Index Ventures            | Canva, Scale AI, Airtable                             |
+
+#+END_NOTES
+#+BEGIN_leftcol60
+#+begin_src jupyter-python
 fig, ax = plt.subplots(2, 1, figsize=(12, 8), sharex=True, gridspec_kw={'height_ratios': [2, 1]})
 
 sns.barplot(top_investors, ax=ax[0], y='valuation', x=top_investors.index, hue=top_investors.index, legend=False)
@@ -551,13 +582,42 @@ plt.show()
 #+END_rightcol40
 
 * Top Founder Analysis
-#+BEGIN_leftcol60
+#+BEGIN_NOTES
 #+begin_src jupyter-python
 top_founders = df.explode('Founder(s)')\
                   .groupby('Founder(s)')[['Latest Valuation ($B)', 'Company', 'Funding ($M)']]\
                   .agg(count=('Company', 'count'), companies=('Company', lambda x: ', '.join(x)), valuation=('Latest Valuation ($B)', 'sum'), funding=('Funding ($M)', 'sum'))\
                   .sort_values(by=['valuation', 'count'], ascending=False)\
                   .head(20)
+top_founders[['companies']]
+#+end_src
+
+#+RESULTS:
+| Founder(s)       | companies                       |
+|------------------+---------------------------------|
+| Elon Musk        | SpaceX, xAI, The Boring Company |
+| Ilya Sutskever   | OpenAI, Safe Superintelligence  |
+| Liang Rubo       | ByteDance                       |
+| Zhang Yiming     | ByteDance                       |
+| Greg Brockman    | OpenAI                          |
+| Sam Altman       | OpenAI                          |
+| John Collison    | Stripe                          |
+| Patrick          | Stripe                          |
+| Chris Xu         | SHEIN                           |
+| Ali Ghodsi       | Databricks                      |
+| Dario Amodei     | Anthropic                       |
+| Cameron Adams    | Canva                           |
+| Clifford Obrecht | Canva                           |
+| Daniel Gross     | Safe Superintelligence          |
+| Daniel Levy      | Safe Superintelligence          |
+| Melanie Perkins  | Canva                           |
+| Tim Sweeney      | Epic Games                      |
+| Alexandr Wang    | Scale AI                        |
+| Lucy Guo         | Scale AI                        |
+| Alan Trager      | Fanatics                        |
+#+END_NOTES
+#+BEGIN_leftcol60
+#+begin_src jupyter-python
 fig, ax = plt.subplots(2, 1, figsize=(12, 8), dpi=300, sharex=True, gridspec_kw={'height_ratios': [2, 1]})
 
 g = sns.barplot(top_founders, y='valuation', x=top_founders.index, hue=top_founders.index, legend=False, ax=ax[0])
