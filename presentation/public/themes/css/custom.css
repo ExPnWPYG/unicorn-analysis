@@ -120,7 +120,6 @@
 .reveal div.figure,
 .reveal svg {
   position: relative;
-  padding-right: 4vw;
   text-align: center;
 }
 
@@ -538,4 +537,8 @@ blockquote:before,
     -ms-transform: translateY(-50%) translateX(-50%);
     transform: translateY(-50%) translateX(-50%);
   }
+}
+
+.hidden {
+  display: none;
 }
