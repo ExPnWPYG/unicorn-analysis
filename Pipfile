@@ -5,11 +5,12 @@ name = "pypi"
 
 [packages]
 pandas = "*"
-numpy = "*"
 matplotlib = "*"
 seaborn = "*"
 tabulate = "*"
 plotly = "*"
+statsmodels = "*"
+numpy = "*"
 
 [dev-packages]
 python-lsp-server = "*"
