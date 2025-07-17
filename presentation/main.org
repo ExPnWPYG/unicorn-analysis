@@ -772,6 +772,51 @@ plt.show()
   - Some companies, notably in Healthcare, take over a decade to reach unicorn status, reflecting extended R&D cycles.
 #+END_rightcol40
 ** Valuations by Year Founded
+#+BEGIN_NOTES
+#+begin_src jupyter-python
+df.groupby('Year Founded').agg(Count=('Company', 'count'), Mean_valuation=('Latest Valuation ($B)', 'mean'))
+#+end_src
+
+#+RESULTS:
+| Year Founded | Count | Mean_valuation |
+|--------------+-------+----------------|
+|         1919 |     1 |           3.52 |
+|         1983 |     1 |              1 |
+|         1991 |     1 |           31.5 |
+|         1992 |     1 |              3 |
+|         1993 |     1 |           1.59 |
+|         1994 |     1 |            1.3 |
+|         1995 |     2 |          16.75 |
+|         1997 |     2 |           1.25 |
+|         1998 |     4 |            4.7 |
+|         1999 |     6 |        2.45667 |
+|         2000 |     4 |           1.75 |
+|         2001 |     8 |         2.8075 |
+|         2002 |    10 |         37.974 |
+|         2003 |     8 |         2.7025 |
+|         2004 |    12 |        1.77083 |
+|         2005 |    15 |          2.134 |
+|         2006 |    22 |          7.125 |
+|         2007 |    27 |        2.28074 |
+|         2008 |    31 |        4.58806 |
+|         2009 |    54 |        4.20056 |
+|         2010 |    52 |        2.03192 |
+|         2011 |    81 |        6.80407 |
+|         2012 |   107 |        3.71112 |
+|         2013 |    99 |        3.15323 |
+|         2014 |   120 |        3.34467 |
+|         2015 |   138 |        4.50181 |
+|         2016 |   122 |        2.59762 |
+|         2017 |    89 |        2.67438 |
+|         2018 |    78 |        1.95321 |
+|         2019 |    53 |        2.19736 |
+|         2020 |    40 |        1.99175 |
+|         2021 |    25 |         4.0628 |
+|         2022 |    12 |        2.41167 |
+|         2023 |    12 |        2.30333 |
+|         2024 |     1 |            2.8 |
+
+#+END_NOTES
 #+REVEAL_HTML: <div id="graph_valuation_by_year" class="plotly-plot"></div>
 #+begin_src jupyter-python
 fig = px.scatter(df[df['Year Founded'] > 2000], x='Year Founded', y='Latest Valuation ($B)', hover_data=['Company'], color='Country')
