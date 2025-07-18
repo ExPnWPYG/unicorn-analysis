@@ -1,68 +1,70 @@
-- [Setup](#orga06334d)
-  - [Import Packages](#orgfd26c39)
-  - [Global Settings](#org7532c7e)
-- [Data Processing](#org8f1f586)
-  - [Load Data](#org7ab794e)
-  - [Data Cleaning](#org77a7316)
-  - [Data Preparation](#org6b3b99a)
-    - [Column Types](#orgea7600e)
-    - [Time to Unicorn](#org6f1a0fe)
-    - [Merge datasets](#orgeb9bfdd)
-  - [Preview](#org8ebd2bd)
-- [Exploratory Data Analysis](#orga10368c)
-  - [Industry-Based Analysis](#org6a764de)
-    - [Distribution of Companies across Different Industries](#orgdf17442)
-    - [Distribution of Valuation across Different Industries](#org325ee0b)
-    - [Distribution of Equity Funding across Different Industries](#org2773639)
-  - [Geographical Analysis](#org709a95a)
-    - [Top Countries by Valuation](#org9a6c357)
-    - [Top Countries across Different Industries](#orgbc78a5e)
-    - [Mean Distribution of Valuations across Different Countries](#orgc71439f)
-    - [Mean Distribution of Equity Funding across Different Countries](#org1888bcd)
-  - [Sector-Based Analysis](#org9d3f937)
-    - [Top Sectors](#org328e853)
-  - [Company-Based Analysis](#orgc03380b)
-    - [Top Companies by Valuation](#org7d27c06)
-      - [Top Companies accross Different Industries](#orgb13ce25)
-      - [Top Companies accross Different Countries](#org312a918)
-      - [Top Companies accross Different Sectors](#orgf3a2440)
-    - [Most-Funded Companies](#orgff4b0c0)
-    - [Distribution of Valuation by Companies](#orgdecb55c)
-    - [Distribution of Equity Funding by Companies](#org782ada3)
-  - [Investor Analysis](#orga0f16e0)
-    - [Top Investors](#org2d545cc)
-  - [Founder Analysis](#org9506276)
-    - [Top Founders](#org817479b)
-- [Time-Based Analysis](#orgc7045d0)
-  - [Unicorn Growth Over Time](#org22fabe8)
-  - [Time to Unicorn](#org9e43060)
-  - [Distribution of Valuations Over Time](#org5f79e77)
-  - [Distribution of Funding Over Time](#org90d413d)
-- [Correlation Analysis](#org2438795)
-  - [Relationship between Funding and Valuation](#org5c96672)
-  - [Relationship between Time to Unicorn and Valuation](#orgf88eb2e)
-- [Historical Analysis](#org638b275)
-  - [Survival and Acquisition](#org4a0f9bd)
-    - [Top Exited Unicorns as of March 2022](#org4f42335)
-    - [Exit Reasons of Former Unicorns](#org150b7ae)
-- [Funded by Y-Combinator](#org53bc593)
-  - [How many YC companies are in unicorn status currently?](#orgb8848e7)
-  - [Top Companies by Valuation](#org545bcd8)
-  - [YC Batch Distribution](#org2a2b109)
-  - [Top Countires](#org1e0a414)
-  - [Top Categories](#org2c1ee5c)
-    - [Team Size Distribution across Different Categories](#org007df13)
-- [Predictive Analysis](#orgf74c626)
-- [References](#orgfddb3d7)
+- [Setup](#orga36d4b0)
+  - [Import Packages](#orgf376914)
+  - [Global Settings](#org3e5e7f6)
+- [Data Processing](#orgd294cb9)
+  - [Load Data](#org8b80923)
+  - [Data Cleaning](#org672bf87)
+  - [Data Preparation](#orgbb38297)
+    - [Column Types](#orgdba550d)
+    - [Time to Unicorn](#org87d0c70)
+    - [Merge datasets](#org5021caa)
+  - [Preview](#org79eb329)
+- [Exploratory Data Analysis](#orgcfe106e)
+  - [Industry-Based Analysis](#org563b516)
+    - [Distribution of Companies across Different Industries](#org0bc21ed)
+    - [Distribution of Valuation across Different Industries](#orgee7e637)
+    - [Distribution of Equity Funding across Different Industries](#org53c297c)
+  - [Geographical Analysis](#orge872426)
+    - [Top Countries by Valuation](#org060bb1e)
+    - [Top Countries across Different Industries](#org3521842)
+    - [Mean Distribution of Valuations across Different Countries](#org10d8c42)
+    - [Mean Distribution of Equity Funding across Different Countries](#org9b0e2b2)
+  - [Sector-Based Analysis](#orgde57673)
+    - [Top Sectors](#org853c5a5)
+  - [Company-Based Analysis](#org7d4540f)
+    - [Top Companies by Valuation](#org951a8c4)
+      - [Top Companies accross Different Industries](#org1cff62c)
+      - [Top Companies accross Different Countries](#orgb140d8d)
+      - [Top Companies accross Different Sectors](#orge7a1c7e)
+    - [Most-Funded Companies](#org032b6b4)
+    - [Distribution of Valuation by Companies](#org8d217a2)
+    - [Distribution of Equity Funding by Companies](#org303f05a)
+  - [Investor Analysis](#orge2b33de)
+    - [Top Investors](#org38fb5ca)
+  - [Founder Analysis](#orge4af01f)
+    - [Top Founders](#orgf53e486)
+- [Time-Based Analysis](#org89463a8)
+  - [Unicorn Growth Over Time](#org040f264)
+  - [Time to Unicorn](#orgefef723)
+  - [Valuations by Year Founded](#org534928c)
+  - [Valuation vs Total Raised over Years](#orgb39e3ef)
+  - [Distribution of Valuations Over Time](#org6ead89a)
+  - [Distribution of Funding Over Time](#org7bbd3a6)
+- [Correlation Analysis](#org74c6210)
+  - [Relationship between Funding and Valuation](#orgfa3bf9f)
+  - [Relationship between Time to Unicorn and Valuation](#org4394cd0)
+- [Historical Analysis](#org31ccc40)
+  - [Survival and Acquisition](#org2ec5646)
+    - [Top Exited Unicorns as of March 2022](#orge472a14)
+    - [Exit Reasons of Former Unicorns](#org893dec5)
+- [Funded by Y-Combinator](#orgf10f99f)
+  - [How many YC companies are in unicorn status currently?](#org9851f6d)
+  - [Top Companies by Valuation](#org0fc0ede)
+  - [YC Batch Distribution](#org0a7f111)
+  - [Top Countires](#org7e88f01)
+  - [Top Categories](#orgb89d9e4)
+    - [Team Size Distribution across Different Categories](#orgb0a0a23)
+- [Predictive Analysis](#org92de5b2)
+- [References](#orgb9f1c1c)
 
 
 
-<a id="orga06334d"></a>
+<a id="orga36d4b0"></a>
 
 # Setup
 
 
-<a id="orgfd26c39"></a>
+<a id="orgf376914"></a>
 
 ## Import Packages
 
@@ -78,7 +80,7 @@ import plotly.io as pio
 ```
 
 
-<a id="org7532c7e"></a>
+<a id="org3e5e7f6"></a>
 
 ## Global Settings
 
@@ -89,12 +91,12 @@ pio.renderers.default = "browser"
 ```
 
 
-<a id="org8f1f586"></a>
+<a id="orgd294cb9"></a>
 
 # Data Processing
 
 
-<a id="org7ab794e"></a>
+<a id="org8b80923"></a>
 
 ## Load Data
 
@@ -104,7 +106,7 @@ df_wiki = pd.read_csv('input/raw_data/list-of-unicorn-startups_20250619 (wikiped
 ```
 
 
-<a id="org77a7316"></a>
+<a id="org672bf87"></a>
 
 ## Data Cleaning
 
@@ -133,12 +135,12 @@ df = df[~df.duplicated(['Company'])]
 ```
 
 
-<a id="org6b3b99a"></a>
+<a id="orgbb38297"></a>
 
 ## Data Preparation
 
 
-<a id="orgea7600e"></a>
+<a id="orgdba550d"></a>
 
 ### Column Types
 
@@ -150,10 +152,11 @@ df['Unicorn Year'] = df['Unicorn Date'].dt.year
 df['Funding ($B)'] = df['Total Equity Funding ($)'] / 1e9
 df['Funding ($M)'] = df['Total Equity Funding ($)'] / 1e6
 df['Investors'] = df['Select Investors'].str.split(', ')
+df['Year Founded'] = df['Date Founded']
 ```
 
 
-<a id="org6f1a0fe"></a>
+<a id="org87d0c70"></a>
 
 ### Time to Unicorn
 
@@ -176,7 +179,7 @@ df['Years to Unicorn'] = df['Months to Unicorn'] / 12
 ```
 
 
-<a id="orgeb9bfdd"></a>
+<a id="org5021caa"></a>
 
 ### Merge datasets
 
@@ -205,7 +208,7 @@ df['Years to Unicorn'] = df['Months to Unicorn'] / 12
     ```
 
 
-<a id="org8ebd2bd"></a>
+<a id="org79eb329"></a>
 
 ## Preview
 
@@ -244,17 +247,17 @@ memory usage: 180.7+ KB
 ```
 
 
-<a id="orga10368c"></a>
+<a id="orgcfe106e"></a>
 
 # Exploratory Data Analysis
 
 
-<a id="org6a764de"></a>
+<a id="org563b516"></a>
 
 ## Industry-Based Analysis
 
 
-<a id="orgdf17442"></a>
+<a id="org0bc21ed"></a>
 
 ### Distribution of Companies across Different Industries
 
@@ -286,7 +289,7 @@ plt.show()
 ![img](./.ob-jupyter/aeff573e2c31365d9b14faf86786f0d255eaa1cf.png)
 
 
-<a id="org325ee0b"></a>
+<a id="orgee7e637"></a>
 
 ### Distribution of Valuation across Different Industries
 
@@ -320,7 +323,7 @@ plt.show()
 ![img](./.ob-jupyter/98af1228c0cc17925995166f2ad13b3e8eb17fd4.png)
 
 
-<a id="org2773639"></a>
+<a id="org53c297c"></a>
 
 ### Distribution of Equity Funding across Different Industries
 
@@ -353,25 +356,30 @@ plt.show()
 ![img](./.ob-jupyter/215e6c23cbc5b3bf332aa16d0f2fb53af47c666f.png)
 
 
-<a id="org709a95a"></a>
+<a id="orge872426"></a>
 
 ## Geographical Analysis
 
 ```jupyter-python
-df_worldcities = pd.read_csv('./input/datasets/worldcities.csv')
+df_worldcities = pd.read_csv('input/datasets/worldcities.csv')
 df_worldcities = df_worldcities.drop_duplicates('city_ascii')
-df_geo = df.merge(df_worldcities[['city_ascii', 'lat', 'lng']], left_on='City', right_on='city_ascii', how='inner')
+df_geo = df.merge(df_worldcities[['city_ascii', 'country', 'lat', 'lng']], left_on=['City', 'Country'], right_on=['city_ascii', 'country'], how='inner')
+def grp_agg(grp):
+      return pd.Series({'cnt': grp['Company'].size,
+                        'valuation': grp['Latest Valuation ($B)'].sum(),
+                        'companies': grp.sort_values('Latest Valuation ($B)', ascending=False).agg(lambda x: f"{x['Company']};{x['Latest Valuation ($B)']}", axis=1)
+                        })
 _df = df_geo.groupby(['Country', 'City', 'lat', 'lng'])\
-            .agg(valuation=('Latest Valuation ($B)', 'sum'),
-                 cnt=('Company', 'count'))\
+            .apply(grp_agg, include_groups=False)\
             .sort_values('valuation', ascending=False)\
             .reset_index()
-fig = px.scatter_geo(_df, lat='lat', lon='lng', hover_name='City', size='valuation', color='Country')
+fig = px.scatter_map(_df, lat='lat', lon='lng', hover_name='City', custom_data=['City', 'Country', 'cnt', 'valuation', 'companies'], color='Country', zoom=1, size=_df['valuation'].clip(0, 100), height=600)
+fig.update_traces(hovertemplate="<b>%{customdata[0]}, %{customdata[1]}</b><br>Valuation: %{customdata[3]:$,.2f}B<br>Companies: %{customdata[2]}<extra></extra>", showlegend=False)
 fig.show()
 ```
 
 
-<a id="org9a6c357"></a>
+<a id="org060bb1e"></a>
 
 ### Top Countries by Valuation
 
@@ -401,7 +409,7 @@ plt.show()
 ![img](./.ob-jupyter/5728821c163ecf170189f8e29f22ba792d629424.png)
 
 
-<a id="orgbc78a5e"></a>
+<a id="org3521842"></a>
 
 ### Top Countries across Different Industries
 
@@ -435,7 +443,7 @@ plt.show()
 ![img](./.ob-jupyter/33900e6d5fea2d6aa2730af6c08c1029c0b26b20.png)
 
 
-<a id="orgc71439f"></a>
+<a id="org10d8c42"></a>
 
 ### Mean Distribution of Valuations across Different Countries
 
@@ -468,7 +476,7 @@ plt.show()
 ![img](./.ob-jupyter/8191e29d90b7253a853630fc7935bf3868045f13.png)
 
 
-<a id="org1888bcd"></a>
+<a id="org9b0e2b2"></a>
 
 ### Mean Distribution of Equity Funding across Different Countries
 
@@ -497,12 +505,12 @@ plt.show()
 ![img](./.ob-jupyter/1fae544818601e487320f474cee01e7e7688ed42.png)
 
 
-<a id="org9d3f937"></a>
+<a id="orgde57673"></a>
 
 ## Sector-Based Analysis
 
 
-<a id="org328e853"></a>
+<a id="org853c5a5"></a>
 
 ### Top Sectors
 
@@ -561,12 +569,12 @@ plt.show()
 ![img](./.ob-jupyter/8c900de15d8f038ec9cee86aad5d7978e4f44f15.png)
 
 
-<a id="orgc03380b"></a>
+<a id="org7d4540f"></a>
 
 ## Company-Based Analysis
 
 
-<a id="org7d27c06"></a>
+<a id="org951a8c4"></a>
 
 ### Top Companies by Valuation
 
@@ -603,7 +611,7 @@ plt.show()
 ![img](./.ob-jupyter/e5280d601c8b3020651869b90202313e8f489129.png)
 
 
-<a id="orgb13ce25"></a>
+<a id="org1cff62c"></a>
 
 #### Top Companies accross Different Industries
 
@@ -626,8 +634,13 @@ _df
 
 \newpage
 
+```jupyter-python
+fig = px.treemap(df[df['Unicorn Type'].isin(['Decacorn', 'Centicorn'])], path=[px.Constant('All'), 'Industry', 'Company'], values='Latest Valuation ($B)', hover_data=['Company', 'Latest Valuation ($B)'])
+fig.show()
+```
 
-<a id="org312a918"></a>
+
+<a id="orgb140d8d"></a>
 
 #### Top Companies accross Different Countries
 
@@ -677,8 +690,13 @@ _df
 
 \newpage
 
+```jupyter-python
+fig = px.treemap(df[df['Unicorn Type'].isin(['Decacorn', 'Centicorn'])], path=[px.Constant('All'), 'Country', 'Company'], values='Latest Valuation ($B)', hover_data=['Company', 'Latest Valuation ($B)'])
+fig.show()
+```
 
-<a id="orgf3a2440"></a>
+
+<a id="orge7a1c7e"></a>
 
 #### Top Companies accross Different Sectors
 
@@ -735,8 +753,15 @@ _df
 
 \newpage
 
+```jupyter-python
+_df = df.explode('Sector').dropna()
+_df = _df[_df['Unicorn Type'].isin(['Decacorn', 'Centicorn'])]
+fig = px.treemap(_df, path=[px.Constant('All'), 'Sector', 'Company'], values='Latest Valuation ($B)', hover_data=['Company', 'Latest Valuation ($B)'])
+fig.show()
+```
 
-<a id="orgff4b0c0"></a>
+
+<a id="org032b6b4"></a>
 
 ### Most-Funded Companies
 
@@ -758,7 +783,7 @@ plt.show()
 ![img](./.ob-jupyter/fb1eb3db2c42a7fcca21bbc7173378d3b82bc0f4.png)
 
 
-<a id="orgdecb55c"></a>
+<a id="org8d217a2"></a>
 
 ### Distribution of Valuation by Companies
 
@@ -790,7 +815,7 @@ plt.show()
 ![img](./.ob-jupyter/1290126453c588847cb683dc7a0cabf12fd92aab.png)
 
 
-<a id="org782ada3"></a>
+<a id="org303f05a"></a>
 
 ### Distribution of Equity Funding by Companies
 
@@ -817,12 +842,12 @@ plt.show()
 ![img](./.ob-jupyter/f643140475b4bbeeefc344c7cf3697c9a67c4370.png)
 
 
-<a id="orga0f16e0"></a>
+<a id="orge2b33de"></a>
 
 ## Investor Analysis
 
 
-<a id="org2d545cc"></a>
+<a id="org38fb5ca"></a>
 
 ### Top Investors
 
@@ -886,12 +911,12 @@ plt.show()
 ![img](./.ob-jupyter/f89c5a521e8529dfdc04ce55847db068fb4a9999.png)
 
 
-<a id="org9506276"></a>
+<a id="orge4af01f"></a>
 
 ## Founder Analysis
 
 
-<a id="org817479b"></a>
+<a id="orgf53e486"></a>
 
 ### Top Founders
 
@@ -950,12 +975,12 @@ plt.show()
 ![img](./.ob-jupyter/d394407d691197ca3955f2140e342d12a383dad2.png)
 
 
-<a id="orgc7045d0"></a>
+<a id="org89463a8"></a>
 
 # Time-Based Analysis
 
 
-<a id="org22fabe8"></a>
+<a id="org040f264"></a>
 
 ## Unicorn Growth Over Time
 
@@ -997,7 +1022,7 @@ plt.show()
 ![img](./.ob-jupyter/d0d12df1781da2dd3b73538a92eaf3d9976e74ee.png)
 
 
-<a id="org9e43060"></a>
+<a id="orgefef723"></a>
 
 ## Time to Unicorn
 
@@ -1019,7 +1044,30 @@ plt.show()
 ![img](./.ob-jupyter/3c56a433ece1ec2cf4e83e3ba320a0aee5c2ee70.png)
 
 
-<a id="org5f79e77"></a>
+<a id="org534928c"></a>
+
+## Valuations by Year Founded
+
+```jupyter-python
+fig = px.scatter(df[df['Year Founded'] > 2000], x='Year Founded', y='Latest Valuation ($B)', hover_data=['Company'], color='Country')
+fig.show()
+```
+
+
+<a id="orgb39e3ef"></a>
+
+## Valuation vs Total Raised over Years
+
+```jupyter-python
+_df = df.sort_values('Unicorn Year', ascending=True)
+fig = px.scatter(_df, x='Funding ($M)', y='Latest Valuation ($B)', hover_data='Company', animation_frame='Unicorn Year', trendline='ols', trendline_color_override='red')
+fig.update_layout(xaxis_range=(0, _df['Funding ($M)'].max()),
+                  yaxis_range=(0, _df['Latest Valuation ($B)'].max()))
+fig.show()
+```
+
+
+<a id="org6ead89a"></a>
 
 ## Distribution of Valuations Over Time
 
@@ -1037,7 +1085,7 @@ plt.show()
 ![img](./.ob-jupyter/3952b0ffe7cc6297ac4c314ed80d5b934e4dd585.png)
 
 
-<a id="org90d413d"></a>
+<a id="org7bbd3a6"></a>
 
 ## Distribution of Funding Over Time
 
@@ -1055,12 +1103,12 @@ plt.show()
 ![img](./.ob-jupyter/a358841530629a3897fd535343447d3cbaf3a4bb.png)
 
 
-<a id="org2438795"></a>
+<a id="org74c6210"></a>
 
 # Correlation Analysis
 
 
-<a id="org5c96672"></a>
+<a id="orgfa3bf9f"></a>
 
 ## Relationship between Funding and Valuation
 
@@ -1090,7 +1138,7 @@ plt.show()
 ![img](./.ob-jupyter/192589265a76e100ac55302b2ccbbe97c9b59c3c.png)
 
 
-<a id="orgf88eb2e"></a>
+<a id="org4394cd0"></a>
 
 ## Relationship between Time to Unicorn and Valuation
 
@@ -1114,12 +1162,12 @@ plt.show()
 ![img](./.ob-jupyter/ab345d53297c74faf9b4e92ff3afa494318d36dc.png)
 
 
-<a id="org638b275"></a>
+<a id="org31ccc40"></a>
 
 # Historical Analysis
 
 
-<a id="org4a0f9bd"></a>
+<a id="org2ec5646"></a>
 
 ## Survival and Acquisition
 
@@ -1174,7 +1222,7 @@ plt.show()
     ```
 
 
-<a id="org4f42335"></a>
+<a id="orge472a14"></a>
 
 ### Top Exited Unicorns as of March 2022
 
@@ -1227,7 +1275,7 @@ plt.show()
     -   Investors may consider industry trends and market demands when evaluating future investments in unicorns.
 
 
-<a id="org150b7ae"></a>
+<a id="org893dec5"></a>
 
 ### Exit Reasons of Former Unicorns
 
@@ -1274,7 +1322,7 @@ plt.show()
 The chart illustrates that most unicorns have successful exit strategies, predominantly through IPOs and acquisitions. The relatively low numbers for defunct, devalued, and bankrupt companies indicate that, despite challenges, the unicorn landscape has robust potential for growth and successful exits. This information is valuable for investors assessing the viability and longevity of unicorn businesses.
 
 
-<a id="org53bc593"></a>
+<a id="orgf10f99f"></a>
 
 # Funded by Y-Combinator
 
@@ -1379,7 +1427,7 @@ Y Combinator, founded in 2005 by Paul Graham and others, is a prestigious startu
         ```
 
 
-<a id="orgb8848e7"></a>
+<a id="org9851f6d"></a>
 
 ## How many YC companies are in unicorn status currently?
 
@@ -1434,7 +1482,7 @@ None
 ```
 
 
-<a id="org545bcd8"></a>
+<a id="org0fc0ede"></a>
 
 ## Top Companies by Valuation
 
@@ -1478,7 +1526,7 @@ The chart illustrates the valuation landscape of top Y Combinator unicorns, with
     The diversity among the top unicorns, covering industries from fintech to logistics and AI, suggests that venture capitalists are actively investing across various sectors. This diversification can mitigate risks associated with market fluctuations.
 
 
-<a id="org2a2b109"></a>
+<a id="org0a7f111"></a>
 
 ## YC Batch Distribution
 
@@ -1531,7 +1579,7 @@ plt.show()
 ![img](./.ob-jupyter/a957bd5ab9ebd91a8ccf5e33d105928e81227ae0.png)
 
 
-<a id="org1e0a414"></a>
+<a id="org7e88f01"></a>
 
 ## Top Countires
 
@@ -1543,7 +1591,7 @@ top_countries
     Index(['United States', 'India', 'United Kingdom', 'Canada', 'Mexico', 'Indonesia', 'Colombia', 'Australia', 'Senegal', 'Estonia', 'Spain'], dtype='object', name='Country')
 
 
-<a id="org2c1ee5c"></a>
+<a id="orgb89d9e4"></a>
 
 ## Top Categories
 
@@ -1625,7 +1673,7 @@ plt.show()
 The chart illustrates a diverse startup ecosystem with a strong emphasis on SaaS and fintech. The presence of emerging technologies like AI and machine learning indicates significant innovation potential. Investors may consider these categories for future opportunities, as they highlight areas of growth and market demand.
 
 
-<a id="org007df13"></a>
+<a id="orgb0a0a23"></a>
 
 ### Team Size Distribution across Different Categories
 
@@ -1678,7 +1726,7 @@ plt.show()
 The chart highlights the relationship between team size and industry category, showing that larger companies are prevalent in established sectors like fintech and SaaS. In contrast, emerging categories may still have room for growth. This information can guide investors and stakeholders in identifying companies with potential for future expansion and innovation.
 
 
-<a id="orgf74c626"></a>
+<a id="org92de5b2"></a>
 
 # Predictive Analysis
 
@@ -1686,7 +1734,7 @@ The chart highlights the relationship between team size and industry category, s
 -   **Time to Unicorn**: Model the factors influencing the time taken to reach unicorn status.
 
 
-<a id="orgfddb3d7"></a>
+<a id="orgb9f1c1c"></a>
 
 # References
 

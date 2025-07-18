@@ -149,6 +149,7 @@ df['Unicorn Year'] = df['Unicorn Date'].dt.year
 df['Funding ($B)'] = df['Total Equity Funding ($)'] / 1e9
 df['Funding ($M)'] = df['Total Equity Funding ($)'] / 1e6
 df['Investors'] = df['Select Investors'].str.split(', ')
+df['Year Founded'] = df['Date Founded']
 #+end_src
 
 #+RESULTS:
@@ -336,19 +337,25 @@ df['Years to Unicorn'] = df['Months to Unicorn'] / 12
 ** Geographical Analysis
 
   #+begin_src jupyter-python
-  df_worldcities = pd.read_csv('./input/datasets/worldcities.csv')
+  df_worldcities = pd.read_csv('input/datasets/worldcities.csv')
   df_worldcities = df_worldcities.drop_duplicates('city_ascii')
-  df_geo = df.merge(df_worldcities[['city_ascii', 'lat', 'lng']], left_on='City', right_on='city_ascii', how='inner')
+  df_geo = df.merge(df_worldcities[['city_ascii', 'country', 'lat', 'lng']], left_on=['City', 'Country'], right_on=['city_ascii', 'country'], how='inner')
+  def grp_agg(grp):
+        return pd.Series({'cnt': grp['Company'].size,
+                          'valuation': grp['Latest Valuation ($B)'].sum(),
+                          'companies': grp.sort_values('Latest Valuation ($B)', ascending=False).agg(lambda x: f"{x['Company']};{x['Latest Valuation ($B)']}", axis=1)
+                          })
   _df = df_geo.groupby(['Country', 'City', 'lat', 'lng'])\
-              .agg(valuation=('Latest Valuation ($B)', 'sum'),
-                   cnt=('Company', 'count'))\
+              .apply(grp_agg, include_groups=False)\
               .sort_values('valuation', ascending=False)\
               .reset_index()
-  fig = px.scatter_geo(_df, lat='lat', lon='lng', hover_name='City', size='valuation', color='Country')
+  fig = px.scatter_map(_df, lat='lat', lon='lng', hover_name='City', custom_data=['City', 'Country', 'cnt', 'valuation', 'companies'], color='Country', zoom=1, size=_df['valuation'].clip(0, 100), height=600)
+  fig.update_traces(hovertemplate="<b>%{customdata[0]}, %{customdata[1]}</b><br>Valuation: %{customdata[3]:$,.2f}B<br>Companies: %{customdata[2]}<extra></extra>", showlegend=False)
   fig.show()
   #+end_src
 
   #+RESULTS:
+
 
   #+begin_src jupyter-python :exports none
   top_countries = df.groupby('Country')['Latest Valuation ($B)'].sum().sort_values(ascending=False).head(30)
@@ -574,6 +581,7 @@ df['Years to Unicorn'] = df['Months to Unicorn'] / 12
   [[file:./.ob-jupyter/e5280d601c8b3020651869b90202313e8f489129.png]]
 
 **** Top Companies accross Different Industries
+
   #+begin_src jupyter-python
   _df = df.groupby('Industry')[['Company', 'Latest Valuation ($B)']].apply(lambda grp: grp.nlargest(3, 'Latest Valuation ($B)'))[['Company', 'Latest Valuation ($B)']]
   _df.index = _df.index.droplevel(1)
@@ -591,8 +599,18 @@ df['Years to Unicorn'] = df['Months to Unicorn'] / 12
   | 4 | Industrials                | OpenAI, Databricks, Discord                 |
   | 5 | Insurance                  | Revolut, Gusto, Ramp                        |
   | 6 | Media & Entertainment      | Nature's Fynd, Xingsheng Selected, Talkdesk |
+
 \newpage
+
+  #+begin_src jupyter-python
+  fig = px.treemap(df[df['Unicorn Type'].isin(['Decacorn', 'Centicorn'])], path=[px.Constant('All'), 'Industry', 'Company'], values='Latest Valuation ($B)', hover_data=['Company', 'Latest Valuation ($B)'])
+  fig.show()
+  #+end_src
+
+  #+RESULTS:
+
 **** Top Companies accross Different Countries
+
   #+begin_src jupyter-python
   _df = df[df['Country'].isin(top_countries.index)]\
       .groupby('Country')[['Company', 'Latest Valuation ($B)']]\
@@ -639,6 +657,13 @@ df['Years to Unicorn'] = df['Months to Unicorn'] / 12
   | 29 | Vietnam              | Sky Mavis, MoMo                                           |
 
   \newpage
+
+  #+begin_src jupyter-python
+  fig = px.treemap(df[df['Unicorn Type'].isin(['Decacorn', 'Centicorn'])], path=[px.Constant('All'), 'Country', 'Company'], values='Latest Valuation ($B)', hover_data=['Company', 'Latest Valuation ($B)'])
+  fig.show()
+  #+end_src
+
+  #+RESULTS:
 **** Top Companies accross Different Sectors
 
   #+begin_src jupyter-python
@@ -692,7 +717,18 @@ df['Years to Unicorn'] = df['Months to Unicorn'] / 12
   | 27 | Transportation          | Bolt, Rappi, Hello TransTech       |
   | 28 | Video Games             | Epic Games, Niantic, Sky Mavis     |
   | 29 | Workforce Management    | Rippling, Papaya Global, Workrise  |
+
 \newpage
+
+  #+begin_src jupyter-python
+  _df = df.explode('Sector').dropna()
+  _df = _df[_df['Unicorn Type'].isin(['Decacorn', 'Centicorn'])]
+  fig = px.treemap(_df, path=[px.Constant('All'), 'Sector', 'Company'], values='Latest Valuation ($B)', hover_data=['Company', 'Latest Valuation ($B)'])
+  fig.show()
+  #+end_src
+
+  #+RESULTS:
+
 *** Most-Funded Companies
 
   #+begin_src jupyter-python
@@ -1057,6 +1093,27 @@ Unicorns with over $10 billion in valuation have been designated as "decacorn" c
 
   #+RESULTS:
   [[file:./.ob-jupyter/3c56a433ece1ec2cf4e83e3ba320a0aee5c2ee70.png]]
+
+** Valuations by Year Founded
+
+  #+begin_src jupyter-python
+  fig = px.scatter(df[df['Year Founded'] > 2000], x='Year Founded', y='Latest Valuation ($B)', hover_data=['Company'], color='Country')
+  fig.show()
+  #+end_src
+
+  #+RESULTS:
+
+** Valuation vs Total Raised over Years
+
+  #+begin_src jupyter-python
+  _df = df.sort_values('Unicorn Year', ascending=True)
+  fig = px.scatter(_df, x='Funding ($M)', y='Latest Valuation ($B)', hover_data='Company', animation_frame='Unicorn Year', trendline='ols', trendline_color_override='red')
+  fig.update_layout(xaxis_range=(0, _df['Funding ($M)'].max()),
+                    yaxis_range=(0, _df['Latest Valuation ($B)'].max()))
+  fig.show()
+  #+end_src
+
+  #+RESULTS:
 
 ** Distribution of Valuations Over Time
 
