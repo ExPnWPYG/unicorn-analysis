@@ -1,5 +1,5 @@
 #+TITLE: Data Analysis on Unicorn Companies
-#+SUBTITLE: PE084DS(11) - Certificate in Junior Python Data Analyst
+#+SUBTITLE: PE084DS-11 - Certificate in Junior Python Data Analyst
 #+AUTHOR: Pang Hoi Him (13), Leung Chi Wa (21)
 #+OPTIONS: timestamp:nil num:nil reveal_embed_local_resources:t date:nil toc:nil \n:t reveal_width:1200 reveal_height:720 reveal_pdfseparatefragments:nil
 #+PROPERTY: header-args:jupyter-python :session p :eval no-export :exports results
@@ -243,8 +243,6 @@ In business, a unicorn is a *privately held* startup company valued at over *US$
 #   - Visualizations using pandas, matplotlib, seaborn
 # - *Goal:* Uncover insights into the unicorn ecosystem
 #+REVEAL_HTML: <h4>Objectives</h4>
-- *Data Exploration and Cleaning:* Import and preprocess the unicorn dataset, addressing missing values and ensuring data quality.
-- *Visualization Development:* Create various graphs (bar plots, histograms, etc.) to illustrate unicorn distributions by industry, country, valuation trends, and funding patterns.
 - *Insight Generation:* Identify key trends in industries, geographic hubs, and correlations between funding and valuation.
 - *Presentation of Findings:* Produce professional visualizations for reports and presentations, making complex data accessible to diverse audiences.
 #+END_leftcol50
